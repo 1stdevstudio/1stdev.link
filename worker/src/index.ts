@@ -98,6 +98,9 @@ const apiAuthMiddleware = async (c: any, next: any) => {
 // Health Check
 app.get('/health', (c) => c.json({ status: 'ok', service: 'edgelink-worker' }));
 
+// Root - Redirect to Dashboard
+app.get('/', (c) => c.redirect('https://edgelink-afl.pages.dev', 302));
+
 // SSR Bio-Profile Handler (GET /@:handle)
 app.get('/@:handle', async (c) => {
   const handle = (c.req.param('handle') || '').trim().toLowerCase();
@@ -218,6 +221,15 @@ app.get('/:slug', async (c) => {
       .first()) as { id: string; destination_url: string; ios_url?: string; android_url?: string; is_active: number } | null;
 
     if (!row || row.is_active !== 1) {
+      // Fallback: Check if slug is actually a bio handle (allows link.1stnear.com/yogi without @)
+      const bioProfile = (await db
+        .prepare('SELECT handle FROM bio_profiles WHERE handle = ?')
+        .bind(slug)
+        .first()) as { handle: string } | null;
+      if (bioProfile?.handle) {
+        return c.redirect(`/@${bioProfile.handle}`, 302);
+      }
+
       // Cache 404 for 60s in KV to block DB scan attacks
       if (c.env.KV) {
         safeWaitUntil(c, c.env.KV.put(`slug:nf:${slug}`, '1', { expirationTtl: 60 }));
