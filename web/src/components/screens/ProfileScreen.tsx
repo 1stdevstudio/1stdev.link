@@ -9,6 +9,9 @@ import {
   Link2,
   MessageCircle,
   Type,
+  AlignLeft,
+  Minus,
+  PlayCircle,
   Plus,
   ArrowUp,
   ArrowDown,
@@ -220,6 +223,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                     <Star size={18} strokeWidth={1.75} className="text-[var(--ac)]" />
                   ) : link.block_type === 'whatsapp' ? (
                     <MessageCircle size={18} strokeWidth={1.75} className="text-[var(--ok)]" />
+                  ) : link.block_type === 'text' ? (
+                    <AlignLeft size={18} strokeWidth={1.75} className="text-[var(--tx2)]" />
+                  ) : link.block_type === 'divider' ? (
+                    <Minus size={18} strokeWidth={1.75} className="text-[var(--tx2)]" />
+                  ) : link.block_type === 'video' ? (
+                    <PlayCircle size={18} strokeWidth={1.75} className="text-[var(--tx2)]" />
                   ) : link.block_type === 'header' ? (
                     <Type size={18} strokeWidth={1.75} className="text-[var(--tx2)]" />
                   ) : (
@@ -235,6 +244,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   <p className="small muted truncate">
                     {link.block_type === 'header'
                       ? 'Judul Kategori'
+                      : link.block_type === 'text'
+                      ? 'Teks'
+                      : link.block_type === 'divider'
+                      ? 'Garis pemisah'
                       : link.block_type === 'whatsapp'
                       ? 'Chat Langsung'
                       : link.destination_url}

@@ -150,6 +150,18 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
                 );
               }
 
+              if (block.block_type === 'divider') {
+                return <hr key={block.id} className="border-0 h-px my-1 opacity-20" style={{ background: 'currentColor' }} />;
+              }
+
+              if (block.block_type === 'text') {
+                return (
+                  <p key={block.id} className="text-[12px] text-center opacity-80 whitespace-pre-line px-1">
+                    {block.title}
+                  </p>
+                );
+              }
+
               if (block.block_type === 'whatsapp') {
                 return (
                   <div
