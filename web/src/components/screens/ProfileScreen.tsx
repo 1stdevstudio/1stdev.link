@@ -146,6 +146,26 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Tab builder */}
+      <div className="studio-tabs" role="tablist" aria-label={tx('Bagian editor', 'Editor sections')}>
+        {tabs.map(({ id, label, icon: Icon, count, mobileOnly }) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            id={`tab-${id}`}
+            aria-selected={tab === id}
+            aria-controls={`panel-${id}`}
+            className={mobileOnly ? 'tab-mobile' : ''}
+            onClick={() => setTab(id)}
+          >
+            <Icon size={16} strokeWidth={1.9} />
+            <span>{label}</span>
+            {count !== undefined && <b>{count}</b>}
+          </button>
+        ))}
+      </div>
+
       {/* Studio hero: identitas + aksi utama */}
       <section className="studio-hero">
         <div className="flex items-center gap-4 min-w-0">
@@ -212,26 +232,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </button>
         )}
       </section>
-
-      {/* Tab builder */}
-      <div className="studio-tabs" role="tablist" aria-label={tx('Bagian editor', 'Editor sections')}>
-        {tabs.map(({ id, label, icon: Icon, count, mobileOnly }) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            id={`tab-${id}`}
-            aria-selected={tab === id}
-            aria-controls={`panel-${id}`}
-            className={mobileOnly ? 'tab-mobile' : ''}
-            onClick={() => setTab(id)}
-          >
-            <Icon size={16} strokeWidth={1.9} />
-            <span>{label}</span>
-            {count !== undefined && <b>{count}</b>}
-          </button>
-        ))}
-      </div>
 
       {tab === 'content' && (
         <section id="panel-content" role="tabpanel" aria-labelledby="tab-content" className="flex flex-col gap-2">

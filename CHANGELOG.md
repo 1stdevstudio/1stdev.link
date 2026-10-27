@@ -18,6 +18,7 @@ Tata letak baru untuk editor profil (profile builder).
 - Pilihan tema tampil sebagai mockup ponsel mini sesuai warna aslinya; nama tema kini dwibahasa (Paper, Forest, Dusk, Ocean, Sand).
 - Pilihan bentuk foto menampilkan bentuk sebenarnya.
 - Tab Tampilan: tombol ubah profil dan bentuk foto kini di atas, tema di bawah.
+- Tab Isi/Tampilan/Pratinjau dipindah ke paling atas, di atas kartu profil.
 
 ### Diperbaiki
 - Geser urutan blok sebelumnya tidak berpengaruh: urutan di editor, pratinjau, dan halaman publik kini sama (berdasarkan `sort_order`), dan hanya blok profil yang dikirim ke server.
