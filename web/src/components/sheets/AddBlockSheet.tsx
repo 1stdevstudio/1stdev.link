@@ -5,6 +5,7 @@ import {
   Camera, Tv, Send, Music2, ShoppingBag, MapPin, AtSign,
 } from 'lucide-react';
 import { BioBlockType } from '../../types';
+import { TEMPLATES, TEMPLATE_CATS, BlockTemplate, TemplateCat } from './blockTemplates';
 
 interface AddBlockSheetProps {
   isOpen: boolean;
@@ -100,6 +101,54 @@ const BLOCKS: BlockDef[] = [
   profile('x', 'X', ic(AtSign), 'https://x.com/', '@namakamu'),
 ];
 
+const waUrl = (num: string, msg?: string) => {
+  let n = num.replace(/[^0-9]/g, '');
+  if (!n) return null;
+  if (n.startsWith('0')) n = `62${n.slice(1)}`;
+  return `https://wa.me/${n}${msg?.trim() ? `?text=${encodeURIComponent(msg.trim())}` : ''}`;
+};
+
+/** Ubah template data menjadi BlockDef + nilai awal form. */
+const fromTemplate = (t: BlockTemplate): { def: BlockDef; defaults: Record<string, string> } => {
+  const title: Field = { key: 't', label: 'Judul tombol', placeholder: t.title };
+  if (t.kind === 'wa') {
+    return {
+      defaults: { t: t.title, msg: t.msg || '' },
+      def: {
+        id: t.id, group: 'basic', name: t.name, desc: 'WhatsApp', icon: ic(MessageCircle, 'text-[var(--ok)]'),
+        fields: [title, { key: 'num', label: 'Nomor WhatsApp', placeholder: 'mis. 08123456789', type: 'tel' }, { key: 'msg', label: 'Pesan awal', placeholder: t.msg || '', optional: true }],
+        build: (v) => {
+          const url = waUrl(v.num, v.msg);
+          return url && v.t.trim() ? { title: v.t.trim(), destination_url: url, block_type: 'whatsapp' } : null;
+        },
+      },
+    };
+  }
+  if (t.kind === 'url') {
+    const type = t.type || 'link';
+    const icon = type === 'featured' ? ic(Star, 'text-[var(--ac)]') : type === 'video' ? ic(PlayCircle) : ic(Link2);
+    return {
+      defaults: { t: t.title, url: '' },
+      def: {
+        id: t.id, group: 'basic', name: t.name, desc: type === 'featured' ? 'Sorotan' : type === 'video' ? 'Video' : 'Link', icon,
+        fields: [title, { key: 'url', label: 'Link tujuan', placeholder: t.hint || 'https://…', type: 'url' }],
+        build: (v) => (v.url.trim() && v.t.trim() ? { title: v.t.trim(), destination_url: https(v.url), block_type: type } : null),
+      },
+    };
+  }
+  const isText = t.kind === 'text';
+  return {
+    defaults: { t: t.title },
+    def: {
+      id: t.id, group: 'content', name: t.name, desc: isText ? 'Teks' : 'Judul bagian', icon: isText ? ic(AlignLeft) : ic(Type),
+      fields: [{ key: 't', label: isText ? 'Isi teks' : 'Nama bagian', placeholder: t.title, multiline: isText }],
+      build: (v) => (v.t.trim() ? { title: v.t.trim().slice(0, 280), destination_url: '#', block_type: t.kind as BioBlockType } : null),
+    },
+  };
+};
+
+const TEMPLATE_DEFS = TEMPLATES.map((t) => ({ cat: t.cat, ...fromTemplate(t) }));
+
 const GROUPS: { id: BlockDef['group']; label: string }[] = [
   { id: 'basic', label: 'Utama' },
   { id: 'content', label: 'Isi & tata letak' },
@@ -110,10 +159,14 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
   const [active, setActive] = useState<BlockDef | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'blocks' | 'templates'>('blocks');
+  const [cat, setCat] = useState<TemplateCat | 'all'>('all');
+  const shownTemplates = TEMPLATE_DEFS.filter((t) => cat === 'all' || t.cat === cat);
 
   const handleClose = () => {
     setActive(null);
     setValues({});
+    setMode('blocks');
     onClose();
   };
 
@@ -144,11 +197,48 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
   return (
     <Sheet isOpen={isOpen} onClose={handleClose} title={active ? `Tambah ${active.name}` : 'Tambah isi'}>
       {!active && (
+        <div className="seg mb-4" role="group" aria-label="Jenis isi">
+          <button type="button" aria-pressed={mode === 'blocks'} onClick={() => setMode('blocks')}>Blok</button>
+          <button type="button" aria-pressed={mode === 'templates'} onClick={() => setMode('templates')}>Template ({TEMPLATES.length})</button>
+        </div>
+      )}
+
+      {!active && mode === 'templates' && (
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-1 px-1">
+            {[{ id: 'all' as const, label: 'Semua' }, ...TEMPLATE_CATS].map((c) => (
+              <button
+                key={c.id} type="button" className={`chip ${cat === c.id ? 'on' : ''}`} aria-pressed={cat === c.id}
+                onClick={() => setCat(c.id)}
+              >
+                {c.label} <span>{c.id === 'all' ? TEMPLATES.length : TEMPLATES.filter((t) => t.cat === c.id).length}</span>
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+            {shownTemplates.map(({ def, defaults }) => (
+              <button
+                key={def.id} type="button" className="menu-item" disabled={loading}
+                onClick={() => { setValues(defaults); setActive(def); }}
+              >
+                <span className="w-10 h-10 rounded-[var(--r2)] bg-[var(--s2)] grid place-items-center shrink-0">{def.icon}</span>
+                <span className="grow text-left min-w-0">
+                  <span className="block text-[15px] font-semibold text-[var(--tx)] truncate">{def.name}</span>
+                  <span className="small muted block truncate">{def.desc} · {defaults.t}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="small muted">Semua template bisa diubah sebelum disimpan. 100% gratis, tanpa batas.</p>
+        </div>
+      )}
+
+      {!active && mode === 'blocks' && (
         <div className="flex flex-col gap-4">
           {GROUPS.map((g) => (
             <section key={g.id} className="flex flex-col gap-1">
               <h3 className="sec-label">{g.label}</h3>
-              <div className="grid gap-1 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {BLOCKS.filter((b) => b.group === g.id).map((b) => (
                   <button key={b.id} type="button" className="menu-item" disabled={loading} onClick={() => pick(b)}>
                     <span className="w-10 h-10 rounded-[var(--r2)] bg-[var(--s2)] grid place-items-center shrink-0">{b.icon}</span>

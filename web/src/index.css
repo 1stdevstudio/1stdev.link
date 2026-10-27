@@ -566,10 +566,10 @@ details.adv .body {
 .kpi b.truncate { font-size: 15px; line-height: 26px; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
-.chip { flex-shrink: 0; min-height: 36px; padding: 0 12px; border-radius: var(--r2); background: var(--s1); color: var(--tx2); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+.chip { flex-shrink: 0; min-height: 44px; padding: 0 12px; border-radius: var(--r2); background: var(--s1); color: var(--tx2); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
 .chip span { color: var(--tx3); font-size: 12px; }
 .chip.on { background: var(--s2); color: var(--tx); }
-.chip-select { flex-shrink: 0; min-height: 36px; padding: 0 10px; border: 0; border-radius: var(--r2); background: var(--s1); color: var(--tx2); font: inherit; font-size: 13px; }
+.chip-select { flex-shrink: 0; min-height: 44px; padding: 0 10px; border: 0; border-radius: var(--r2); background: var(--s1); color: var(--tx2); font: inherit; font-size: 13px; }
 .lcard.dim { opacity: 0.6; }
 .fav { width: 36px; height: 36px; border-radius: var(--r2); background: var(--s2); color: var(--tx); display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
 .fav-lg { width: 48px; height: 48px; font-size: 18px; }
