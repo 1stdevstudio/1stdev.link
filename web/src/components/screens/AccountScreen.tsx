@@ -157,6 +157,15 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
               </div>
               <div className="hint">{s.keyHint}</div>
             </div>
+            <a
+              href="/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[13px] text-[var(--ac)] hover:underline pt-1 font-semibold"
+            >
+              <span>Buka dokumentasi API</span>
+              <ChevronRight size={14} strokeWidth={2} />
+            </a>
           </div>
         </details>
         <Row icon={<ShieldCheck size={18} strokeWidth={1.75} />} title={s.legal} desc={s.legalD} onClick={() => onOpenLegal('terms')} />

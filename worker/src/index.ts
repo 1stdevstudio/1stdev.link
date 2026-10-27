@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import type { Env, User, BioProfile, Link, CachedSlug, CachedBioProfile, OtpRecord } from './types.js';
 import { isReservedSlug, validateDestinationUrl, checkRateLimit, generateSecureOtp, sendOtpEmail } from './security.js';
 import { renderBioPage } from './bio.js';
+import { renderDocsHtml } from './docs.js';
 
 const app = new Hono<{ Bindings: Env; Variables: { user?: User } }>();
 
@@ -109,6 +110,10 @@ const apiAuthMiddleware = async (c: any, next: any) => {
 
 // Health Check
 app.get('/health', (c) => c.json({ status: 'ok', service: 'edgelink-worker' }));
+
+// Developer API Documentation (Live HTML & spec)
+app.get('/docs', (c) => c.html(renderDocsHtml()));
+app.get('/api/docs', (c) => c.html(renderDocsHtml()));
 
 const PAGES_ORIGIN = 'https://edgelink-afl.pages.dev';
 
