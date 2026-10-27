@@ -1,0 +1,19 @@
+name = "edgelink-worker"
+main = "src/index.ts"
+compatibility_date = "2025-02-24"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+BASE_URL = "https://edgelink-worker.spixdev.workers.dev"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "edgelink-db"
+database_id = "b4e3365e-f879-4dcb-bf54-308abcaab3ff"
+
+# KV Namespace Binding
+[[kv_namespaces]]
+binding = "KV"
+id = "3592113e2791453081cb2d9b32a85ffa"

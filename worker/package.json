@@ -1,0 +1,23 @@
+{
+  "name": "edgelink-worker",
+  "version": "1.0.0",
+  "description": "EdgeLink Cloudflare Worker Backend",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --import tsx/esm --test test/index.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.7.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250224.0",
+    "@types/node": "^20.17.19",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.109.2",
+    "tsx": "^4.19.3"
+  }
+}
