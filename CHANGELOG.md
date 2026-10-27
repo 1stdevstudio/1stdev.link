@@ -1,0 +1,72 @@
+# Changelog
+
+Semua perubahan penting pada EdgeLink by 1stnear.com dicatat di sini.
+Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi mengikuti [SemVer](https://semver.org/lang/id/).
+
+- Live: https://link.1stnear.com
+- Pages: https://edgelink-afl.pages.dev
+- Desain: https://edgelink-design.pages.dev
+
+## [0.4.0] - 2026-10-27
+
+Identitas 1stnear.com dan edit blok tanpa hapus-pasang.
+
+### Ditambahkan
+- Edit blok bio langsung di tempat: judul, link tujuan, gaya tombol (Biasa/Sorotan/Video), nomor dan pesan WhatsApp. Hapus butuh dua ketukan. (`3184396`)
+- `PATCH /api/links/:id` menerima `title`, `destination_url`, `block_type` dalam satu UPDATE atomik dengan isolasi tenant, validasi SSRF (422) dan sinkronisasi KV slug serta cache bio. (`3184396`)
+- Kode OTP login kini terkirim ke inbox email lewat Resend. (`e88a91f`)
+- Tema bio baru "1stNear" dan menjadi tema bawaan untuk akun tamu maupun email. (`fc52bd4`)
+
+### Diubah
+- Nama produk jadi "EdgeLink by 1stnear.com" di seluruh UI, judul halaman, meta, dan footer bio. Penyebutan vendor dihapus dari UI. (`5b53be1`)
+- Palet disamakan dengan 1stnear.com: latar hijau hutan `#0e1f1b`, aksen emas `#e9be54`, teks di atas emas `#182822`. Favicon, `theme-color`, dan warna seleksi ikut emas. Semua kontras lolos WCAG AA. (`fc52bd4`)
+- Tema lama atau tak dikenal (mis. `minimal-dark`) otomatis jatuh ke tema 1stNear. (`fc52bd4`)
+- Teks bio bawaan akun tamu baru: "Semua link saya ada di sini." (`fc52bd4`)
+
+### Diperbaiki
+- Error CSP di konsol: skrip analytics yang disisipkan otomatis di level zona kini dicegah lewat `Cache-Control: no-transform` pada semua respons HTML. Tanpa melonggarkan CSP. (`502279b`)
+
+### Catatan
+- Profil tamu lama masih menyimpan teks bio lama. Pengguna bisa mengubahnya sendiri; migrasi data belum dijalankan.
+
+## [0.3.0] - 2026-10-27
+
+Domain sendiri dan sinkronisasi halaman publik.
+
+### Ditambahkan
+- Domain kustom `link.1stnear.com` terpasang ke worker; `BASE_URL` diperbarui. (`83aeadd`)
+- Dashboard SPA dan asetnya disajikan langsung dari `link.1stnear.com` tanpa redirect. (`078f348`, `0224b31`)
+
+### Diperbaiki
+- Root mengarah ke dashboard; slug yang tidak ada jatuh ke handle bio. (`55c7ac1`)
+- Halaman bio publik langsung mengikuti perubahan di dashboard (cache KV diinvalidasi). (`936edc0`, `b81e2ed`)
+- Blok konten (judul bagian, teks, garis) boleh tanpa URL (`#`). (`936edc0`)
+- Error saat menyimpan blok kini terlihat di UI. (`0224b31`)
+- Fokus input tidak lagi dicuri timer auto-focus saat mengetik. (`b56a9b0`)
+
+## [0.2.0] - 2026-10-27
+
+Redesain dashboard dan editor bio v3.
+
+### Ditambahkan
+- Dashboard baru mengikuti prototype-v2. (`88af437`)
+- Beranda: link profil, checklist, KPI, aksi cepat, link teratas dan terbaru. (`6c829b1`)
+- 14 jenis blok bio: teks, garis, video, toko, lokasi, sosial, dan lainnya. (`b7f842b`)
+- 30 template blok siap pakai di sheet "Tambah isi". (`c27fdb4`)
+- Skema gaya editor bio v3 di worker dan footer SSR dua bahasa. (`a0d5e45`)
+- Panel Link, Statistik, Akun diperbarui, plus strip "100% gratis" di Profil. (`0553c81`)
+- Layar Profil sinkron langsung dengan pratinjau ponsel. (`12b37c0`, `e0e2482`)
+
+### Diperbaiki
+- Layout penuh di desktop dengan grid panel. (`6627fbd`)
+- Semua panel, header, dan navigasi responsif di ponsel. (`7c6596b`)
+- Tombol Simpan di sheet selalu terlihat (sticky). (`6d15752`)
+
+## [0.1.0] - 2026-10-27
+
+Rilis awal. (`452cdde`)
+
+### Ditambahkan
+- Link pendek dan halaman bio di edge (Workers + D1 + KV), biaya $0.
+- Login tamu instan dan OTP email.
+- Halaman bio SSR dengan escaping HTML, validasi SSRF, dan rate limit berbasis IP.
