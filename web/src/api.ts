@@ -124,6 +124,49 @@ export class ApiClient {
   }
 
   // Session & Guest Onboarding
+  hasSessionToken(): boolean {
+    return Boolean(localStorage.getItem('edgelink_token'));
+  }
+
+  async getExistingSession(): Promise<AuthSession | null> {
+    if (this.useMock) {
+      const has = localStorage.getItem('edgelink_token');
+      if (has) {
+        return {
+          id: 'usr_mock_123',
+          email: 'creator@edgelink.local',
+          is_guest: true,
+          handle: 'creator',
+          display_name: 'Edge Creator',
+          api_key: has,
+        };
+      }
+      return null;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const syncKey = urlParams.get('sync_key');
+    if (syncKey) {
+      localStorage.setItem('edgelink_token', syncKey);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const existingToken = localStorage.getItem('edgelink_token');
+    if (!existingToken) return null;
+
+    try {
+      const me = await this.request<ApiResponse<AuthSession>>('/api/auth/me');
+      return me.data || null;
+    } catch {
+      localStorage.removeItem('edgelink_token');
+      return null;
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem('edgelink_token');
+  }
+
   async initSession(): Promise<AuthSession> {
     if (this.useMock) {
       return {

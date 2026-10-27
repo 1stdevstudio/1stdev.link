@@ -25,11 +25,11 @@ export interface BioProfile {
   handle: string;
   display_name: string;
   bio: string;
-  avatar_url: string;
+  avatar_url?: string;
   theme: string;
   avatar_shape?: 'circle' | 'squircle' | 'rounded';
   verified_badge?: boolean;
-  social_links: {
+  social_links?: {
     whatsapp?: string;
     instagram?: string;
     tiktok?: string;

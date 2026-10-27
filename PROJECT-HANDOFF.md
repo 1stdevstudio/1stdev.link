@@ -37,6 +37,9 @@ edgelink/
 ├── README.md                    # Dokumentasi umum project
 ├── PROJECT-HANDOFF.md           # Handoff master ini
 ├── AGENTS.md                    # Aturan disiplin eksekusi subagent monorepo
+├── design/
+│   ├── FLOW.md                  # Use case, peta layar, breakpoint, kamus istilah & design token
+│   └── prototype-v2.html        # Sumber kebenaran visual dan interaksi dashboard
 ├── worker/                      # Cloudflare Worker Edge Backend (Hono v4)
 │   ├── wrangler.toml            # Konfigurasi Cloudflare Worker, D1 & KV bindings
 │   ├── schema.sql               # Skema D1 SQLite master
@@ -54,17 +57,33 @@ edgelink/
     ├── package.json             # Scripts & dependencies frontend
     ├── tsconfig.json            # TypeScript config frontend
     ├── vite.config.ts           # Konfigurasi bundler Vite
+    ├── tailwind.config.js       # Konfigurasi Tailwind dengan design token prototype-v2
     ├── .env.production          # VITE_API_URL mengarah ke Worker remote
     └── src/
-        ├── App.tsx              # Root dashboard panel, auth modals, metrics, responsive shell
-        ├── index.css            # Cosmic obsidian theme, ambient glow, utility classes
+        ├── App.tsx              # Root controller, state router (Welcome vs AppShell)
+        ├── index.css            # Base CSS, tokens (--bg, --s1, --s2, --in, --ac), components
         ├── types.ts             # Frontend TypeScript types (LinkItem, BioProfile, etc.)
         ├── api.ts               # Client API (auto guest session, OTP, device sync, CRUD)
         └── components/
-            ├── LinkManager.tsx       # Manajemen shortlink & smart device routing
-            ├── BioProfileBuilder.tsx # Kustomisasi bio, custom blocks, responsive phone preview
-            ├── AnalyticsModal.tsx    # Drawer statistik klik & negara asal
-            └── LegalModal.tsx        # Ketentuan Layanan & Kebijakan Privasi lengkap
+            ├── Welcome.tsx           # Layar sambutan awal (pilih Profil / Pendekkan link / Masuk)
+            ├── AppShell.tsx          # Shell responsif (Sidebar, TopBar, BottomNav, FAB)
+            ├── LivePhonePreview.tsx  # Pratinjau HP interaktif live update di tab Profil (>=1024px)
+            ├── Sheet.tsx             # Kontainer sheet/dialog aksesibel (bottom sheet <640px, center >=640px)
+            ├── Toast.tsx             # Floating status toast pemberitahuan
+            ├── LegalModal.tsx        # Ketentuan Layanan & Kebijakan Privasi
+            ├── screens/
+            │   ├── ProfileScreen.tsx # Tab Profil: Avatar shape, verified badge, 6 tema, blok list
+            │   ├── LinksScreen.tsx   # Tab Link: Pencarian, daftar shortlink, copy, switch status
+            │   ├── StatsScreen.tsx   # Tab Statistik: 7/30 hari, spark bars klik per hari, negara
+            │   └── AccountScreen.tsx # Tab Akun: Status simpan, pindah perangkat, developer API key
+            └── sheets/
+                ├── AddLinkSheet.tsx        # Sheet buat shortlink baru dengan opsi lanjutan
+                ├── AddBlockSheet.tsx       # Sheet tambah isi bio (Link, Sorotan, WhatsApp, Judul)
+                ├── EditProfileSheet.tsx    # Sheet ubah nama, handle, bio, verified badge
+                ├── ShareSheet.tsx          # Sheet bagikan link profil, QR code, WA/IG
+                ├── SaveAccountSheet.tsx    # Sheet simpan akun permanen via 6-digit OTP
+                ├── LoginSheet.tsx          # Sheet masuk via email OTP atau secret sync key
+                └── DeviceTransferSheet.tsx # Sheet QR transfer & secret key pindah perangkat
 ```
 
 ---
@@ -201,4 +220,28 @@ npx wrangler d1 execute edgelink-db --remote --command="<SQL QUERY>" -y
 ```
 
 ---
-*Status Terakhir: Semua fitur aktif, 100% lulus uji tipe & pentest, live di Cloudflare Edge.*
+
+## 8. Catatan Implementasi Redesign UI Dashboard (Prototype v2)
+
+Dashboard web (`web/`) telah dirombak total mengikuti spesifikasi visual dan interaksi `design/prototype-v2.html` dan `design/FLOW.md`:
+1. **Design Tokens & Aturan Visual**:
+   - Background `#07080c`, surface `#ffffff` 4% (`--s1`), surface-2 `#ffffff` 7% (`--s2`), input `#ffffff` 9% (`--in`).
+   - Accent `#7c8cff` dengan teks ink `#0b0d16`.
+   - Radius minimal: `r1=4px` (tag/seg), `r2=6px` (button/input), `r3=8px` (card/sheet). Zero rounded-full/pill.
+   - Zero 1px borders di seluruh UI. Batas visual dibentuk dari kontras latar belakang surface.
+   - Font: `Inter` untuk seluruh teks UI, `JetBrains Mono` khusus URL, slug, kode OTP, dan API key.
+   - Zero emoji di UI. Seluruh ikon menggunakan SVG `lucide-react` (stroke 1.75, ukuran 16-20px).
+   - Tap target minimal 44px, WCAG AA contrast ratio compliance, dan focus ring `3px rgba(124,140,255,0.55)`.
+2. **Alur Frictionless & Lazy Guest Onboarding**:
+   - Jika belum ada sesi atau token di `localStorage`: Menampilkan layar **Sambutan (Welcome)** dengan pilihan "Halaman profil" vs "Pendekkan link" dan tombol "Masuk".
+   - **Lazy Session Creation**: Sesi guest baru HANYA dibuat setelah pengguna menekan tombol "Mulai" (bukan otomatis saat URL dibuka). Ini mencegah penumpukan akun guest sampah di database D1.
+   - Jika sudah ada sesi: Langsung membuka dashboard dengan tab terakhir yang tersimpan di `localStorage`.
+3. **Komponen Shell & Responsivitas Mobile-First**:
+   - Layar `<1024px`: TopBar (logo, tombol Bagikan, tombol Simpan akun bila guest) + BottomNav 4 tab (Profil, Link, Statistik, Akun) + FAB "+" di tab Link.
+   - Layar `≥1024px`: Sidebar 240px + Main content container maks 720px + Kolom pratinjau smartphone interaktif 380px khusus tab Profil (live update real-time).
+   - Dialog/Sheet responsif: Otomatis berupa **Bottom Sheet** di `<640px` dan **Dialog Tengah** di `≥640px`, dengan focus trap, handle indikator, scrim backdrop, dan penutupan via Esc key.
+4. **TODO & Catatan Kontrak API (Untuk Pengembangan Masa Depan)**:
+   - *Kunjungan Profil di Tab Statistik*: Prototipe menampilkan metrik "Kunjungan profil". Karena saat ini `worker` melacak analitik per-slug shortlink (`links` & `link_analytics`) dan belum memiliki endpoint agregasi kunjungan halaman SSR `/@handle` tersendiri, tab Statistik saat ini menampilkan agregasi klik bio links yang riil. Jika di masa depan diperlukan pelacakan hit SSR `/@handle`, buat tabel / counter di Worker D1 tanpa mengubah frontend UI.
+
+---
+*Status Terakhir: Redesign dashboard v2 selesai 100%, lulus tsc & unit tests, live di Cloudflare Pages.*

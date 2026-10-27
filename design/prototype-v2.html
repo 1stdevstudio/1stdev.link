@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EdgeLink Prototype v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080c;--s1:rgba(255,255,255,.04);--s2:rgba(255,255,255,.07);--in:rgba(255,255,255,.09);
+  --tx:#f2f3f7;--tx2:#b4b8c5;--tx3:#8b90a0;--ac:#7c8cff;--ink:#0b0d16;--ok:#4ade80;--warn:#fbbf24;
+  --r1:4px;--r2:6px;--r3:8px;--ring:0 0 0 3px rgba(124,140,255,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea{font:inherit;color:var(--tx);background:var(--in);border:0;border-radius:var(--r2);padding:11px 12px;width:100%;min-height:44px}
+input::placeholder,textarea::placeholder{color:var(--tx3)}
+:focus-visible{outline:0;box-shadow:var(--ring)}
+.ic{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.mono{font-family:"JetBrains Mono",monospace;font-size:13px}
+.muted{color:var(--tx2)}.small{font-size:13px}
+h1{font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.02em}
+h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+h3{font-size:15px;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:var(--r2);font-weight:600;font-size:14px}
+.btn-p{background:var(--ac);color:var(--ink)}.btn-p:hover{filter:brightness(1.08)}
+.btn-g{background:var(--s2)}.btn-g:hover{background:rgba(255,255,255,.1)}
+.btn-t{color:var(--tx2)}.btn-t:hover{color:var(--tx)}
+.btn-sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn-w{width:100%}
+.iconbtn{width:44px;height:44px;display:grid;place-items:center;border-radius:var(--r2);color:var(--tx2)}.iconbtn:hover{background:var(--s1);color:var(--tx)}
+.card{background:var(--s1);border-radius:var(--r3);padding:16px}
+.stack{display:flex;flex-direction:column;gap:12px}.stack-lg{display:flex;flex-direction:column;gap:20px}
+.row{display:flex;align-items:center;gap:12px}.grow{flex:1;min-width:0}
+.field label{display:block;font-size:14px;font-weight:500;margin-bottom:6px}
+.field .hint{font-size:13px;color:var(--tx2);margin-top:6px}
+.tag{font-size:12px;font-weight:500;padding:2px 6px;border-radius:var(--r1);background:rgba(74,222,128,.12);color:var(--ok)}
+.tag.off{background:var(--s2);color:var(--tx2)}
+.ellipsis{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- WELCOME ---------- */
+#welcome{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.welcome-box{width:100%;max-width:440px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.logo-mark{width:28px;height:28px;border-radius:var(--r2);background:var(--ac);color:var(--ink);display:grid;place-items:center}
+.choice{display:flex;gap:14px;text-align:left;width:100%;padding:16px;border-radius:var(--r3);background:var(--s1);align-items:flex-start}
+.choice:hover{background:var(--s2)}
+.choice[aria-pressed=true]{background:rgba(124,140,255,.12);box-shadow:inset 0 0 0 1.5px var(--ac)}
+.choice .ic-wrap{width:40px;height:40px;border-radius:var(--r2);background:var(--s2);display:grid;place-items:center;color:var(--ac);flex:none}
+.choice p{font-size:13px;color:var(--tx2);margin-top:2px}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none;min-height:100%}
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(7,8,12,.85);backdrop-filter:blur(12px)}
+.sidebar{display:none}
+.main{padding:8px 16px calc(96px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));background:rgba(12,13,18,.92);backdrop-filter:blur(12px)}
+.navbtn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;min-height:48px;justify-content:center;font-size:12px;color:var(--tx3);border-radius:var(--r2)}
+.navbtn[aria-current=page]{color:var(--tx)}.navbtn[aria-current=page] .ic{color:var(--ac)}
+.preview{display:none}
+.screen{display:none}.screen.on{display:block}
+.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:6;width:56px;height:56px;border-radius:var(--r3);background:var(--ac);color:var(--ink);display:none;place-items:center;box-shadow:0 10px 30px -8px rgba(124,140,255,.6)}
+.fab.on{display:grid}
+
+.banner{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:var(--r3);background:rgba(251,191,36,.08);margin-bottom:16px}
+.banner .ic{color:var(--warn);margin-top:1px}
+.banner b{font-weight:600}
+
+.profile-head{display:flex;gap:14px;align-items:center}
+.avatar{width:56px;height:56px;border-radius:var(--r3);background:linear-gradient(135deg,#7c8cff,#a78bfa);display:grid;place-items:center;font-weight:700;font-size:20px;color:var(--ink);flex:none}
+.block{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r3);background:var(--s1);min-height:60px}
+.block .grip{color:var(--tx3);cursor:grab}
+.block .bi{width:36px;height:36px;border-radius:var(--r2);background:var(--s2);display:grid;place-items:center;color:var(--tx2);flex:none}
+.block.sample{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08)}
+.section-label{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);margin:24px 0 10px}
+.seg{display:flex;gap:4px;background:var(--s1);padding:4px;border-radius:var(--r2)}
+.seg button{flex:1;min-height:36px;border-radius:var(--r1);font-size:13px;font-weight:500;color:var(--tx2)}
+.seg button[aria-pressed=true]{background:var(--s2);color:var(--tx)}
+.themes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.theme{aspect-ratio:3/4;border-radius:var(--r2);padding:8px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;font-size:12px;text-align:left}
+.theme i{display:block;height:6px;border-radius:2px;background:currentColor;opacity:.35}
+.theme[aria-pressed=true]{box-shadow:0 0 0 2px var(--ac)}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:4px}
+.bar{height:6px;border-radius:2px;background:var(--s2);overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.spark{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:12px}
+.spark i{flex:1;background:rgba(124,140,255,.35);border-radius:2px 2px 0 0}.spark i:last-child{background:var(--ac)}
+
+.list-item{display:flex;align-items:center;gap:12px;padding:14px 4px}
+.list-item+.list-item{box-shadow:0 -1px 0 rgba(255,255,255,.05)}
+.menu-item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px 12px;border-radius:var(--r2);min-height:56px}
+.menu-item:hover{background:var(--s1)}
+.menu-item .ic:first-child{color:var(--tx2)}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:none}
+.scrim.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:#11131a;border-radius:var(--r3) var(--r3) 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto;transform:translateY(100%);transition:transform .22s ease}
+.sheet{visibility:hidden}.sheet.on{transform:none;visibility:visible}
+.sheet .handle{width:36px;height:4px;border-radius:2px;background:var(--s2);margin:4px auto 12px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+details.adv{background:var(--s1);border-radius:var(--r2)}
+details.adv summary{list-style:none;display:flex;align-items:center;justify-content:space-between;padding:12px;cursor:pointer;font-size:14px;font-weight:500}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv[open] summary .ic{transform:rotate(90deg)}
+details.adv .body{padding:0 12px 12px;display:flex;flex-direction:column;gap:12px}
+.check{display:flex;gap:10px;align-items:center;font-size:14px;min-height:44px}
+.check input{width:20px;height:20px;min-height:0;accent-color:var(--ac)}
+.otp{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.otp input{text-align:center;font-size:20px;font-weight:600;padding:0;height:52px}
+.share-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.share-grid button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:var(--r2);background:var(--s1);font-size:12px}
+.qr{width:140px;height:140px;margin:0 auto;border-radius:var(--r2);background:#fff;padding:10px;display:grid;grid-template-columns:repeat(9,1fr);gap:2px}
+.qr i{background:#0b0d16;border-radius:1px}.qr i.w{background:transparent}
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;z-index:30;background:#1e2130;padding:10px 14px;border-radius:var(--r2);font-size:14px;display:flex;gap:8px;align-items:center;transition:.2s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}.toast .ic{color:var(--ok)}
+
+/* phone preview */
+.phone{width:300px;height:600px;border-radius:28px;background:var(--bg);box-shadow:0 0 0 6px #1a1c24,0 30px 60px -20px #000;overflow:hidden;padding:36px 18px 18px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.phone .avatar{width:64px;height:64px}
+.pv-link{width:100%;min-height:44px;border-radius:var(--r2);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;padding:0 12px}
+.pv-link.feat{background:var(--ac);color:var(--ink)}
+
+/* ---------- TABLET ---------- */
+@media (min-width:640px){
+  .sheet{left:50%;right:auto;bottom:auto;top:50%;width:520px;border-radius:var(--r3);transform:translate(-50%,-46%);opacity:0;pointer-events:none;transition:.2s}
+  .sheet.on{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+  .sheet .handle{display:none}
+  .main{padding-top:16px}
+  .stat-grid{grid-template-columns:repeat(4,1fr)}
+  .themes{grid-template-columns:repeat(6,1fr)}
+}
+/* ---------- DESKTOP ---------- */
+@media (min-width:1024px){
+  #app.on{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  #app.on.with-preview{grid-template-columns:240px 1fr 380px}
+  .topbar,.bottomnav{display:none}
+  .sidebar{display:flex;flex-direction:column;gap:4px;padding:20px 12px;position:sticky;top:0;height:100vh;background:rgba(255,255,255,.02)}
+  .sidebar .navbtn{flex-direction:row;justify-content:flex-start;gap:12px;padding:0 12px;font-size:14px;min-height:44px;width:100%}
+  .sidebar .navbtn[aria-current=page]{background:var(--s1)}
+  .main{max-width:720px;width:100%;padding:32px 32px 48px}
+  .fab{bottom:32px;right:32px}
+  .with-preview .fab{right:412px}
+  .preview{position:sticky;top:0;height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:rgba(255,255,255,.015)}
+  .with-preview .preview{display:flex}
+  .toast{bottom:32px}
+}
+#app.on{display:block}
+@media (min-width:1024px){#app.on{display:grid}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ICON SPRITE (Lucide-style line icons) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4M12 2v13"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+<symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4h-4"/></symbol>
+<symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></symbol>
+<symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></symbol>
+<symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20 2 2 0 0 0 2-2 2 2 0 0 1 2-2h2a4 4 0 0 0 4-4c0-6-4.5-12-10-12z"/></symbol>
+<symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-ext" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+</svg>
+
+<!-- ================= WELCOME ================= -->
+<section id="welcome" aria-label="Sambutan">
+  <div class="welcome-box stack-lg">
+    <div class="logo"><span class="logo-mark"><svg class="ic" style="width:16px;height:16px"><use href="#i-link"/></svg></span>EdgeLink</div>
+    <div class="stack" style="gap:8px">
+      <h1>Satu link untuk semua yang kamu bagikan.</h1>
+      <p class="muted">Gratis, tanpa iklan, tanpa daftar. Pilih yang ingin kamu buat dulu, yang lain bisa menyusul.</p>
+    </div>
+    <div class="stack" role="group" aria-label="Pilih tujuan">
+      <button class="choice" aria-pressed="true" data-goal="profile">
+        <span class="ic-wrap"><svg class="ic"><use href="#i-user"/></svg></span>
+        <span><h3>Halaman profil</h3><p>Satu halaman berisi semua link kamu, untuk bio Instagram, TikTok, atau WhatsApp.</p></span>
+      </button>
+      <button class="choice" aria-pressed="false" data-goal="links">
+        <span class="ic-wrap"><svg class="ic"><use href="#i-scissors"/></svg></span>
+        <span><h3>Pendekkan link</h3><p>Ubah link panjang jadi pendek dan lihat berapa kali diklik.</p></span>
+      </button>
+    </div>
+    <div class="stack" style="gap:4px">
+      <button class="btn btn-p btn-w" id="start">Mulai</button>
+      <button class="btn btn-t btn-w" data-open="login">Sudah punya akun? Masuk</button>
+    </div>
+    <p class="small muted" style="text-align:center">Dengan melanjutkan kamu setuju dengan <a href="#" style="color:var(--tx)">Ketentuan</a> dan <a href="#" style="color:var(--tx)">Privasi</a>.</p>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <aside class="sidebar" aria-label="Navigasi">
+    <div class="logo" style="padding:4px 12px 20px"><span class="logo-mark"><svg class="ic" style="width:16px;height:16px"><use href="#i-link"/></svg></span>EdgeLink</div>
+    <button class="navbtn" data-nav="profile"><svg class="ic"><use href="#i-user"/></svg>Profil</button>
+    <button class="navbtn" data-nav="links"><svg class="ic"><use href="#i-link"/></svg>Link</button>
+    <button class="navbtn" data-nav="stats"><svg class="ic"><use href="#i-chart"/></svg>Statistik</button>
+    <button class="navbtn" data-nav="account"><svg class="ic"><use href="#i-gear"/></svg>Akun</button>
+    <div class="grow"></div>
+    <div class="card small stack" style="gap:8px">
+      <span class="muted">Akun ini hanya tersimpan di browser ini.</span>
+      <button class="btn btn-p btn-sm" data-open="save">Simpan akun</button>
+    </div>
+  </aside>
+
+  <header class="topbar">
+    <div class="logo"><span class="logo-mark"><svg class="ic" style="width:16px;height:16px"><use href="#i-link"/></svg></span>EdgeLink</div>
+    <div class="row" style="gap:4px">
+      <button class="iconbtn" aria-label="Bagikan" data-open="share"><svg class="ic"><use href="#i-share"/></svg></button>
+      <button class="btn btn-p btn-sm" data-open="save">Simpan akun</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- PROFILE -->
+    <section class="screen" id="s-profile" aria-label="Profil">
+      <div class="banner"><svg class="ic"><use href="#i-alert"/></svg><div class="small"><b>Akun ini hanya ada di browser ini.</b> <span class="muted">Simpan dengan email agar profil dan link kamu tidak hilang.</span></div></div>
+      <div class="profile-head">
+        <div class="avatar">C</div>
+        <div class="grow">
+          <h2 class="ellipsis">Creator 4rv5se</h2>
+          <div class="mono muted ellipsis">edgelink.id/@edge_4rv5se</div>
+        </div>
+        <button class="btn btn-g btn-sm" data-open="editProfile">Ubah</button>
+      </div>
+      <div class="row" style="margin-top:16px;gap:8px">
+        <button class="btn btn-g grow" data-open="share"><svg class="ic"><use href="#i-share"/></svg>Bagikan</button>
+        <button class="btn btn-g grow" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg>Salin link</button>
+      </div>
+
+      <div class="section-label">Isi halaman</div>
+      <div class="stack" style="gap:8px">
+        <div class="block"><svg class="ic grip"><use href="#i-grip"/></svg><span class="bi"><svg class="ic"><use href="#i-star"/></svg></span><div class="grow"><h3 class="ellipsis">Belanja di toko saya</h3><div class="small muted">Sorotan</div></div><span class="tag">Tampil</span></div>
+        <div class="block"><svg class="ic grip"><use href="#i-grip"/></svg><span class="bi"><svg class="ic"><use href="#i-link"/></svg></span><div class="grow"><h3 class="ellipsis">Instagram</h3><div class="small muted mono ellipsis">instagram.com/creator</div></div><span class="tag">Tampil</span></div>
+        <button class="block sample" style="width:100%;text-align:left" data-open="addBlock"><span class="bi"><svg class="ic"><use href="#i-msg"/></svg></span><div class="grow"><h3>Chat WhatsApp</h3><div class="small muted">Contoh. Ketuk untuk isi nomor.</div></div><svg class="ic muted"><use href="#i-chev"/></svg></button>
+        <button class="btn btn-g btn-w" data-open="addBlock"><svg class="ic"><use href="#i-plus"/></svg>Tambah isi</button>
+      </div>
+
+      <div class="section-label">Tampilan</div>
+      <div class="stack">
+        <div class="themes" role="group" aria-label="Tema">
+          <button class="theme" aria-pressed="true" style="background:#0b0c12;color:#f2f3f7"><i></i><i></i>Obsidian</button>
+          <button class="theme" aria-pressed="false" style="background:#f4f4f2;color:#111"><i></i><i></i>Kertas</button>
+          <button class="theme" aria-pressed="false" style="background:#0f1f1a;color:#bff3d8"><i></i><i></i>Hutan</button>
+          <button class="theme" aria-pressed="false" style="background:#1a1024;color:#e9d5ff"><i></i><i></i>Senja</button>
+          <button class="theme" aria-pressed="false" style="background:#101826;color:#bfdbfe"><i></i><i></i>Samudra</button>
+          <button class="theme" aria-pressed="false" style="background:#1f1a12;color:#fde68a"><i></i><i></i>Pasir</button>
+        </div>
+        <div class="field"><label>Bentuk foto</label>
+          <div class="seg" role="group"><button aria-pressed="true">Bulat</button><button aria-pressed="false">Membulat</button><button aria-pressed="false">Kotak</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LINKS -->
+    <section class="screen" id="s-links" aria-label="Link">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px"><h1>Link</h1><button class="btn btn-p btn-sm" data-open="addLink" style="display:none" id="addLinkInline"><svg class="ic"><use href="#i-plus"/></svg>Tambah link</button></div>
+      <div style="position:relative;margin-bottom:8px"><svg class="ic muted" style="position:absolute;left:12px;top:12px"><use href="#i-search"/></svg><input placeholder="Cari link" style="padding-left:40px" aria-label="Cari link"></div>
+      <div>
+        <div class="list-item"><div class="grow"><h3 class="ellipsis">Promo Ramadan</h3><div class="mono muted ellipsis">edgelink.id/promo</div></div><div style="text-align:right"><div style="font-weight:600">1.284</div><div class="small muted">klik</div></div><button class="iconbtn" aria-label="Salin" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="list-item"><div class="grow"><h3 class="ellipsis">Download aplikasi</h3><div class="mono muted ellipsis">edgelink.id/app</div><div class="small muted" style="margin-top:2px">Otomatis ke App Store / Play Store</div></div><div style="text-align:right"><div style="font-weight:600">532</div><div class="small muted">klik</div></div><button class="iconbtn" aria-label="Salin" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+        <div class="list-item"><div class="grow"><h3 class="ellipsis">Katalog lama</h3><div class="mono muted ellipsis">edgelink.id/k8Pq</div></div><span class="tag off">Nonaktif</span><button class="iconbtn" aria-label="Salin"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="screen" id="s-stats" aria-label="Statistik">
+      <div class="row" style="justify-content:space-between;margin-bottom:16px;flex-wrap:wrap"><h1>Statistik</h1>
+        <div class="seg" role="group" style="width:200px"><button aria-pressed="true">7 hari</button><button aria-pressed="false">30 hari</button></div></div>
+      <div class="stat-grid">
+        <div class="card stat"><div class="small muted">Total klik</div><div class="v">1.816</div></div>
+        <div class="card stat"><div class="small muted">Kunjungan profil</div><div class="v">642</div></div>
+        <div class="card stat"><div class="small muted">Link aktif</div><div class="v">2</div></div>
+        <div class="card stat"><div class="small muted">Negara</div><div class="v">7</div></div>
+      </div>
+      <div class="card" style="margin-top:8px"><h3>Klik per hari</h3><div class="spark"><i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i><i style="height:60%"></i><i style="height:52%"></i><i style="height:74%"></i><i style="height:92%"></i></div></div>
+      <div class="card stack" style="margin-top:8px"><h3>Negara teratas</h3>
+        <div><div class="row small" style="justify-content:space-between"><span>Indonesia</span><span class="muted">78%</span></div><div class="bar"><i style="width:78%"></i></div></div>
+        <div><div class="row small" style="justify-content:space-between"><span>Malaysia</span><span class="muted">12%</span></div><div class="bar"><i style="width:12%"></i></div></div>
+        <div><div class="row small" style="justify-content:space-between"><span>Singapura</span><span class="muted">6%</span></div><div class="bar"><i style="width:6%"></i></div></div>
+      </div>
+      <p class="small muted" style="margin-top:12px">Tanpa cookie dan tanpa pelacak. Kami hanya menghitung jumlah klik per negara.</p>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section class="screen" id="s-account" aria-label="Akun">
+      <h1 style="margin-bottom:16px">Akun</h1>
+      <div class="card row" style="margin-bottom:16px"><div class="grow"><h3>Belum disimpan</h3><div class="small muted">Simpan dengan email agar bisa dibuka di perangkat lain.</div></div><button class="btn btn-p btn-sm" data-open="save">Simpan</button></div>
+      <button class="menu-item" data-open="device"><svg class="ic"><use href="#i-phone"/></svg><span class="grow"><h3>Pindah perangkat</h3><span class="small muted">Scan QR atau pakai kode</span></span><svg class="ic muted"><use href="#i-chev"/></svg></button>
+      <button class="menu-item" data-nav="profile"><svg class="ic"><use href="#i-palette"/></svg><span class="grow"><h3>Tampilan profil</h3><span class="small muted">Tema dan bentuk foto</span></span><svg class="ic muted"><use href="#i-chev"/></svg></button>
+      <details class="adv" style="background:none"><summary class="menu-item" style="padding:14px 12px"><span class="row grow" style="gap:14px"><svg class="ic muted"><use href="#i-code"/></svg><span><h3>Developer</h3><span class="small muted">API key untuk integrasi</span></span></span><svg class="ic muted"><use href="#i-chev"/></svg></summary>
+        <div class="body" style="padding:0 12px 12px 46px"><div class="row"><input class="mono" value="el_live_••••••••••••3f9a" readonly aria-label="API key"><button class="iconbtn" aria-label="Salin API key" onclick="toast('API key disalin')"><svg class="ic"><use href="#i-copy"/></svg></button></div><span class="small muted">Gunakan sebagai header <span class="mono">Authorization: Bearer</span>.</span></div></details>
+      <button class="menu-item"><svg class="ic"><use href="#i-doc"/></svg><span class="grow"><h3>Ketentuan &amp; Privasi</h3></span><svg class="ic muted"><use href="#i-chev"/></svg></button>
+    </section>
+  </main>
+
+  <!-- desktop live preview -->
+  <aside class="preview" aria-label="Pratinjau">
+    <div class="row small muted"><svg class="ic" style="width:16px;height:16px"><use href="#i-phone"/></svg>Pratinjau langsung</div>
+    <div class="phone">
+      <div class="avatar">C</div>
+      <h3>Creator 4rv5se</h3>
+      <div class="mono muted" style="font-size:12px">@edge_4rv5se</div>
+      <p class="small muted" style="text-align:center;margin-bottom:8px">Konten harian seputar desain dan teknologi.</p>
+      <div class="pv-link feat">Belanja di toko saya</div>
+      <div class="pv-link">Instagram</div>
+      <div class="grow"></div>
+      <div class="small" style="color:var(--tx3)">Dibuat dengan EdgeLink</div>
+    </div>
+    <button class="btn btn-t btn-sm"><svg class="ic" style="width:16px;height:16px"><use href="#i-ext"/></svg>Buka halaman</button>
+  </aside>
+
+  <nav class="bottomnav" aria-label="Navigasi">
+    <button class="navbtn" data-nav="profile"><svg class="ic"><use href="#i-user"/></svg>Profil</button>
+    <button class="navbtn" data-nav="links"><svg class="ic"><use href="#i-link"/></svg>Link</button>
+    <button class="navbtn" data-nav="stats"><svg class="ic"><use href="#i-chart"/></svg>Statistik</button>
+    <button class="navbtn" data-nav="account"><svg class="ic"><use href="#i-gear"/></svg>Akun</button>
+  </nav>
+  <button class="fab" id="fab" aria-label="Tambah link" data-open="addLink"><svg class="ic" style="width:24px;height:24px"><use href="#i-plus"/></svg></button>
+</div>
+
+<!-- ================= SHEETS ================= -->
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="sh-addLink" role="dialog" aria-label="Tambah link">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2>Tambah link</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack">
+    <div class="field"><label for="f-url">Link tujuan</label><input id="f-url" inputmode="url" placeholder="Tempel link, mis. tokoku.com/produk"></div>
+    <div class="field"><label for="f-title">Judul <span class="muted" style="font-weight:400">(opsional)</span></label><input id="f-title" placeholder="mis. Promo Ramadan"></div>
+    <label class="check"><input type="checkbox" checked>Tampilkan juga di halaman profil</label>
+    <details class="adv"><summary>Opsi lanjutan<svg class="ic muted"><use href="#i-chev"/></svg></summary>
+      <div class="body">
+        <div class="field"><label for="f-slug">Nama link sendiri</label><div class="row" style="gap:0"><span class="mono muted" style="background:var(--in);min-height:44px;display:flex;align-items:center;padding:0 0 0 12px;border-radius:var(--r2) 0 0 var(--r2)">edgelink.id/</span><input id="f-slug" class="mono" placeholder="promo" style="border-radius:0 var(--r2) var(--r2) 0;padding-left:2px"></div><div class="hint">Kosongkan untuk dibuat otomatis.</div></div>
+        <div class="field"><label for="f-ios">Link khusus iPhone</label><input id="f-ios" placeholder="Link App Store"></div>
+        <div class="field"><label for="f-and">Link khusus Android</label><input id="f-and" placeholder="Link Google Play"><div class="hint">Pengunjung dari HP otomatis diarahkan ke toko aplikasi yang sesuai.</div></div>
+      </div>
+    </details>
+    <button class="btn btn-p btn-w" onclick="closeAll();toast('Link dibuat dan disalin')">Buat link</button>
+  </div>
+</div>
+
+<div class="sheet" id="sh-addBlock" role="dialog" aria-label="Tambah isi">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2>Tambah isi</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack" style="gap:4px">
+    <button class="menu-item" data-open="addLink"><span class="bi" style="width:40px;height:40px;border-radius:var(--r2);background:var(--s2);display:grid;place-items:center"><svg class="ic"><use href="#i-link"/></svg></span><span class="grow"><h3>Link</h3><span class="small muted">Tombol ke website, toko, atau media sosial</span></span></button>
+    <button class="menu-item"><span style="width:40px;height:40px;border-radius:var(--r2);background:var(--s2);display:grid;place-items:center"><svg class="ic"><use href="#i-star"/></svg></span><span class="grow"><h3>Sorotan</h3><span class="small muted">Tombol besar berwarna untuk hal terpenting</span></span></button>
+    <button class="menu-item"><span style="width:40px;height:40px;border-radius:var(--r2);background:var(--s2);display:grid;place-items:center"><svg class="ic"><use href="#i-msg"/></svg></span><span class="grow"><h3>WhatsApp</h3><span class="small muted">Pengunjung langsung chat ke nomor kamu</span></span></button>
+    <button class="menu-item"><span style="width:40px;height:40px;border-radius:var(--r2);background:var(--s2);display:grid;place-items:center"><svg class="ic"><use href="#i-type"/></svg></span><span class="grow"><h3>Judul bagian</h3><span class="small muted">Teks pemisah untuk mengelompokkan link</span></span></button>
+  </div>
+</div>
+
+<div class="sheet" id="sh-editProfile" role="dialog" aria-label="Ubah profil">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2>Ubah profil</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack">
+    <div class="row"><div class="avatar">C</div><button class="btn btn-g btn-sm">Ganti foto</button></div>
+    <div class="field"><label for="p-name">Nama</label><input id="p-name" value="Creator 4rv5se"></div>
+    <div class="field"><label for="p-handle">Alamat halaman</label><div class="row" style="gap:0"><span class="mono muted" style="background:var(--in);min-height:44px;display:flex;align-items:center;padding-left:12px;border-radius:var(--r2) 0 0 var(--r2)">edgelink.id/@</span><input id="p-handle" class="mono" value="edge_4rv5se" style="border-radius:0 var(--r2) var(--r2) 0;padding-left:2px"></div><div class="hint" style="color:var(--ok)">Tersedia</div></div>
+    <div class="field"><label for="p-bio">Bio</label><textarea id="p-bio" rows="3" placeholder="Ceritakan singkat tentang kamu">Konten harian seputar desain dan teknologi.</textarea><div class="hint">43/160</div></div>
+    <label class="check"><input type="checkbox">Tampilkan tanda terverifikasi</label>
+    <button class="btn btn-p btn-w" onclick="closeAll();toast('Profil disimpan')">Simpan</button>
+  </div>
+</div>
+
+<div class="sheet" id="sh-share" role="dialog" aria-label="Bagikan">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2>Bagikan halaman</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack-lg">
+    <div class="qr" aria-label="Kode QR" id="qr"></div>
+    <div class="row" style="background:var(--in);border-radius:var(--r2);padding:4px 4px 4px 12px"><span class="mono grow ellipsis">edgelink.id/@edge_4rv5se</span><button class="btn btn-p btn-sm" onclick="toast('Link disalin')">Salin</button></div>
+    <div class="share-grid">
+      <button><svg class="ic"><use href="#i-msg"/></svg>WhatsApp</button>
+      <button><svg class="ic"><use href="#i-user"/></svg>Instagram</button>
+      <button><svg class="ic"><use href="#i-qr"/></svg>Unduh QR</button>
+      <button><svg class="ic"><use href="#i-share"/></svg>Lainnya</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sh-save" role="dialog" aria-label="Simpan akun">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2 id="save-title">Simpan akun</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack" id="save-1">
+    <p class="muted small">Kami kirim kode 6 digit ke email kamu. Tanpa kata sandi.</p>
+    <div class="field"><label for="s-email">Email</label><input id="s-email" type="email" inputmode="email" placeholder="nama@email.com" autocomplete="email"></div>
+    <button class="btn btn-p btn-w" onclick="saveStep(2)">Kirim kode</button>
+  </div>
+  <div class="stack" id="save-2" style="display:none">
+    <p class="muted small">Masukkan kode yang dikirim ke <b style="color:var(--tx)">nama@email.com</b>. Berlaku 10 menit.</p>
+    <div class="otp" aria-label="Kode 6 digit"><input inputmode="numeric" maxlength="1" value="4"><input inputmode="numeric" maxlength="1" value="8"><input inputmode="numeric" maxlength="1" value="2"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"><input inputmode="numeric" maxlength="1"></div>
+    <button class="btn btn-p btn-w" onclick="closeAll();saveStep(1);toast('Akun tersimpan')">Konfirmasi</button>
+    <div class="row" style="justify-content:space-between"><button class="btn btn-t btn-sm" onclick="saveStep(1)"><svg class="ic" style="width:16px;height:16px"><use href="#i-back"/></svg>Ganti email</button><span class="small muted">Kirim ulang dalam 0:42</span></div>
+  </div>
+</div>
+
+<div class="sheet" id="sh-login" role="dialog" aria-label="Masuk">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2>Masuk</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack">
+    <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" placeholder="nama@email.com"></div>
+    <button class="btn btn-p btn-w" onclick="closeAll();enterApp('profile');toast('Berhasil masuk')">Kirim kode</button>
+    <div class="row small muted" style="gap:8px"><span class="grow" style="height:1px;background:var(--s2)"></span>atau<span class="grow" style="height:1px;background:var(--s2)"></span></div>
+    <button class="btn btn-g btn-w"><svg class="ic"><use href="#i-qr"/></svg>Scan QR dari perangkat lama</button>
+    <button class="btn btn-t btn-w btn-sm">Pakai kode pindah perangkat</button>
+  </div>
+</div>
+
+<div class="sheet" id="sh-device" role="dialog" aria-label="Pindah perangkat">
+  <div class="handle"></div>
+  <div class="sheet-head"><h2>Pindah perangkat</h2><button class="iconbtn" data-close aria-label="Tutup"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="stack-lg">
+    <p class="small muted">Di perangkat baru, buka EdgeLink, pilih <b style="color:var(--tx)">Masuk</b>, lalu scan kode ini.</p>
+    <div class="qr" id="qr2"></div>
+    <div class="row" style="background:var(--in);border-radius:var(--r2);padding:4px 4px 4px 12px"><span class="mono grow">K7Q2-9XMA-4PLD</span><button class="btn btn-g btn-sm" onclick="toast('Kode disalin')">Salin</button></div>
+    <p class="small" style="color:var(--warn)">Jangan bagikan kode ini. Siapa pun yang memilikinya bisa membuka akun kamu.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"><svg class="ic"><use href="#i-check"/></svg><span></span></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let goal='profile';
+$$('.choice').forEach(b=>b.onclick=()=>{$$('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');goal=b.dataset.goal});
+$('#start').onclick=()=>enterApp(goal);
+function enterApp(s){$('#welcome').style.display='none';$('#app').classList.add('on');nav(s)}
+function nav(s){
+  $$('.screen').forEach(x=>x.classList.toggle('on',x.id==='s-'+s));
+  $$('.navbtn[data-nav]').forEach(b=>b.dataset.nav===s?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current'));
+  $('#app').classList.toggle('with-preview',s==='profile');
+  $('#fab').classList.toggle('on',s==='links');
+  window.scrollTo(0,0);
+}
+$$('[data-nav]').forEach(b=>b.addEventListener('click',()=>nav(b.dataset.nav)));
+function open(id){closeAll(true);$('#scrim').classList.add('on');$('#sh-'+id).classList.add('on');setTimeout(()=>$('#sh-'+id+' input, #sh-'+id+' button')?.focus(),220)}
+function closeAll(keep){$$('.sheet').forEach(s=>s.classList.remove('on'));if(!keep)$('#scrim').classList.remove('on')}
+$$('[data-open]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();open(b.dataset.open)}));
+$$('[data-close]').forEach(b=>b.onclick=()=>closeAll());
+$('#scrim').onclick=()=>closeAll();
+document.addEventListener('keydown',e=>e.key==='Escape'&&closeAll());
+function saveStep(n){$('#save-1').style.display=n===1?'':'none';$('#save-2').style.display=n===2?'':'none'}
+$$('.seg,.themes').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;[...g.children].forEach(x=>x.setAttribute('aria-pressed',x===b))}));
+let tt;function toast(m){const t=$('#toast');t.querySelector('span').textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
+// fake QR pattern
+['#qr','#qr2'].forEach(id=>{const q=$(id);for(let i=0;i<81;i++){const r=i/9|0,c=i%9,corner=(r<3&&c<3)||(r<3&&c>5)||(r>5&&c<3);const el=document.createElement('i');if(!corner&&((r*7+c*13+i)%3===0))el.className='w';if(corner&&r%2===1&&c%2===1&&!(r===1&&c===1)&&!(r===1&&c===7)&&!(r===7&&c===1))el.className='w';q.appendChild(el)}});
+// deep-link for review: #app=profile|links|stats|account  #sheet=addLink...
+const h=new URLSearchParams(location.hash.slice(1));if(h.get('app'))enterApp(h.get('app'));if(h.get('sheet'))open(h.get('sheet'));
+</script>
+</body>
+</html>
