@@ -91,9 +91,13 @@ export class ApiClient {
   private useMock: boolean;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || '';
+    const envBase = import.meta.env.VITE_API_URL || '';
+    // Dashboard yang disajikan Worker (1stdev.link, link.1stnear.com) memanggil API di origin sendiri:
+    // CSP Worker hanya mengizinkan connect-src 'self'. pages.dev tetap memakai VITE_API_URL.
+    const servedByWorker = /^(www\.)?1stdev\.link$|^link\.1stnear\.com$/.test(window.location.hostname);
+    this.baseUrl = servedByWorker ? window.location.origin : envBase;
     // Auto mock mode if running in dev without backend or localStorage flag
-    this.useMock = import.meta.env.VITE_USE_MOCK === 'true' || !this.baseUrl;
+    this.useMock = import.meta.env.VITE_USE_MOCK === 'true' || !envBase;
   }
 
   setMockMode(enable: boolean) {
@@ -169,6 +173,23 @@ export class ApiClient {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
+    // Sesi yang dibawa dari domain lama (lihat main.tsx). Kode sekali pakai, hapus dari URL segera.
+    const handoff = urlParams.get('handoff');
+    if (handoff) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+      try {
+        const res = await fetch(`${this.baseUrl}/api/auth/handoff/claim`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: handoff }),
+        });
+        const body = await res.json().catch(() => null);
+        if (res.ok && body?.data?.api_key) localStorage.setItem('edgelink_token', body.data.api_key);
+      } catch {
+        /* kode kedaluwarsa: lanjut seperti biasa, pengguna bisa masuk lagi */
+      }
+    }
+
     const existingToken = localStorage.getItem('edgelink_token');
     if (!existingToken) return null;
 
@@ -179,6 +200,13 @@ export class ApiClient {
       localStorage.removeItem('edgelink_token');
       return null;
     }
+  }
+
+  /** Minta kode sekali pakai untuk membawa sesi ini ke domain utama. */
+  async createHandoff(): Promise<string> {
+    const res = await this.request<ApiResponse<{ code: string }>>('/api/auth/handoff', { method: 'POST' });
+    if (!res.data?.code) throw new Error('handoff_failed');
+    return res.data.code;
   }
 
   logout(): void {

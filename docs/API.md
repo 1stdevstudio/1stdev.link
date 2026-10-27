@@ -1,9 +1,9 @@
-# EdgeLink by 1stnear.com — Developer API Specification
+# 1stdev.link by 1stdev.space — Developer API Specification
 
-Dokumentasi resmi API EdgeLink v1 untuk developer, integrasi sistem, dan bot otomasi.
+Dokumentasi resmi API 1stdev.link v1 untuk developer, integrasi sistem, dan bot otomasi.
 
-- **Base URL Production**: `https://link.1stnear.com`
-- **Dashboard Web**: `https://link.1stnear.com/` (mirror: `https://edgelink-afl.pages.dev`)
+- **Base URL Production**: `https://1stdev.link`
+- **Dashboard Web**: `https://1stdev.link/` (mirror: `https://edgelink-afl.pages.dev`)
 - **Protokol**: HTTPS / HTTP/2 & HTTP/3
 - **Format Payload**: JSON (`Content-Type: application/json`)
 - **Arsitektur Edge**: Cloudflare Workers + D1 SQLite + KV Namespace (Global Cache sub-15ms)
@@ -204,7 +204,7 @@ Content-Type: application/json
   "data": {
     "id": "lnk_1a2b3c4d5e",
     "slug": "menu-kopi",
-    "short_url": "https://link.1stnear.com/menu-kopi",
+    "short_url": "https://1stdev.link/menu-kopi",
     "destination_url": "https://1stnear.com/fitur",
     "ios_url": "https://apps.apple.com/app/id...",
     "android_url": "https://play.google.com/store/apps/...",
@@ -234,7 +234,7 @@ Authorization: Bearer <token_atau_api_key>
     {
       "id": "lnk_1a2b3c4d5e",
       "slug": "menu-kopi",
-      "short_url": "https://link.1stnear.com/menu-kopi",
+      "short_url": "https://1stdev.link/menu-kopi",
       "destination_url": "https://1stnear.com/fitur",
       "title": "Katalog Menu Kopi",
       "is_bio_entry": 1,
@@ -352,7 +352,7 @@ Content-Type: application/json
   "data": {
     "handle": "yogi_iskandar",
     "display_name": "Yogi Iskandar",
-    "bio_url": "https://link.1stnear.com/@yogi_iskandar"
+    "bio_url": "https://1stdev.link/@yogi_iskandar"
   }
 }
 ```
@@ -385,7 +385,7 @@ Sistem mendukung 14 variasi blok bio:
 ### Contoh Menggunakan cURL
 ```bash
 # Buat link baru
-curl -X POST https://link.1stnear.com/api/links \
+curl -X POST https://1stdev.link/api/links \
   -H "Authorization: Bearer el_live_9876543210abcdef" \
   -H "Content-Type: application/json" \
   -d '{
@@ -398,7 +398,7 @@ curl -X POST https://link.1stnear.com/api/links \
 
 ### Contoh Menggunakan JavaScript / Node.js
 ```javascript
-const API_URL = 'https://link.1stnear.com';
+const API_URL = 'https://1stdev.link';
 const API_KEY = 'el_live_9876543210abcdef';
 
 async function createShortlink(title, targetUrl) {
@@ -431,7 +431,7 @@ createShortlink('Website 1stNear', 'https://1stnear.com')
 ```python
 import requests
 
-API_URL = "https://link.1stnear.com"
+API_URL = "https://1stdev.link"
 API_KEY = "el_live_9876543210abcdef"
 
 headers = {

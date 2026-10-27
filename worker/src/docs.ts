@@ -1,6 +1,6 @@
 /**
  * Developer API Documentation HTML Renderer
- * Hosted live on https://link.1stnear.com/docs
+ * Hosted live on https://1stdev.link/docs
  */
 
 export function renderDocsHtml(): string {
@@ -136,7 +136,7 @@ export function renderDocsHtml(): string {
     <header>
       <div class="badge">API v1.0 • Cloudflare Edge Sub-15ms</div>
       <h1>1stdev.link Developer API</h1>
-      <div class="subtitle">Dokumentasi integrasi resmi untuk shortlink, bio profil, dan sistem otomasi di <strong>link.1stnear.com</strong></div>
+      <div class="subtitle">Dokumentasi integrasi resmi untuk shortlink, bio profil, dan sistem otomasi di <strong>1stdev.link</strong></div>
     </header>
 
     <h2>1. Otentikasi</h2>
@@ -172,7 +172,7 @@ Content-Type: application/json
   "data": {
     "id": "lnk_9a8b7c6d5e",
     "slug": "katalog-kopi",
-    "short_url": "https://link.1stnear.com/katalog-kopi",
+    "short_url": "https://1stdev.link/katalog-kopi",
     "destination_url": "https://1stdev.space/fitur",
     "title": "Katalog Menu Kopi",
     "is_bio_entry": 1,
@@ -196,7 +196,7 @@ Content-Type: application/json
     {
       "id": "lnk_9a8b7c6d5e",
       "slug": "katalog-kopi",
-      "short_url": "https://link.1stnear.com/katalog-kopi",
+      "short_url": "https://1stdev.link/katalog-kopi",
       "destination_url": "https://1stdev.space/fitur",
       "title": "Katalog Menu Kopi",
       "is_bio_entry": 1,
@@ -287,7 +287,7 @@ Content-Type: application/json
     </table>
 
     <h2>4. Contoh cURL</h2>
-    <pre>curl -X POST https://link.1stnear.com/api/links \\
+    <pre>curl -X POST https://1stdev.link/api/links \\
   -H "Authorization: Bearer &lt;API_KEY&gt;" \\
   -H "Content-Type: application/json" \\
   -d '{

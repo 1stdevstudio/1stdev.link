@@ -16,6 +16,26 @@ app.use('/api/*', cors({
   allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
 }));
 
+// 0. Pindah domain: 1stdev.link adalah domain utama.
+// Domain lama tetap melayani API (integrasi pihak ketiga) dan media (URL foto lama di database),
+// serta halaman dashboard "/" agar sesi yang tersimpan di domain lama bisa dibawa lewat handoff.
+// Selain itu, GET/HEAD dialihkan permanen (301) ke path yang sama: link pendek lama tetap jalan.
+const PRIMARY_HOST = '1stdev.link';
+const LEGACY_HOSTS = new Set(['link.1stnear.com', 'www.1stdev.link']);
+
+app.use('*', async (c, next) => {
+  if (c.env.DOMAIN_REDIRECT !== 'on') return next();
+  const url = new URL(c.req.url);
+  if (!LEGACY_HOSTS.has(url.hostname)) return next();
+  const p = url.pathname;
+  const isReadRequest = c.req.method === 'GET' || c.req.method === 'HEAD';
+  const keepOnLegacy =
+    url.hostname === 'link.1stnear.com' &&
+    (p === '/' || p.startsWith('/assets/') || p.startsWith('/api/') || p.startsWith('/m/'));
+  if (!isReadRequest || keepOnLegacy) return next();
+  return c.redirect(`https://${PRIMARY_HOST}${p}${url.search}`, 301);
+});
+
 // 1. Global Security Headers Middleware
 app.use('*', async (c, next) => {
   await next();
@@ -88,9 +108,10 @@ async function authenticateUser(c: any): Promise<User | null> {
   if (!db) return null;
 
   try {
+    // Hanya api_key. Id user tampil publik (mis. URL foto profil), jadi tidak boleh jadi token.
     const user = (await db
-      .prepare('SELECT id, email, api_key, is_guest, claim_token, created_at, updated_at FROM users WHERE id = ? OR api_key = ?')
-      .bind(token, token)
+      .prepare('SELECT id, email, api_key, is_guest, claim_token, created_at, updated_at FROM users WHERE api_key = ?')
+      .bind(token)
       .first()) as User | null;
     return user || null;
   } catch {
@@ -784,6 +805,45 @@ app.get('/api/auth/me', apiAuthMiddleware, async (c) => {
   });
 });
 
+// Handoff sesi antar-domain (link.1stnear.com -> 1stdev.link).
+// Token tersimpan per domain di localStorage. Domain lama meminta kode sekali pakai (berlaku 2 menit),
+// domain baru menukarnya dengan token. Kunci akses jangka panjang tidak pernah masuk ke URL.
+const HANDOFF_TTL = 120;
+
+app.post('/api/auth/handoff', apiAuthMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  if (!c.env.KV) return c.json({ status: 'error', message: 'Unavailable' }, 503);
+  const rate = await checkRateLimit(c.env.KV, `rate:handoff:${user.id}`, 10, 3600);
+  if (!rate.allowed) return c.json({ status: 'error', message: 'Too many requests' }, 429);
+
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  const code = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+  await c.env.KV.put(`handoff:${code}`, user.id, { expirationTtl: HANDOFF_TTL });
+  return c.json({ status: 'success', data: { code, expires_in: HANDOFF_TTL } });
+});
+
+app.post('/api/auth/handoff/claim', async (c) => {
+  if (!c.env.KV || !c.env.DB) return c.json({ status: 'error', message: 'Unavailable' }, 503);
+  const rate = await checkRateLimit(c.env.KV, `rate:handoff_claim:${getClientIp(c)}`, 20, 300);
+  if (!rate.allowed) return c.json({ status: 'error', message: 'Too many requests' }, 429);
+
+  const body = (await c.req.json().catch(() => ({}))) as { code?: unknown };
+  const code = typeof body.code === 'string' ? body.code : '';
+  if (!/^[a-f0-9]{64}$/.test(code)) return c.json({ status: 'error', message: 'Invalid code' }, 400);
+
+  const key = `handoff:${code}`;
+  const userId = await c.env.KV.get(key);
+  if (!userId) return c.json({ status: 'error', message: 'Code expired' }, 410);
+  await c.env.KV.delete(key);
+
+  const user = (await c.env.DB
+    .prepare('SELECT api_key FROM users WHERE id = ?')
+    .bind(userId)
+    .first()) as { api_key: string } | null;
+  if (!user?.api_key) return c.json({ status: 'error', message: 'Code expired' }, 410);
+  return c.json({ status: 'success', data: { api_key: user.api_key } });
+});
+
 // POST /api/auth/login - Connect / Sync existing workspace from another device
 app.post('/api/auth/login', async (c) => {
   const ip = getClientIp(c);
@@ -816,20 +876,15 @@ app.post('/api/auth/login', async (c) => {
     return c.json({ status: 'error', message: 'Database unavailable' }, 503);
   }
 
-  let user: User | null = null;
+  // Email saja bukan bukti kepemilikan: masuk dengan email wajib lewat kode OTP (/api/auth/send-otp).
   if (credential.includes('@')) {
-    // Lookup by registered email
-    user = (await db
-      .prepare('SELECT id, email, api_key, is_guest FROM users WHERE email = ? AND is_guest = 0')
-      .bind(credential.toLowerCase())
-      .first()) as User | null;
-  } else {
-    // Lookup by Access Key / API Key / Token
-    user = (await db
-      .prepare('SELECT id, email, api_key, is_guest FROM users WHERE api_key = ? OR id = ?')
-      .bind(credential, credential)
-      .first()) as User | null;
+    return c.json({ status: 'error', message: 'Sign in with email uses a verification code.' }, 400);
   }
+  // Hanya kunci akses rahasia (api_key). Id user bersifat publik.
+  const user = (await db
+    .prepare('SELECT id, email, api_key, is_guest FROM users WHERE api_key = ?')
+    .bind(credential)
+    .first()) as User | null;
 
   if (!user || !user.api_key) {
     return c.json({ status: 'error', message: 'Invalid credentials. Account not found.' }, 401);

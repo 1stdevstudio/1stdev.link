@@ -1,13 +1,13 @@
 # 1stdev.link by 1stdev.space: panduan lengkap
 
-> Layanan link bio dan pemendek link gratis 100% dari 1stdev.space. Tanpa iklan, tanpa daftar. Alamat: https://link.1stnear.com
+> Layanan link bio dan pemendek link gratis 100% dari 1stdev.space. Tanpa iklan, tanpa daftar. Alamat: https://1stdev.link
 
 ## Ringkasan
 
 1stdev.link membantu kamu membagikan banyak link lewat satu alamat. Ada dua fitur inti:
 
-1. Halaman profil (link in bio): satu halaman di https://link.1stnear.com/@nama yang berisi semua link kamu. Tempel alamat ini di kolom bio Instagram, TikTok, X, YouTube, atau status WhatsApp.
-2. Link pendek (URL shortener): ubah link panjang jadi https://link.1stnear.com/kode dan lihat berapa kali diklik.
+1. Halaman profil (link in bio): satu halaman di https://1stdev.link/@nama yang berisi semua link kamu. Tempel alamat ini di kolom bio Instagram, TikTok, X, YouTube, atau status WhatsApp.
+2. Link pendek (URL shortener): ubah link panjang jadi https://1stdev.link/kode dan lihat berapa kali diklik.
 
 Dibuat oleh 1stdev.space. Bahasa antarmuka: Indonesia dan Inggris.
 
@@ -23,7 +23,7 @@ Ya, gratis 100%. Tidak ada paket berbayar, tidak ada fitur yang dikunci, dan tid
 Tidak. Kamu bisa langsung mulai sebagai tamu. Jika ingin membuka dashboard dari perangkat lain, simpan akun dengan email; kami mengirim kode OTP sekali pakai, tanpa kata sandi.
 
 ### Bagaimana cara membuat link bio Instagram atau TikTok?
-Buka https://link.1stnear.com, pilih "Halaman profil", tambahkan link (toko, WhatsApp, video, dan lainnya), lalu salin alamat https://link.1stnear.com/@nama ke kolom bio Instagram atau TikTok.
+Buka https://1stdev.link, pilih "Halaman profil", tambahkan link (toko, WhatsApp, video, dan lainnya), lalu salin alamat https://1stdev.link/@nama ke kolom bio Instagram atau TikTok.
 
 ### Bisa membuat link WhatsApp dengan pesan otomatis?
 Bisa. Tambahkan blok WhatsApp, isi nomor (format 08xx atau 62xx) dan pesan awal. Pengunjung yang mengetuk tombol langsung membuka chat WhatsApp dengan pesan itu.
@@ -47,7 +47,7 @@ Tidak ada pelacak pihak ketiga, piksel iklan, atau cookie iklan di halaman profi
 Bisa, lewat API: link pendek dapat punya ios_url dan android_url. Pengunjung diarahkan otomatis sesuai perangkatnya.
 
 ### Apakah ada API untuk developer?
-Ada. REST API untuk membuat link pendek, mengelola blok bio, dan membaca statistik. Dokumentasi: https://link.1stnear.com/docs
+Ada. REST API untuk membuat link pendek, mengelola blok bio, dan membaca statistik. Dokumentasi: https://1stdev.link/docs
 
 ### Seberapa cepat halaman profil dimuat?
 Halaman profil dirender di server pada jaringan edge global dan disimpan di cache dekat pengunjung, sehingga terbuka cepat bahkan di koneksi seluler.
@@ -60,12 +60,12 @@ Ya. Setiap tujuan link diperiksa: alamat internal/privat dan skema berbahaya dit
 
 ## Cara mengutip
 
-Sebut sebagai "1stdev.link by 1stdev.space" dengan tautan https://link.1stnear.com
+Sebut sebagai "1stdev.link by 1stdev.space" dengan tautan https://1stdev.link
 
 
 ## English summary
 
-1stdev.link by 1stdev.space is a free link-in-bio and URL shortener (https://link.1stnear.com). The interface is available in English and Indonesian; switch with the ID/EN toggle.
+1stdev.link by 1stdev.space is a free link-in-bio and URL shortener (https://1stdev.link). The interface is available in English and Indonesian; switch with the ID/EN toggle.
 
 ### Is 1stdev.link really free?
 Yes, 100% free. There are no paid plans, no locked features and no ads on profile pages.
@@ -74,7 +74,7 @@ Yes, 100% free. There are no paid plans, no locked features and no ads on profil
 No. Start as a guest. Save your account with an email one-time code (no password) to open the dashboard on other devices.
 
 ### How do I make an Instagram or TikTok link in bio?
-Choose Profile page, add your links, then copy your link.1stnear.com/@name address into your Instagram or TikTok bio.
+Choose Profile page, add your links, then copy your 1stdev.link/@name address into your Instagram or TikTok bio.
 
 ### Can I create a WhatsApp link with a pre-filled message?
 Yes. Add a WhatsApp block with your number and an opening message; visitors open the chat with the message already typed.
@@ -83,4 +83,4 @@ Yes. Add a WhatsApp block with your number and an opening message; visitors open
 No third-party trackers or ad cookies. Stats are stored as aggregate numbers (clicks per day and country) without visitor identities. Bot and link-preview clicks are not counted.
 
 ### Is there an API?
-Yes, a REST API for short links, bio blocks and stats: https://link.1stnear.com/docs
+Yes, a REST API for short links, bio blocks and stats: https://1stdev.link/docs

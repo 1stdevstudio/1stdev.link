@@ -56,7 +56,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'Bearer usr_test123'
+          Authorization: 'Bearer sec_key_456'
         },
         body: JSON.stringify({
           destination_url: 'http://127.0.0.1:8080/admin',
@@ -73,7 +73,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'Bearer usr_test123'
+          Authorization: 'Bearer sec_key_456'
         },
         body: JSON.stringify({
           destination_url: 'https://spixels.id',
@@ -90,7 +90,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: 'Bearer usr_test123'
+          Authorization: 'Bearer sec_key_456'
         },
         body: JSON.stringify({
           destination_url: 'https://spixels.id/mastery',
@@ -342,7 +342,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     // 1. List links
     const listRes = await app.fetch(
       new Request('http://localhost/api/links', {
-        headers: { Authorization: 'Bearer usr_test123' }
+        headers: { Authorization: 'Bearer sec_key_456' }
       }),
       env
     );
@@ -355,7 +355,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     // 2. Link analytics
     const statsRes = await app.fetch(
       new Request('http://localhost/api/links/lnk_analytics_test/analytics?range=7d', {
-        headers: { Authorization: 'Bearer usr_test123' }
+        headers: { Authorization: 'Bearer sec_key_456' }
       }),
       env
     );
@@ -442,7 +442,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
   });
 
   test('API responses carry X-Robots-Tag noindex', async () => {
-    const res = await app.fetch(new Request('http://localhost/api/links', { headers: { Authorization: 'Bearer usr_test123' } }), env);
+    const res = await app.fetch(new Request('http://localhost/api/links', { headers: { Authorization: 'Bearer sec_key_456' } }), env);
     assert.equal(res.headers.get('x-robots-tag'), 'noindex, nofollow');
   });
 
@@ -462,7 +462,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
   describe('media upload (R2)', () => {
     const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 1, 2, 3]);
     const WEBP = new Uint8Array([0x52, 0x49, 0x46, 0x46, 8, 0, 0, 0, 0x57, 0x45, 0x42, 0x50, 9, 9]);
-    const upload = (body: BodyInit, headers: Record<string, string> = { Authorization: 'Bearer usr_test123' }) =>
+    const upload = (body: BodyInit, headers: Record<string, string> = { Authorization: 'Bearer sec_key_456' }) =>
       app.fetch(new Request('http://localhost/api/media/avatar', { method: 'POST', body, headers }), env);
     let r2: MockR2;
     beforeEach(() => {
@@ -473,13 +473,13 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     test('rejects missing auth and guest accounts', async () => {
       assert.equal((await upload(PNG, {})).status, 401);
       mockDb.tables.users.push({ id: 'usr_guest', email: 'g@x', api_key: 'k_guest', is_guest: 1, created_at: 1, updated_at: 1 });
-      assert.equal((await upload(PNG, { Authorization: 'Bearer usr_guest' })).status, 403);
+      assert.equal((await upload(PNG, { Authorization: 'Bearer k_guest' })).status, 403);
       assert.equal(r2.objects.size, 0);
     });
 
     test('rejects SVG, HTML and oversized bodies by content, not header', async () => {
       const svg = new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
-      assert.equal((await upload(svg, { Authorization: 'Bearer usr_test123', 'Content-Type': 'image/png' })).status, 415);
+      assert.equal((await upload(svg, { Authorization: 'Bearer sec_key_456', 'Content-Type': 'image/png' })).status, 415);
       const big = new Uint8Array(512 * 1024 + 1);
       big.set(PNG);
       assert.equal((await upload(big)).status, 413);
@@ -511,6 +511,78 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
       assert.equal(await pruneAvatars(r2 as any, 'usr_test123', 'avatars/usr_test123/bbbbbbbbbbbbbbbb.webp'), 1);
       assert.deepEqual([...r2.objects.keys()].sort(), ['avatars/usr_other/cccccccccccccccc.webp', 'avatars/usr_test123/bbbbbbbbbbbbbbbb.webp']);
       assert.equal(sniffImage(new Uint8Array([0xff, 0xd8, 0xff]))?.ext, 'jpg');
+    });
+  });
+
+  describe('auth hardening', () => {
+    const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
+      app.fetch(new Request(`http://localhost${path}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body),
+      }), env);
+
+    test('user id is public and never accepted as a token', async () => {
+      const me = await app.fetch(new Request('http://localhost/api/auth/me', { headers: { Authorization: 'Bearer usr_test123' } }), env);
+      assert.equal(me.status, 401);
+      const ok = await app.fetch(new Request('http://localhost/api/auth/me', { headers: { Authorization: 'Bearer sec_key_456' } }), env);
+      assert.equal(ok.status, 200);
+    });
+
+    test('login only accepts the secret access key, never email or id', async () => {
+      const byEmail = await post('/api/auth/login', { credential: 'tester@edgelink.id' });
+      assert.ok(byEmail.status >= 400);
+      assert.doesNotMatch(await byEmail.text(), /sec_key_456/);
+      const byId = await post('/api/auth/login', { credential: 'usr_test123' });
+      assert.equal(byId.status, 401);
+      assert.doesNotMatch(await byId.text(), /sec_key_456/);
+      const byKey = await post('/api/auth/login', { credential: 'sec_key_456' });
+      assert.equal(byKey.status, 200);
+    });
+
+    test('handoff code carries the session once, then expires', async () => {
+      assert.equal((await post('/api/auth/handoff', {})).status, 401);
+      const res = await post('/api/auth/handoff', {}, { Authorization: 'Bearer sec_key_456' });
+      assert.equal(res.status, 200);
+      const code = ((await res.json()) as any).data.code as string;
+      assert.match(code, /^[a-f0-9]{64}$/);
+
+      const claim = await post('/api/auth/handoff/claim', { code });
+      assert.equal(claim.status, 200);
+      assert.equal(((await claim.json()) as any).data.api_key, 'sec_key_456');
+      assert.equal((await post('/api/auth/handoff/claim', { code })).status, 410);
+      assert.equal((await post('/api/auth/handoff/claim', { code: 'usr_test123' })).status, 400);
+    });
+  });
+
+  describe('domain move to 1stdev.link', () => {
+    test('does not redirect when DOMAIN_REDIRECT is off', async () => {
+      const getOff = (url: string) => app.fetch(new Request(url), { ...env, DOMAIN_REDIRECT: 'off' });
+      const short = await getOff('https://link.1stnear.com/menu-kopi?utm=ig');
+      assert.notEqual(short.status, 301);
+      const www = await getOff('https://www.1stdev.link/');
+      assert.notEqual(www.status, 301);
+    });
+
+    const get = (url: string, init?: RequestInit) =>
+      app.fetch(new Request(url, init), { ...env, DOMAIN_REDIRECT: 'on' });
+
+    test('old domain 301s pages and short links to the same path on 1stdev.link', async () => {
+      const short = await get('https://link.1stnear.com/menu-kopi?utm=ig');
+      assert.equal(short.status, 301);
+      assert.equal(short.headers.get('location'), 'https://1stdev.link/menu-kopi?utm=ig');
+      const bio = await get('https://link.1stnear.com/@nadia');
+      assert.equal(bio.headers.get('location'), 'https://1stdev.link/@nadia');
+      const www = await get('https://www.1stdev.link/');
+      assert.equal(www.status, 301);
+      assert.equal(www.headers.get('location'), 'https://1stdev.link/');
+    });
+
+    test('old domain keeps serving API and media so integrations and saved avatars work', async () => {
+      const api = await get('https://link.1stnear.com/api/auth/me', { headers: { Authorization: 'Bearer sec_key_456' } });
+      assert.equal(api.status, 200);
+      const write = await get('https://link.1stnear.com/api/auth/handoff', { method: 'POST', headers: { Authorization: 'Bearer sec_key_456' } });
+      assert.equal(write.status, 200);
+      const media = await get('https://link.1stnear.com/m/avatars/usr_test123/aaaaaaaaaaaaaaaa.webp');
+      assert.notEqual(media.status, 301);
     });
   });
 });

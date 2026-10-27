@@ -150,9 +150,15 @@ export class MockD1 {
       return { results };
     }
     // Select user
-    if (query.includes('FROM users WHERE id = ? OR api_key = ?')) {
-      const [token1, token2] = params;
-      const user = this.tables.users.find((u) => u.id === token1 || u.api_key === token2);
+    // Token lookup: hanya api_key (id user bersifat publik, bukan rahasia).
+    if (query.includes('FROM users WHERE api_key = ?')) {
+      const [token] = params;
+      const user = this.tables.users.find((u) => u.api_key === token);
+      return { results: user ? [user] : [] };
+    }
+    if (query.includes('FROM users WHERE id = ?')) {
+      const [id] = params;
+      const user = this.tables.users.find((u) => u.id === id);
       return { results: user ? [user] : [] };
     }
 

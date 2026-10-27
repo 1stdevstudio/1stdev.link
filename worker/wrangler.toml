@@ -3,9 +3,17 @@ main = "src/index.ts"
 compatibility_date = "2025-02-24"
 compatibility_flags = ["nodejs_compat"]
 
+# Domain kustom Worker. 1stdev.link = utama; link.1stnear.com tetap aktif (redirect 301 + API lama).
+routes = [
+  { pattern = "1stdev.link", custom_domain = true },
+  { pattern = "www.1stdev.link", custom_domain = true },
+  { pattern = "link.1stnear.com", custom_domain = true },
+]
+
 [vars]
 ENVIRONMENT = "production"
-BASE_URL = "https://link.1stnear.com"
+BASE_URL = "https://1stdev.link"
+DOMAIN_REDIRECT = "on"
 
 # D1 Database Binding
 [[d1_databases]]

@@ -1,15 +1,15 @@
 # 1stdev.link by 1stdev.space
 
-> 1stdev.link adalah layanan link bio dan pemendek link (URL shortener) gratis 100% dari 1stdev.space. Satu halaman profil di link.1stnear.com/@nama berisi semua link kamu untuk bio Instagram, TikTok, dan WhatsApp, plus link pendek dengan statistik klik. Tanpa iklan, tanpa daftar, tanpa paket berbayar.
+> 1stdev.link adalah layanan link bio dan pemendek link (URL shortener) gratis 100% dari 1stdev.space. Satu halaman profil di 1stdev.link/@nama berisi semua link kamu untuk bio Instagram, TikTok, dan WhatsApp, plus link pendek dengan statistik klik. Tanpa iklan, tanpa daftar, tanpa paket berbayar.
 
 1stdev.link (English: a free link-in-bio and URL shortener by 1stdev.space, no ads, no sign-up required) cocok untuk kreator, UMKM, toko online, dan siapa pun yang butuh satu link untuk semua tautan.
 
 Fakta utama:
 - Harga: gratis 100%. Tidak ada paket Pro/Premium dan tidak ada iklan di halaman profil.
 - Mulai tanpa daftar: langsung pakai sebagai tamu, lalu simpan akun dengan email (kode OTP) agar bisa dibuka di perangkat lain.
-- Alamat profil: https://link.1stnear.com/@nama (handle bisa diganti).
+- Alamat profil: https://1stdev.link/@nama (handle bisa diganti).
 - Jenis blok halaman profil: link, sorotan, WhatsApp (nomor + pesan awal), judul bagian, teks, garis pemisah, video, toko online, lokasi, dan media sosial. Tersedia 30 template blok siap pakai.
-- Link pendek: https://link.1stnear.com/kode, dengan statistik klik per hari dan per negara.
+- Link pendek: https://1stdev.link/kode, dengan statistik klik per hari dan per negara.
 - Arahkan per perangkat: link pendek bisa punya tujuan berbeda untuk iPhone/iOS dan Android (lewat API).
 - Privasi: halaman profil tanpa pelacak pihak ketiga dan tanpa cookie iklan. Statistik dihitung agregat (jumlah klik per hari dan negara), tanpa profil pengunjung. Klik dari bot dan pratinjau link tidak dihitung.
 - Kecepatan: halaman profil dirender di server pada jaringan edge global, dekat dengan pengunjung.
@@ -17,24 +17,24 @@ Fakta utama:
 
 ## Halaman utama
 
-- [1stdev.link](https://link.1stnear.com/): mulai membuat halaman profil atau link pendek
-- [Dokumentasi API](https://link.1stnear.com/docs): REST API untuk link pendek, blok bio, dan statistik
+- [1stdev.link](https://1stdev.link/): mulai membuat halaman profil atau link pendek
+- [Dokumentasi API](https://1stdev.link/docs): REST API untuk link pendek, blok bio, dan statistik
 
 ## Panduan
 
-- [FAQ lengkap](https://link.1stnear.com/llms-full.txt): jawaban detail tentang fitur, harga, privasi, dan cara pakai
+- [FAQ lengkap](https://1stdev.link/llms-full.txt): jawaban detail tentang fitur, harga, privasi, dan cara pakai
 
 ## Optional
 
-- [Sitemap](https://link.1stnear.com/sitemap.xml): daftar halaman profil publik
+- [Sitemap](https://1stdev.link/sitemap.xml): daftar halaman profil publik
 - [1stdev.space](https://1stdev.space): situs pembuat 1stdev.link
 
 ## English
 
-1stdev.link by 1stdev.space is a 100% free link-in-bio and URL shortener. One profile page at https://link.1stnear.com/@name holds all your links for Instagram, TikTok and WhatsApp bios, plus short links with click stats. No ads, no sign-up required, no paid plans. The app interface is available in English and Indonesian.
+1stdev.link by 1stdev.space is a 100% free link-in-bio and URL shortener. One profile page at https://1stdev.link/@name holds all your links for Instagram, TikTok and WhatsApp bios, plus short links with click stats. No ads, no sign-up required, no paid plans. The app interface is available in English and Indonesian.
 
 - Price: free. No Pro/Premium tier and no ads on profile pages.
 - Start without signing up; save the account later with a one-time email code.
 - Profile blocks: link, featured, WhatsApp (number + pre-filled message), heading, text, divider, video, online shop, location and social profiles, plus 30 templates.
-- Short links: https://link.1stnear.com/code with daily and per-country click stats; per-device destinations for iOS and Android via the API.
+- Short links: https://1stdev.link/code with daily and per-country click stats; per-device destinations for iOS and Android via the API.
 - Privacy: no third-party trackers or ad cookies on profile pages; aggregate stats only; bot clicks are not counted.
