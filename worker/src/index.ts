@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import type { Env, User, BioProfile, Link, CachedSlug, CachedBioProfile, OtpRecord } from './types.js';
 import { isReservedSlug, validateDestinationUrl, checkRateLimit, generateSecureOtp, sendOtpEmail } from './security.js';
 import { renderBioPage } from './bio.js';
+import { AVATAR_MAX_BYTES, sniffImage, contentHash, avatarPrefix, isValidMediaKey, mediaKeyFromUrl, pruneAvatars } from './media.js';
 import { renderDocsHtml } from './docs.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
@@ -113,6 +114,77 @@ const apiAuthMiddleware = async (c: any, next: any) => {
 
 // Health Check
 app.get('/health', (c) => c.json({ status: 'ok', service: 'edgelink-worker' }));
+
+// -------------------------------------------------------------
+// Media (foto profil di R2)
+// -------------------------------------------------------------
+
+const MEDIA_CACHE = 'public, max-age=31536000, immutable';
+
+// Upload foto profil. Body = byte gambar mentah (browser sudah resize ke WebP 400x400).
+app.post('/api/media/avatar', apiAuthMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  if (!c.env.MEDIA) {
+    return c.json({ status: 'error', message: 'Media storage is not available' }, 503);
+  }
+  if (user.is_guest) {
+    return c.json({ status: 'error', message: 'Save your account first to upload a photo' }, 403);
+  }
+
+  const declared = Number(c.req.header('Content-Length') || 0);
+  if (declared > AVATAR_MAX_BYTES) {
+    return c.json({ status: 'error', message: 'Image too large (max 512 KB)' }, 413);
+  }
+
+  const rate = await checkRateLimit(c.env.KV, `rate:media:${user.id}`, 10, 3600);
+  if (!rate.allowed) {
+    return c.json({ status: 'error', message: 'Too many uploads. Try again later.' }, 429);
+  }
+
+  const buf = await c.req.arrayBuffer();
+  if (buf.byteLength === 0) {
+    return c.json({ status: 'error', message: 'Empty body' }, 400);
+  }
+  if (buf.byteLength > AVATAR_MAX_BYTES) {
+    return c.json({ status: 'error', message: 'Image too large (max 512 KB)' }, 413);
+  }
+
+  const kind = sniffImage(new Uint8Array(buf, 0, Math.min(16, buf.byteLength)));
+  if (!kind) {
+    return c.json({ status: 'error', message: 'Only WebP, JPEG, or PNG images are allowed' }, 415);
+  }
+
+  const key = `${avatarPrefix(user.id)}${await contentHash(buf)}.${kind.ext}`;
+  await c.env.MEDIA.put(key, buf, { httpMetadata: { contentType: kind.mime, cacheControl: MEDIA_CACHE } });
+
+  const base = (c.env.BASE_URL || new URL(c.req.url).origin).replace(/\/$/, '');
+  return c.json({ status: 'success', data: { url: `${base}/m/${key}` } });
+});
+
+// Sajikan media publik. Nama file = hash isi, jadi aman di-cache selamanya.
+app.get('/m/avatars/:uid/:file', async (c) => {
+  const key = `avatars/${c.req.param('uid')}/${c.req.param('file')}`;
+  if (!c.env.MEDIA || !isValidMediaKey(key)) return c.text('Not found', 404);
+
+  const obj = await c.env.MEDIA.get(key);
+  if (!obj) return c.text('Not found', 404);
+
+  const type = obj.httpMetadata?.contentType || 'application/octet-stream';
+  const etag = obj.httpEtag;
+  if (etag && c.req.header('If-None-Match') === etag) {
+    return new Response(null, { status: 304, headers: { ETag: etag, 'Cache-Control': MEDIA_CACHE } });
+  }
+  return new Response(obj.body, {
+    headers: {
+      'Content-Type': type,
+      'Cache-Control': MEDIA_CACHE,
+      ETag: etag,
+      'X-Content-Type-Options': 'nosniff',
+      'Content-Security-Policy': "default-src 'none'; sandbox",
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+    },
+  });
+});
 
 // Developer API Documentation (Live HTML & spec)
 app.get('/docs', (c) => c.html(renderDocsHtml()));
@@ -1426,6 +1498,11 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
           : Promise.resolve()
       ])
     );
+  }
+
+  // Foto lama (dan upload yang tak jadi dipakai) dihapus dari R2 saat foto berganti.
+  if (c.env.MEDIA && newAvatarUrl !== (existing?.avatar_url || null)) {
+    safeWaitUntil(c, pruneAvatars(c.env.MEDIA, user.id, mediaKeyFromUrl(newAvatarUrl)));
   }
 
   return c.json({

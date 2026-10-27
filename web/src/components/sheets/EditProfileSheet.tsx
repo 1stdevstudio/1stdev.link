@@ -1,13 +1,18 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { Upload, Trash2, Link2 } from 'lucide-react';
 import { Sheet } from '../Sheet';
 import { BioProfile } from '../../types';
 import { useI18n } from '../../i18n/context';
+import { api } from '../../api';
+import { prepareAvatar } from '../../avatarImage';
 
 interface EditProfileSheetProps {
   isOpen: boolean;
   onClose: () => void;
   profile: BioProfile;
   onUpdateProfile: (updated: Partial<BioProfile>) => Promise<void>;
+  isGuest?: boolean;
+  onSaveAccount?: () => void;
 }
 
 export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
@@ -15,6 +20,8 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   onClose,
   profile,
   onUpdateProfile,
+  isGuest,
+  onSaveAccount,
 }) => {
   const { tx } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
@@ -27,6 +34,30 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   const [verifiedBadge, setVerifiedBadge] = useState<boolean>(Boolean(profile.verified_badge));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setError(null);
+    setUploading(true);
+    try {
+      const blob = await prepareAvatar(file);
+      setAvatarUrl(await api.uploadAvatar(blob));
+      setShowAvatarInput(false);
+    } catch (err: any) {
+      const msg = err?.message;
+      setError(
+        msg === 'unsupported' || msg === 'too_large' || !msg
+          ? tx('Foto tidak bisa dibaca. Coba file JPG atau PNG lain.', 'Could not read that photo. Try another JPG or PNG.')
+          : msg
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +70,8 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         display_name: displayName.trim(),
         handle: handle.trim().toLowerCase(),
         bio: bio.trim(),
-        avatar_url: avatarUrl.trim() || undefined,
+        // null = hapus foto; server lalu membersihkan file lama di penyimpanan.
+        avatar_url: (avatarUrl.trim() || null) as string | undefined,
         verified_badge: verifiedBadge,
       });
       onClose();
@@ -59,26 +91,65 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
           </div>
         )}
 
-        <div className="row">
-          <div className="avatar">
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden grid place-items-center bg-[var(--ac)] text-[var(--ink)] text-xl font-bold shadow-lg shadow-black/30">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
                 alt={displayName}
-                className="w-full h-full object-cover rounded-[var(--r3)]"
+                className="w-full h-full object-cover"
               />
             ) : (
               (displayName.charAt(0) || 'C').toUpperCase()
             )}
           </div>
-          <button
-            type="button"
-            className="btn btn-g btn-sm"
-            onClick={() => setShowAvatarInput(!showAvatarInput)}
-          >
-            {showAvatarInput ? tx('Tutup URL foto', 'Close photo URL') : tx('Ganti foto', 'Change photo')}
-          </button>
+          <div className="flex flex-wrap gap-1.5 min-w-0">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              className="hidden"
+              onChange={handleFile}
+            />
+            <button
+              type="button"
+              className="btn btn-g btn-sm disabled:opacity-50"
+              disabled={isGuest || uploading}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Upload size={15} strokeWidth={1.75} />
+              {uploading ? tx('Mengunggah...', 'Uploading...') : tx('Unggah foto', 'Upload photo')}
+            </button>
+            {avatarUrl && !uploading && (
+              <button type="button" className="btn btn-g btn-sm" onClick={() => setAvatarUrl('')}>
+                <Trash2 size={15} strokeWidth={1.75} />
+                {tx('Hapus', 'Remove')}
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn btn-g btn-sm"
+              aria-expanded={showAvatarInput}
+              onClick={() => setShowAvatarInput(!showAvatarInput)}
+            >
+              <Link2 size={15} strokeWidth={1.75} />
+              {tx('Pakai URL', 'Use URL')}
+            </button>
+          </div>
         </div>
+
+        {isGuest ? (
+          <div className="hint">
+            {tx('Simpan akun dulu untuk mengunggah foto.', 'Save your account first to upload a photo.')}{' '}
+            {onSaveAccount && (
+              <button type="button" className="text-[var(--ac)] font-semibold min-h-[44px]" onClick={onSaveAccount}>
+                {tx('Simpan akun', 'Save account')}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="hint">{tx('Foto otomatis dipotong persegi dan dikecilkan.', 'Photos are cropped square and resized automatically.')}</div>
+        )}
 
         {showAvatarInput && (
           <div className="field">
@@ -86,8 +157,8 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
             <input
               id="p-avatar"
               type="url"
-              placeholder="https://images.unsplash.com/..."
-              value={avatarUrl}
+              placeholder="https://..."
+              value={avatarUrl.startsWith('data:') ? '' : avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
             />
           </div>
@@ -147,7 +218,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || uploading}
           className="btn btn-p btn-w mt-2 disabled:opacity-50"
         >
           {loading ? tx('Menyimpan...', 'Saving...') : tx('Simpan', 'Save')}

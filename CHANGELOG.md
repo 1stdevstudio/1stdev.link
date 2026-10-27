@@ -7,6 +7,18 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
 
+## [0.7.0] - 2026-10-28
+
+### Ditambahkan
+- Upload foto profil langsung dari perangkat: foto dipotong persegi dan dikecilkan ke 400x400 WebP di browser (metadata EXIF/GPS ikut terbuang), lalu disimpan di R2 (`edgelink-media`).
+- Endpoint `POST /api/media/avatar` (perlu login, akun tamu ditolak, maks 512 KB, 10 upload/jam per akun, jenis file dicek dari isi: hanya WebP/JPEG/PNG, SVG ditolak).
+- Rute publik `/m/avatars/{user}/{hash}.{ext}` dengan cache immutable 1 tahun; nama file = hash isi.
+- Tombol "Hapus" foto dan opsi "Pakai URL" tetap tersedia.
+
+### Diperbaiki
+- Foto lama dan upload yang tidak jadi dipakai otomatis dihapus dari penyimpanan saat foto profil berganti.
+- Pratinjau foto di sheet "Ubah profil" tidak lagi melebar penuh (kelas `.avatar`/`.row` ternyata tidak pernah didefinisikan).
+
 ## [0.6.1] - 2026-10-28
 
 Tata letak baru untuk editor profil (profile builder).

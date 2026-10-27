@@ -123,6 +123,24 @@ export class ApiClient {
     return res.json();
   }
 
+  /** Upload foto profil (byte gambar mentah, sudah di-resize di browser). Mengembalikan URL publik. */
+  async uploadAvatar(image: Blob): Promise<string> {
+    if (this.useMock) {
+      return await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(String(r.result));
+        r.onerror = () => reject(new Error('Could not read image'));
+        r.readAsDataURL(image);
+      });
+    }
+    const res = await this.request<{ data: { url: string } }>('/api/media/avatar', {
+      method: 'POST',
+      body: image,
+      headers: { 'Content-Type': image.type || 'application/octet-stream' },
+    });
+    return res.data.url;
+  }
+
   // Session & Guest Onboarding
   hasSessionToken(): boolean {
     return Boolean(localStorage.getItem('edgelink_token'));

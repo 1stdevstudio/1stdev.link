@@ -17,3 +17,7 @@ database_id = "b4e3365e-f879-4dcb-bf54-308abcaab3ff"
 [[kv_namespaces]]
 binding = "KV"
 id = "3592113e2791453081cb2d9b32a85ffa"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "edgelink-media"

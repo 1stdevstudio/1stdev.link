@@ -380,6 +380,8 @@ export const App: React.FC = () => {
         onClose={() => setActiveSheet(null)}
         profile={profile}
         onUpdateProfile={handleUpdateProfile}
+        isGuest={Boolean(session.is_guest)}
+        onSaveAccount={() => setActiveSheet('save_account')}
       />
 
       <ShareSheet

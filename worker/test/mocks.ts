@@ -249,3 +249,28 @@ export class MockD1 {
     return { results: [] };
   }
 }
+
+// Minimal in-memory R2 bucket (put/get/delete/list) for media tests
+export class MockR2 {
+  objects = new Map<string, { bytes: Uint8Array; contentType?: string }>();
+
+  async put(key: string, value: ArrayBuffer, opts?: { httpMetadata?: { contentType?: string } }) {
+    this.objects.set(key, { bytes: new Uint8Array(value), contentType: opts?.httpMetadata?.contentType });
+    return { key };
+  }
+
+  async get(key: string) {
+    const o = this.objects.get(key);
+    if (!o) return null;
+    return { body: o.bytes, httpEtag: `"${key.length}-${o.bytes.length}"`, httpMetadata: { contentType: o.contentType } };
+  }
+
+  async delete(keys: string | string[]) {
+    for (const k of Array.isArray(keys) ? keys : [keys]) this.objects.delete(k);
+  }
+
+  async list(opts?: { prefix?: string }) {
+    const objects = [...this.objects.keys()].filter((k) => k.startsWith(opts?.prefix || '')).map((key) => ({ key }));
+    return { objects, truncated: false };
+  }
+}

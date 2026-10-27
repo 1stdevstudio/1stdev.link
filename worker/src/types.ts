@@ -5,6 +5,7 @@ export interface Env {
   BASE_URL?: string;
   TURNSTILE_SECRET_KEY?: string;
   RESEND_API_KEY?: string;
+  MEDIA?: R2Bucket;
 }
 
 export interface OtpRecord {

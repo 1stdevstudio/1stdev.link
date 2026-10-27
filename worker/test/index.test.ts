@@ -1,7 +1,8 @@
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import app from '../src/index.js';
-import { MockD1, MockKV } from './mocks.js';
+import { MockD1, MockKV, MockR2 } from './mocks.js';
+import { pruneAvatars, sniffImage } from '../src/media.js';
 import type { Env } from '../src/types.js';
 
 describe('EdgeLink Cloudflare Worker Backend Tests', () => {
@@ -456,5 +457,60 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     await hit('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1');
     await new Promise((r) => setTimeout(r, 10));
     assert.equal(mockDb.tables.link_analytics[0]?.clicks, 1, 'human counted');
+  });
+
+  describe('media upload (R2)', () => {
+    const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 1, 2, 3]);
+    const WEBP = new Uint8Array([0x52, 0x49, 0x46, 0x46, 8, 0, 0, 0, 0x57, 0x45, 0x42, 0x50, 9, 9]);
+    const upload = (body: BodyInit, headers: Record<string, string> = { Authorization: 'Bearer usr_test123' }) =>
+      app.fetch(new Request('http://localhost/api/media/avatar', { method: 'POST', body, headers }), env);
+    let r2: MockR2;
+    beforeEach(() => {
+      r2 = new MockR2();
+      env.MEDIA = r2 as any;
+    });
+
+    test('rejects missing auth and guest accounts', async () => {
+      assert.equal((await upload(PNG, {})).status, 401);
+      mockDb.tables.users.push({ id: 'usr_guest', email: 'g@x', api_key: 'k_guest', is_guest: 1, created_at: 1, updated_at: 1 });
+      assert.equal((await upload(PNG, { Authorization: 'Bearer usr_guest' })).status, 403);
+      assert.equal(r2.objects.size, 0);
+    });
+
+    test('rejects SVG, HTML and oversized bodies by content, not header', async () => {
+      const svg = new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+      assert.equal((await upload(svg, { Authorization: 'Bearer usr_test123', 'Content-Type': 'image/png' })).status, 415);
+      const big = new Uint8Array(512 * 1024 + 1);
+      big.set(PNG);
+      assert.equal((await upload(big)).status, 413);
+      assert.equal(r2.objects.size, 0);
+    });
+
+    test('stores image under content-hash key and serves it immutable', async () => {
+      const res = await upload(WEBP);
+      assert.equal(res.status, 200);
+      const url = ((await res.json()) as any).data.url as string;
+      assert.match(url, /^https:\/\/edgelink\.id\/m\/avatars\/usr_test123\/[a-f0-9]{16}\.webp$/);
+      const served = await app.fetch(new Request(url.replace('https://edgelink.id', 'http://localhost')), env);
+      assert.equal(served.status, 200);
+      assert.equal(served.headers.get('content-type'), 'image/webp');
+      assert.match(served.headers.get('cache-control') || '', /immutable/);
+      assert.deepEqual(new Uint8Array(await served.arrayBuffer()), WEBP);
+    });
+
+    test('media route rejects traversal and unknown keys', async () => {
+      for (const p of ['/m/avatars/usr_test123/..%2Fsecret.webp', '/m/avatars/a/b.svg', '/m/avatars/usr_test123/0123456789abcdef.webp']) {
+        assert.equal((await app.fetch(new Request('http://localhost' + p), env)).status, 404, p);
+      }
+    });
+
+    test('pruneAvatars keeps current photo only within own prefix', async () => {
+      await r2.put('avatars/usr_test123/aaaaaaaaaaaaaaaa.webp', new ArrayBuffer(1));
+      await r2.put('avatars/usr_test123/bbbbbbbbbbbbbbbb.webp', new ArrayBuffer(1));
+      await r2.put('avatars/usr_other/cccccccccccccccc.webp', new ArrayBuffer(1));
+      assert.equal(await pruneAvatars(r2 as any, 'usr_test123', 'avatars/usr_test123/bbbbbbbbbbbbbbbb.webp'), 1);
+      assert.deepEqual([...r2.objects.keys()].sort(), ['avatars/usr_other/cccccccccccccccc.webp', 'avatars/usr_test123/bbbbbbbbbbbbbbbb.webp']);
+      assert.equal(sniffImage(new Uint8Array([0xff, 0xd8, 0xff]))?.ext, 'jpg');
+    });
   });
 });
