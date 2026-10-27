@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "production"
-BASE_URL = "https://edgelink-worker.spixdev.workers.dev"
+BASE_URL = "https://link.1stnear.com"
 
 # D1 Database Binding
 [[d1_databases]]
