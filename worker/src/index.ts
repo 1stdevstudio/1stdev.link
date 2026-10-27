@@ -98,8 +98,36 @@ const apiAuthMiddleware = async (c: any, next: any) => {
 // Health Check
 app.get('/health', (c) => c.json({ status: 'ok', service: 'edgelink-worker' }));
 
-// Root - Redirect to Dashboard
-app.get('/', (c) => c.redirect('https://edgelink-afl.pages.dev', 302));
+const PAGES_ORIGIN = 'https://edgelink-afl.pages.dev';
+
+// Serve SPA Dashboard and Static Assets directly on link.1stnear.com
+app.get('/assets/*', async (c) => {
+  const url = new URL(c.req.url);
+  const resp = await fetch(`${PAGES_ORIGIN}${url.pathname}${url.search}`, c.req.raw);
+  return new Response(resp.body, {
+    status: resp.status,
+    headers: resp.headers,
+  });
+});
+
+app.get('/vite.svg', async (c) => {
+  const resp = await fetch(`${PAGES_ORIGIN}/vite.svg`, c.req.raw);
+  return new Response(resp.body, { status: resp.status, headers: resp.headers });
+});
+
+app.get('/favicon.ico', async (c) => {
+  const resp = await fetch(`${PAGES_ORIGIN}/favicon.ico`, c.req.raw);
+  return new Response(resp.body, { status: resp.status, headers: resp.headers });
+});
+
+// Root - Serve Dashboard SPA directly (no redirect, URL stays link.1stnear.com)
+app.get('/', async (c) => {
+  const resp = await fetch(`${PAGES_ORIGIN}/`, c.req.raw);
+  const html = await resp.text();
+  return c.html(html, 200, {
+    'cache-control': 'no-cache, no-store, must-revalidate',
+  });
+});
 
 // SSR Bio-Profile Handler (GET /@:handle)
 app.get('/@:handle', async (c) => {
