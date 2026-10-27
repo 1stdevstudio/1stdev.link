@@ -35,6 +35,7 @@ export interface BioProfile {
   theme?: string;
   avatar_shape?: string;
   verified_badge?: number;
+  style?: string; // JSON: bg, accent, font, btn, radius, gap, enter, hover, bgfx, cover_url, av_shape, ring
   updated_at: number;
 }
 
@@ -50,6 +51,7 @@ export interface Link {
   sort_order: number;
   is_active: number;
   block_type?: string;
+  style?: string; // JSON: fx, thumb_url, image_url, ratio, images[]
   created_at: number;
 }
 
