@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link2, User, Scissors } from 'lucide-react';
 import { useI18n } from '../i18n/context';
-import { LangSwitch } from './AppShell';
 
 interface WelcomeProps {
   onStart: (goal: 'profile' | 'links') => void;
@@ -34,7 +33,6 @@ export const Welcome: React.FC<WelcomeProps> = ({
           </span>
           <span className="truncate">EdgeLink <span className="font-normal text-[var(--tx2)]">by 1stnear.com</span></span>
         </div>
-          <LangSwitch />
         </div>
 
         {/* Headline */}

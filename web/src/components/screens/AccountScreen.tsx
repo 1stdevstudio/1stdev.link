@@ -68,7 +68,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
   onLogout,
   onToast,
 }) => {
-  const { t, lang, setLang } = useI18n();
+  const { t, lang } = useI18n();
   const s = TX[lang === 'en' ? 'en' : 'id'];
   const [copiedKey, setCopiedKey] = useState(false);
 
@@ -130,10 +130,10 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
         <div className="menu-item cursor-default">
           <span className="w-9 h-9 rounded-[var(--r2)] bg-[var(--s2)] grid place-items-center shrink-0"><Languages size={18} strokeWidth={1.75} /></span>
           <span className="grow text-[14px] font-semibold text-[var(--tx)]">{s.lang}</span>
-          <div className="seg w-[132px] shrink-0">
-            <button type="button" aria-pressed={lang === 'id'} onClick={() => setLang('id')}>ID</button>
-            <button type="button" aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button>
-          </div>
+          {/* Bahasa otomatis mengikuti pengaturan perangkat. */}
+          <span className="text-[13px] text-[var(--tx2)] text-right shrink-0">
+            {lang === 'en' ? 'English · follows device' : 'Indonesia · ikut perangkat'}
+          </span>
         </div>
         <Row icon={<Palette size={18} strokeWidth={1.75} />} title={s.design} desc={s.designD} onClick={onGoToProfile} />
       </section>

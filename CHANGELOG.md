@@ -7,6 +7,11 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
 
+## [0.7.1] - 2026-10-28
+
+### Diubah
+- Bahasa otomatis mengikuti pengaturan perangkat (Indonesia/Melayu = ID, lainnya = EN); tombol ID/EN dihapus dari navigasi atas, halaman awal, dan Akun. Pilihan lama di browser dibersihkan.
+
 ## [0.7.0] - 2026-10-28
 
 ### Ditambahkan

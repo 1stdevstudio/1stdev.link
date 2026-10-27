@@ -19,19 +19,34 @@ const I18nContext = createContext<I18nContextType>({
   tx: (idText: string) => idText,
 });
 
-export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [lang, setLangState] = useState<Language>(() => {
-    let saved: string | null = null;
-    try { saved = localStorage.getItem('edgelink_lang'); } catch { /* storage diblokir */ }
-    if (saved === 'id' || saved === 'en') return saved;
-    const navLang = navigator.language.toLowerCase();
-    return navLang.startsWith('id') ? 'id' : 'en';
-  });
+function detectLang(): Language {
+  try {
+    const q = new URLSearchParams(window.location.search).get('lang');
+    if (q === 'id' || q === 'en') return q;
+  } catch { /* abaikan */ }
+  // Bahasa pertama yang kita dukung dari daftar preferensi perangkat; selain itu Inggris.
+  const prefs = navigator.languages?.length ? navigator.languages : [navigator.language || 'en'];
+  for (const l of prefs) {
+    const code = l.toLowerCase();
+    if (code.startsWith('id') || code.startsWith('in') || code.startsWith('ms')) return 'id';
+    if (code.startsWith('en')) return 'en';
+  }
+  return 'en';
+}
 
-  const setLang = (newLang: Language) => {
-    setLangState(newLang);
-    try { localStorage.setItem('edgelink_lang', newLang); } catch { /* storage diblokir */ }
-  };
+export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Bahasa mengikuti perangkat (tanpa tombol pilihan). `?lang=en|id` hanya untuk uji/berbagi, tidak disimpan.
+  const [lang, setLangState] = useState<Language>(detectLang);
+
+  useEffect(() => {
+    const onChange = () => setLangState(detectLang());
+    window.addEventListener('languagechange', onChange);
+    // Bersihkan pilihan lama dari versi yang masih punya tombol ID/EN.
+    try { localStorage.removeItem('edgelink_lang'); } catch { /* storage diblokir */ }
+    return () => window.removeEventListener('languagechange', onChange);
+  }, []);
+
+  const setLang = (newLang: Language) => setLangState(newLang);
 
   const t = (key: TranslationKey): string => {
     const dict = lang === 'en' ? en : id;

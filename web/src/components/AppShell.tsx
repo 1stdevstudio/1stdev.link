@@ -29,20 +29,6 @@ const Logo: React.FC = () => (
   </div>
 );
 
-/** Toggle bahasa ID | EN. */
-export const LangSwitch: React.FC = () => {
-  const { lang, setLang, tx } = useI18n();
-  return (
-    <div className="seg" role="group" aria-label={tx('Bahasa', 'Language')}>
-      {(['id', 'en'] as const).map((l) => (
-        <button key={l} type="button" aria-pressed={lang === l} className={lang === l ? 'on' : ''} onClick={() => setLang(l)}>
-          {l.toUpperCase()}
-        </button>
-      ))}
-    </div>
-  );
-};
-
 /** Menu "Buat": satu pintu untuk menambah isi profil atau link pendek. */
 const CreateMenu: React.FC<{ onClose: () => void; onAddBlock: () => void; onAddLink: () => void; className: string }> = ({
   onClose,
@@ -165,9 +151,6 @@ export const AppShell: React.FC<AppShellProps> = ({
           </nav>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            <div className="hidden sm:block">
-              <LangSwitch />
-            </div>
             <div className="relative hidden lg:block">
               <button
                 type="button"
