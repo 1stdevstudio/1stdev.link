@@ -17,6 +17,7 @@ Tata letak baru untuk editor profil (profile builder).
 - Baris blok baru: ikon berwarna per jenis, label jenis, domain tujuan, jumlah klik, tombol geser naik/turun, dan hapus.
 - Pilihan tema tampil sebagai mockup ponsel mini sesuai warna aslinya; nama tema kini dwibahasa (Paper, Forest, Dusk, Ocean, Sand).
 - Pilihan bentuk foto menampilkan bentuk sebenarnya.
+- Tab Tampilan: tombol ubah profil dan bentuk foto kini di atas, tema di bawah.
 
 ### Diperbaiki
 - Geser urutan blok sebelumnya tidak berpengaruh: urutan di editor, pratinjau, dan halaman publik kini sama (berdasarkan `sort_order`), dan hanya blok profil yang dikirim ke server.

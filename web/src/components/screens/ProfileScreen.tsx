@@ -323,6 +323,33 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
       {tab === 'design' && (
         <section id="panel-design" role="tabpanel" aria-labelledby="tab-design" className="flex flex-col gap-5">
+          <button type="button" className="block-add" onClick={onOpenEditProfile}>
+            <Pencil size={16} strokeWidth={1.9} />
+            <span>{tx('Ubah nama, foto, bio, dan handle', 'Edit name, photo, bio, and handle')}</span>
+          </button>
+          <div className="flex flex-col gap-2.5">
+            <h3 className="sec-label">{tx('Bentuk foto', 'Photo shape')}</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {SHAPES.map((sh) => {
+                const active = (profile.avatar_shape || 'circle') === sh.id;
+                return (
+                  <button
+                    key={sh.id}
+                    type="button"
+                    className="shape-tile"
+                    aria-pressed={active}
+                    onClick={() => onUpdateAvatarShape(sh.id)}
+                  >
+                    <span className="shape-swatch" style={{ borderRadius: sh.radius }}>
+                      {profile.avatar_url ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" /> : null}
+                    </span>
+                    <span className="text-[13px] font-medium">{L(sh.label)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="flex flex-col gap-2.5">
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="sec-label">{tx('Tema', 'Theme')}</h3>
@@ -356,34 +383,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               })}
             </div>
           </div>
-
-          <div className="flex flex-col gap-2.5">
-            <h3 className="sec-label">{tx('Bentuk foto', 'Photo shape')}</h3>
-            <div className="grid grid-cols-3 gap-2">
-              {SHAPES.map((sh) => {
-                const active = (profile.avatar_shape || 'circle') === sh.id;
-                return (
-                  <button
-                    key={sh.id}
-                    type="button"
-                    className="shape-tile"
-                    aria-pressed={active}
-                    onClick={() => onUpdateAvatarShape(sh.id)}
-                  >
-                    <span className="shape-swatch" style={{ borderRadius: sh.radius }}>
-                      {profile.avatar_url ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" /> : null}
-                    </span>
-                    <span className="text-[13px] font-medium">{L(sh.label)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button type="button" className="block-add" onClick={onOpenEditProfile}>
-            <Pencil size={16} strokeWidth={1.9} />
-            <span>{tx('Ubah nama, foto, bio, dan handle', 'Edit name, photo, bio, and handle')}</span>
-          </button>
         </section>
       )}
 
