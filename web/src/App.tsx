@@ -123,7 +123,7 @@ export const App: React.FC = () => {
       showToast(tx('Sesi dimulai', 'Session started'));
     } catch (err: any) {
       console.error('Error starting guest session:', err);
-      alert(err.message || tx('Gagal memulai sesi baru.', 'Could not start a new session.'));
+      showToast(err.message || tx('Gagal memulai sesi baru.', 'Could not start a new session.'));
     } finally {
       setStartingGuest(false);
     }

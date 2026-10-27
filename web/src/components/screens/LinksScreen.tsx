@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Search, Copy, Plus, Trash2, Check, ExternalLink, Link2 } from 'lucide-react';
 import { LinkItem } from '../../types';
 import { useI18n } from '../../i18n/context';
+import { useConfirm } from '../ConfirmDialog';
 
 interface LinksScreenProps {
   links: LinkItem[];
@@ -39,6 +40,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
   links, onOpenAddLink, onToggleActive, onDeleteLink, onToast,
 }) => {
   const { lang } = useI18n();
+  const confirm = useConfirm();
   const s = TX[lang === 'en' ? 'en' : 'id'];
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
@@ -164,7 +166,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
                   <a className="iconbtn" href={`${baseUrl}/${l.slug}`} target="_blank" rel="noopener noreferrer" aria-label={s.open}>
                     <ExternalLink size={18} />
                   </a>
-                  <button className="iconbtn" onClick={() => window.confirm(s.del) && onDeleteLink(l.id)} aria-label={s.remove}>
+                  <button className="iconbtn" onClick={async () => { if (await confirm({ title: s.del, message: `${baseUrl.replace(/^https?:\/\//, '')}/${l.slug}`, confirmLabel: s.remove, danger: true })) onDeleteLink(l.id); }} aria-label={s.remove}>
                     <Trash2 size={18} />
                   </button>
                 </div>

@@ -7,6 +7,14 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
 
+## [0.7.3] - 2026-10-28
+
+### Diubah
+- Halaman Akun: layout dua kolom di desktop (kartu profil + kartu gratis menempel di kiri, pengaturan di kanan), satu kolom rapi di mobile. Developer/API dipindah ke grup "Lainnya", bahasa jadi baris info (otomatis dari perangkat).
+
+### Ditambahkan
+- Dialog konfirmasi dalam aplikasi (`useConfirm`) menggantikan popup bawaan browser (`window.confirm`/`alert`) untuk Keluar dan Hapus link. Fokus awal di "Batal", Esc/klik latar menutup.
+
 ## [0.7.2] - 2026-10-28
 
 ### Diubah
