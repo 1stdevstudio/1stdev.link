@@ -616,35 +616,108 @@ button.menu-item:hover { background: var(--s2); }
 .quick-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px; padding: 8px 4px; border-radius: var(--r3); background: var(--s1); font-size: 12px; font-weight: 500; color: var(--tx2); text-align: center; }
 .quick-btn:hover { background: var(--s2); color: var(--tx); }
 
-/* ===== App shell responsif (topbar, nav bawah, FAB) ===== */
-.topbar {
+/* ===== App shell: header kaca + tab atas (desktop) + dock melayang (mobile) ===== */
+.appbar {
   position: sticky; top: 0; z-index: 30;
+  padding-top: env(safe-area-inset-top);
+  background: rgba(14, 31, 27, 0.78);
+  -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.6);
+}
+.appbar-in {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  min-height: 56px;
-  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
-  background: rgba(7, 8, 12, 0.85);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  min-height: 60px; max-width: 1240px; margin: 0 auto;
+  padding: 0 max(12px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
 }
-.bottomnav {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  padding: 4px max(8px, env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
-  background: rgba(7, 8, 12, 0.9);
-  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+@media (min-width: 640px) { .appbar-in { padding: 0 24px; } }
+.tabs-top { display: none; }
+@media (min-width: 1024px) {
+  .tabs-top {
+    display: flex; gap: 4px; padding: 4px;
+    background: var(--s1); border-radius: var(--r3);
+    position: absolute; left: 50%; transform: translateX(-50%);
+  }
+  .appbar-in { position: relative; min-height: 68px; }
 }
-.main-area { padding-bottom: calc(148px + env(safe-area-inset-bottom)); }
-@media (min-width: 1024px) { .main-area { padding-bottom: 48px; } }
-.fab {
+.tabs-top button {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 0 16px; border-radius: var(--r2);
+  font-size: 14px; font-weight: 500; color: var(--tx2);
+  transition: background 0.15s, color 0.15s;
+}
+.tabs-top button:hover { color: var(--tx); background: var(--s1); }
+.tabs-top button.on { background: var(--ac); color: var(--ink); font-weight: 600; }
+.appbar .seg { padding: 3px; }
+.appbar .seg button { min-height: 36px; min-width: 40px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+.appbar .seg button.on { background: var(--s2); color: var(--tx); }
+
+/* Badan: konten terpusat; pratinjau HP menempel di kanan pada tab Profil */
+.shell-body { max-width: 1240px; margin: 0 auto; padding: 20px 16px 0; }
+@media (min-width: 640px) { .shell-body { padding: 32px 24px 0; } }
+@media (min-width: 1024px) {
+  .shell-body.with-preview { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 32px; align-items: start; }
+}
+.preview-col { display: none; }
+@media (min-width: 1024px) {
+  .preview-col { display: flex; justify-content: center; position: sticky; top: 92px; padding-bottom: 32px; }
+}
+.main-area { padding-bottom: calc(132px + env(safe-area-inset-bottom)); }
+@media (min-width: 1024px) { .main-area { padding-bottom: 56px; } }
+
+/* Dock melayang */
+.dock {
   position: fixed; z-index: 30;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: calc(76px + env(safe-area-inset-bottom));
-  width: 56px; height: 56px; border-radius: var(--r3);
+  left: 50%; transform: translateX(-50%);
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  width: min(440px, calc(100% - 24px));
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center;
+  padding: 6px; border-radius: var(--r3);
+  background: rgba(22, 44, 38, 0.88);
+  -webkit-backdrop-filter: blur(18px) saturate(150%); backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 0 18px 40px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+@media (min-width: 1024px) { .dock { display: none; } }
+.dock-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 52px; min-width: 0; border-radius: var(--r2);
+  color: var(--tx2); font-size: 11px; font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+}
+.dock-btn span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+.dock-btn.on { color: var(--ac); background: rgba(233, 190, 84, 0.1); font-weight: 600; }
+.dock-create {
+  display: grid; place-items: center; margin: 0 auto;
+  width: 52px; height: 52px; border-radius: var(--r3);
   background: var(--ac); color: var(--ink);
-  display: grid; place-items: center;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-  transition: transform 0.15s ease;
+  box-shadow: 0 10px 24px -6px rgba(233, 190, 84, 0.45);
+  transition: transform 0.15s ease, background 0.15s;
 }
-.fab:active { transform: scale(0.95); }
-@media (max-width: 359px) {
-  .topbar .btn-sm { padding: 0 10px; font-size: 12px; }
+.dock-create:active { transform: scale(0.94); }
+.dock-create.open { background: var(--s2); color: var(--tx); box-shadow: none; }
+
+/* Menu Buat */
+.create-menu {
+  position: absolute; z-index: 40; width: 280px; padding: 6px;
+  display: flex; flex-direction: column; gap: 2px;
+  border-radius: var(--r3); background: #17322b;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.7);
+  animation: create-in 0.14s ease-out;
 }
+.create-top { right: 0; top: calc(100% + 8px); }
+.create-dock { left: 50%; bottom: calc(100% + 14px); transform: translateX(-50%); }
+@keyframes create-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .create-menu { animation: none; } }
+.create-item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  min-height: 56px; padding: 8px 10px; border-radius: var(--r2);
+  transition: background 0.15s;
+}
+.create-item:hover, .create-item:focus-visible { background: var(--s2); }
+.create-ic {
+  width: 36px; height: 36px; border-radius: var(--r2); flex-shrink: 0;
+  display: grid; place-items: center; background: rgba(233, 190, 84, 0.14); color: var(--ac);
+}
+@media (max-width: 380px) {
+  .appbar .btn-sm { padding: 0 10px; font-size: 12px; }
+}
+

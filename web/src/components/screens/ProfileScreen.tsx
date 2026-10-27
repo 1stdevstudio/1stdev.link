@@ -61,14 +61,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onEditLink,
   onToast,
 }) => {
-  const { t } = useI18n();
+  const { t, tx } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${baseUrl}/@${profile.handle}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(publicUrl);
-    onToast('Link disalin');
+    onToast(tx('Link disalin', 'Link copied'));
   };
 
   const bioLinks = links.filter((l) => Boolean(l.is_bio_entry));
@@ -111,8 +111,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         >
           <AlertTriangle size={18} strokeWidth={1.75} className="shrink-0 mt-0.5" />
           <span className="text-[13px] leading-snug">
-            Akun ini hanya ada di browser ini. Simpan dengan email agar profil dan link kamu tidak
-            hilang.
+            {tx('Akun ini hanya ada di browser ini. Simpan dengan email agar profil dan link kamu tidak hilang.', 'This account only lives in this browser. Save it with email so your profile and links are not lost.')}
           </span>
         </button>
       )}
@@ -158,7 +157,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           className="btn btn-g btn-sm shrink-0"
           onClick={onOpenEditProfile}
         >
-          Ubah profil
+          {tx('Ubah profil', 'Edit profile')}
         </button>
       </div>
 
@@ -170,7 +169,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           onClick={onOpenShare}
         >
           <Share2 size={18} strokeWidth={1.75} />
-          <span>Bagikan</span>
+          <span>{tx('Bagikan', 'Share')}</span>
         </button>
         <button
           type="button"
@@ -178,21 +177,21 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           onClick={handleCopyLink}
         >
           <Copy size={18} strokeWidth={1.75} />
-          <span>Salin link</span>
+          <span>{tx('Salin link', 'Copy link')}</span>
         </button>
       </div>
 
       {/* Section: Isi Halaman */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-[15px] font-semibold text-[var(--tx)]">Isi halaman</h3>
-          <span className="small muted">{bioLinks.length} blok</span>
+          <h3 className="text-[15px] font-semibold text-[var(--tx)]">{tx('Isi halaman', 'Page content')}</h3>
+          <span className="small muted">{bioLinks.length} {tx('blok', bioLinks.length === 1 ? 'block' : 'blocks')}</span>
         </div>
 
         <div className="flex flex-col gap-2">
           {bioLinks.length === 0 ? (
             <div className="card p-6 text-center text-[13px] text-[var(--tx2)]">
-              Belum ada isi di halaman profil. Tekan tombol Tambah isi di bawah.
+              {tx('Belum ada isi di halaman profil. Tekan tombol Tambah isi di bawah.', 'Your profile page is empty. Tap Add content below.')}
             </div>
           ) : (
             bioLinks.map((link, idx) => (
@@ -246,20 +245,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   type="button"
                   onClick={() => onEditLink(link)}
                   className="grow min-w-0 min-h-[44px] text-left"
-                  aria-label={`Ubah ${link.title || 'blok'}`}
+                  aria-label={`${tx('Ubah', 'Edit')} ${link.title || tx('blok', 'block')}`}
                 >
                   <h4 className="text-[14px] font-semibold text-[var(--tx)] truncate">
-                    {link.title || link.slug || 'Tanpa judul'}
+                    {link.title || link.slug || tx('Tanpa judul', 'Untitled')}
                   </h4>
                   <p className="small muted truncate">
                     {link.block_type === 'header'
-                      ? 'Judul Kategori'
+                      ? tx('Judul Kategori', 'Section heading')
                       : link.block_type === 'text'
-                      ? 'Teks'
+                      ? tx('Teks', 'Text')
                       : link.block_type === 'divider'
-                      ? 'Garis pemisah'
+                      ? tx('Garis pemisah', 'Divider')
                       : link.block_type === 'whatsapp'
-                      ? 'Chat Langsung'
+                      ? tx('Chat Langsung', 'Direct chat')
                       : link.destination_url}
                   </p>
                 </button>
@@ -269,7 +268,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   type="button"
                   onClick={() => onEditLink(link)}
                   className="iconbtn text-[var(--tx3)] hover:text-[var(--tx)] p-1 shrink-0"
-                  aria-label="Ubah blok"
+                  aria-label={tx('Ubah blok', 'Edit block')}
                 >
                   <Pencil size={16} strokeWidth={1.75} />
                 </button>
@@ -279,7 +278,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   type="button"
                   onClick={() => onDeleteLink(link.id)}
                   className="iconbtn text-[var(--tx3)] hover:text-rose-400 p-1 shrink-0"
-                  aria-label="Hapus dari bio"
+                  aria-label={tx('Hapus dari bio', 'Remove from bio')}
                 >
                   <Trash2 size={16} strokeWidth={1.75} />
                 </button>
@@ -294,20 +293,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           onClick={onOpenAddBlock}
         >
           <Plus size={18} strokeWidth={1.75} />
-          <span>Tambah isi</span>
+          <span>{tx('Tambah isi', 'Add content')}</span>
         </button>
       </div>
 
       {/* Section: Tampilan */}
       <div className="flex flex-col gap-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 className="text-[15px] font-semibold text-[var(--tx)]">Tampilan</h3>
-          <span className="small muted">Tersimpan otomatis</span>
+          <h3 className="text-[15px] font-semibold text-[var(--tx)]">{tx('Tampilan', 'Appearance')}</h3>
+          <span className="small muted">{tx('Tersimpan otomatis', 'Saved automatically')}</span>
         </div>
 
         {/* 6 Luxury Themes */}
         <div className="flex flex-col gap-2">
-          <label className="text-[13px] text-[var(--tx2)] font-medium">Tema</label>
+          <label className="text-[13px] text-[var(--tx2)] font-medium">{tx('Tema', 'Theme')}</label>
           <div className="themes">
             {THEMES.map((t) => {
               const current = THEMES.some((x) => x.id === profile.theme) ? profile.theme : '1stnear';
@@ -332,28 +331,28 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
         {/* Photo Shape */}
         <div className="flex flex-col gap-2">
-          <label className="text-[13px] text-[var(--tx2)] font-medium">Bentuk foto</label>
+          <label className="text-[13px] text-[var(--tx2)] font-medium">{tx('Bentuk foto', 'Photo shape')}</label>
           <div className="seg">
             <button
               type="button"
               aria-pressed={(profile.avatar_shape || 'circle') === 'circle'}
               onClick={() => onUpdateAvatarShape('circle')}
             >
-              Bulat
+              {tx('Bulat', 'Circle')}
             </button>
             <button
               type="button"
               aria-pressed={profile.avatar_shape === 'squircle'}
               onClick={() => onUpdateAvatarShape('squircle')}
             >
-              Membulat
+              {tx('Membulat', 'Soft square')}
             </button>
             <button
               type="button"
               aria-pressed={profile.avatar_shape === 'rounded'}
               onClick={() => onUpdateAvatarShape('rounded')}
             >
-              Kotak
+              {tx('Kotak', 'Square')}
             </button>
           </div>
         </div>

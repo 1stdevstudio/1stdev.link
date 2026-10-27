@@ -1,16 +1,7 @@
-import React from 'react';
-import {
-  Home,
-  Link2,
-  User,
-  Scissors,
-  BarChart2,
-  Settings,
-  Share2,
-  Plus,
-  AlertTriangle,
-} from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Home, Link2, User, Scissors, BarChart2, Share2, Plus, LayoutList, X, CircleUser } from 'lucide-react';
 import { AuthSession } from '../types';
+import { useI18n } from '../i18n/context';
 
 export type TabType = 'home' | 'profile' | 'links' | 'stats' | 'account';
 
@@ -21,29 +12,95 @@ interface AppShellProps {
   onOpenShare: () => void;
   onOpenSaveAccount: () => void;
   onOpenAddLink: () => void;
+  onOpenAddBlock: () => void;
   children: React.ReactNode;
   previewColumn?: React.ReactNode;
 }
 
-/** Satu sumber untuk sidebar desktop dan nav bawah mobile. */
-const NAV: { id: TabType; label: string; icon: React.ElementType }[] = [
-  { id: 'home', label: 'Beranda', icon: Home },
-  { id: 'profile', label: 'Profil', icon: User },
-  { id: 'links', label: 'Link', icon: Scissors },
-  { id: 'stats', label: 'Statistik', icon: BarChart2 },
-  { id: 'account', label: 'Akun', icon: Settings },
-];
-
-const Logo: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'sm' }) => (
-  <div className={`flex items-center gap-2.5 font-bold min-w-0 ${size === 'md' ? 'text-base' : 'text-[15px]'}`}>
-    <span
-      className={`${size === 'md' ? 'w-7 h-7' : 'w-6 h-6'} rounded-[var(--r2)] bg-[var(--ac)] text-[var(--ink)] grid place-items-center shrink-0`}
-    >
-      <Link2 size={size === 'md' ? 16 : 14} strokeWidth={2} />
+const Logo: React.FC = () => (
+  <div className="flex items-center gap-2.5 font-bold min-w-0">
+    <span className="w-8 h-8 rounded-[var(--r2)] bg-[var(--ac)] text-[var(--ink)] grid place-items-center shrink-0">
+      <Link2 size={17} strokeWidth={2} />
     </span>
-    <span className="min-w-0 flex flex-col leading-tight"><span className="truncate">EdgeLink</span><span className="truncate text-[11px] font-normal text-[var(--tx2)]">by 1stnear.com</span></span>
+    <span className="min-w-0 flex flex-col leading-tight">
+      <span className="truncate text-[15px]">EdgeLink</span>
+      <span className="truncate text-[11px] font-normal text-[var(--tx2)]">by 1stnear.com</span>
+    </span>
   </div>
 );
+
+/** Toggle bahasa ID | EN. */
+export const LangSwitch: React.FC = () => {
+  const { lang, setLang, tx } = useI18n();
+  return (
+    <div className="seg" role="group" aria-label={tx('Bahasa', 'Language')}>
+      {(['id', 'en'] as const).map((l) => (
+        <button key={l} type="button" aria-pressed={lang === l} className={lang === l ? 'on' : ''} onClick={() => setLang(l)}>
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+/** Menu "Buat": satu pintu untuk menambah isi profil atau link pendek. */
+const CreateMenu: React.FC<{ onClose: () => void; onAddBlock: () => void; onAddLink: () => void; className: string }> = ({
+  onClose,
+  onAddBlock,
+  onAddLink,
+  className,
+}) => {
+  const { tx } = useI18n();
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onDown = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onDown);
+    ref.current?.querySelector('button')?.focus();
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onDown);
+    };
+  }, [onClose]);
+
+  const item = (icon: React.ReactNode, title: string, sub: string, onClick: () => void) => (
+    <button
+      type="button"
+      role="menuitem"
+      className="create-item"
+      onClick={() => {
+        onClose();
+        onClick();
+      }}
+    >
+      <span className="create-ic">{icon}</span>
+      <span className="min-w-0 text-left">
+        <span className="block text-[14px] font-semibold text-[var(--tx)]">{title}</span>
+        <span className="block text-[12px] text-[var(--tx2)] leading-snug">{sub}</span>
+      </span>
+    </button>
+  );
+
+  return (
+    <div ref={ref} role="menu" className={`create-menu ${className}`}>
+      {item(
+        <LayoutList size={18} strokeWidth={1.75} />,
+        tx('Tambah isi profil', 'Add to profile'),
+        tx('Link, WhatsApp, video, toko, teks', 'Link, WhatsApp, video, shop, text'),
+        onAddBlock
+      )}
+      {item(
+        <Scissors size={18} strokeWidth={1.75} />,
+        tx('Pendekkan link', 'Shorten a link'),
+        tx('Link pendek dengan statistik klik', 'Short link with click stats'),
+        onAddLink
+      )}
+    </div>
+  );
+};
 
 export const AppShell: React.FC<AppShellProps> = ({
   currentTab,
@@ -52,110 +109,138 @@ export const AppShell: React.FC<AppShellProps> = ({
   onOpenShare,
   onOpenSaveAccount,
   onOpenAddLink,
+  onOpenAddBlock,
   children,
   previewColumn,
 }) => {
+  const { tx } = useI18n();
+  const [createOpen, setCreateOpen] = useState<'top' | 'dock' | null>(null);
   const showPreview = currentTab === 'profile' && !!previewColumn;
+
+  const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
+    { id: 'home', label: tx('Beranda', 'Home'), icon: Home },
+    { id: 'profile', label: tx('Profil', 'Profile'), icon: User },
+    { id: 'links', label: tx('Link', 'Links'), icon: Scissors },
+    { id: 'stats', label: tx('Statistik', 'Stats'), icon: BarChart2 },
+  ];
+
+  const dockItem = ({ id, label, icon: Icon }: (typeof tabs)[number]) => {
+    const on = currentTab === id;
+    return (
+      <button
+        key={id}
+        type="button"
+        aria-current={on ? 'page' : undefined}
+        className={`dock-btn ${on ? 'on' : ''}`}
+        onClick={() => onTabChange(id)}
+      >
+        <Icon size={20} strokeWidth={on ? 2 : 1.75} />
+        <span>{label}</span>
+      </button>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--tx)]">
-      {/* Topbar mobile / tablet (<1024px) */}
-      <header className="topbar lg:hidden">
-        <Logo />
-        <div className="flex items-center gap-1 shrink-0">
-          {session.is_guest && (
-            <button type="button" className="btn btn-p btn-sm" onClick={onOpenSaveAccount}>
-              Simpan akun
-            </button>
-          )}
-          <button type="button" className="iconbtn" onClick={onOpenShare} aria-label="Bagikan profil">
-            <Share2 size={18} strokeWidth={1.75} />
+      <header className="appbar">
+        <div className="appbar-in">
+          <button type="button" className="shrink-0 min-h-[44px] rounded-[var(--r2)]" onClick={() => onTabChange('home')} aria-label="EdgeLink">
+            <Logo />
           </button>
-        </div>
-      </header>
 
-      <div className="flex w-full">
-        {/* Sidebar desktop (>=1024px) */}
-        <aside className="hidden lg:flex flex-col w-[220px] xl:w-[240px] h-screen sticky top-0 p-4 xl:p-5 shrink-0">
-          <div className="mb-8 px-1">
-            <Logo size="md" />
-          </div>
-
-          <nav className="flex flex-col gap-1 grow" aria-label="Navigasi utama">
-            {NAV.map(({ id, label, icon: Icon }) => {
-              const on = currentTab === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  aria-current={on ? 'page' : undefined}
-                  className={`flex items-center gap-3 w-full px-3.5 h-11 rounded-[var(--r2)] text-left text-[14px] transition ${
-                    on
-                      ? 'bg-[var(--s2)] text-[var(--tx)] font-semibold'
-                      : 'text-[var(--tx2)] font-medium hover:bg-[var(--s1)] hover:text-[var(--tx)]'
-                  }`}
-                  onClick={() => onTabChange(id)}
-                >
-                  <Icon size={18} strokeWidth={1.75} />
-                  <span>{label}</span>
-                </button>
-              );
-            })}
-          </nav>
-
-          {session.is_guest && (
-            <div className="card p-3 flex flex-col gap-2 mt-auto">
-              <div className="flex items-start gap-2 text-[var(--warn)]">
-                <AlertTriangle size={15} strokeWidth={2} className="shrink-0 mt-0.5" />
-                <span className="text-[12px] leading-snug">Akun ini hanya tersimpan di browser ini.</span>
-              </div>
-              <button type="button" className="btn btn-p btn-sm w-full" onClick={onOpenSaveAccount}>
-                Simpan akun
-              </button>
-            </div>
-          )}
-        </aside>
-
-        {/* Konten utama: selalu mengisi sisa lebar */}
-        <main className="main-area grow min-w-0 px-4 pt-5 sm:px-6 sm:pt-8 lg:px-8 xl:px-10">{children}</main>
-
-        {/* Pratinjau HP: hanya di layar lebar agar konten tidak terjepit */}
-        {showPreview && (
-          <aside className="hidden xl:flex flex-col w-[360px] 2xl:w-[400px] h-screen sticky top-0 p-6 items-center justify-center shrink-0">
-            {previewColumn}
-          </aside>
-        )}
-      </div>
-
-      {/* Nav bawah mobile / tablet (<1024px) */}
-      <nav className="bottomnav lg:hidden" aria-label="Navigasi bawah">
-        <div className="flex items-stretch justify-between w-full max-w-lg mx-auto">
-          {NAV.map(({ id, label, icon: Icon }) => {
-            const on = currentTab === id;
-            return (
+          {/* Tab tengah (desktop) */}
+          <nav className="tabs-top" aria-label={tx('Navigasi utama', 'Main navigation')}>
+            {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 type="button"
-                aria-current={on ? 'page' : undefined}
-                className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-1 h-14 rounded-[var(--r2)] transition ${
-                  on ? 'text-[var(--ac)] font-semibold' : 'text-[var(--tx2)]'
-                }`}
+                aria-current={currentTab === id ? 'page' : undefined}
+                className={currentTab === id ? 'on' : ''}
                 onClick={() => onTabChange(id)}
               >
-                <Icon size={20} strokeWidth={1.75} />
-                <span className="text-[11px] leading-none truncate max-w-full px-0.5">{label}</span>
+                <Icon size={16} strokeWidth={1.9} />
+                {label}
               </button>
-            );
-          })}
-        </div>
-      </nav>
+            ))}
+          </nav>
 
-      {/* FAB tambah link (tab Link, mobile) */}
-      {currentTab === 'links' && (
-        <button type="button" className="fab lg:hidden" onClick={onOpenAddLink} aria-label="Tambah link">
-          <Plus size={24} strokeWidth={2} />
-        </button>
-      )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="hidden sm:block">
+              <LangSwitch />
+            </div>
+            <div className="relative hidden lg:block">
+              <button
+                type="button"
+                className="btn btn-p btn-sm gap-1.5"
+                aria-haspopup="menu"
+                aria-expanded={createOpen === 'top'}
+                onClick={() => setCreateOpen(createOpen === 'top' ? null : 'top')}
+              >
+                <Plus size={16} strokeWidth={2.2} />
+                {tx('Buat', 'Create')}
+              </button>
+              {createOpen === 'top' && (
+                <CreateMenu
+                  className="create-top"
+                  onClose={() => setCreateOpen(null)}
+                  onAddBlock={onOpenAddBlock}
+                  onAddLink={onOpenAddLink}
+                />
+              )}
+            </div>
+            {session.is_guest && (
+              <button type="button" className="btn btn-g btn-sm" onClick={onOpenSaveAccount}>
+                {tx('Simpan akun', 'Save account')}
+              </button>
+            )}
+            <button type="button" className="iconbtn" onClick={onOpenShare} aria-label={tx('Bagikan profil', 'Share profile')}>
+              <Share2 size={18} strokeWidth={1.75} />
+            </button>
+            <button
+              type="button"
+              className={`iconbtn ${currentTab === 'account' ? 'text-[var(--ac)]' : ''}`}
+              aria-current={currentTab === 'account' ? 'page' : undefined}
+              onClick={() => onTabChange('account')}
+              aria-label={tx('Akun', 'Account')}
+            >
+              <CircleUser size={20} strokeWidth={1.75} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className={`shell-body ${showPreview ? 'with-preview' : ''}`}>
+        <main className="main-area min-w-0">{children}</main>
+        {showPreview && <aside className="preview-col">{previewColumn}</aside>}
+      </div>
+
+      {/* Dock melayang (mobile / tablet) */}
+      <nav className="dock" aria-label={tx('Navigasi bawah', 'Bottom navigation')}>
+        {dockItem(tabs[0])}
+        {dockItem(tabs[1])}
+        <div className="relative">
+          <button
+            type="button"
+            className={`dock-create ${createOpen === 'dock' ? 'open' : ''}`}
+            aria-haspopup="menu"
+            aria-expanded={createOpen === 'dock'}
+            aria-label={tx('Buat', 'Create')}
+            onClick={() => setCreateOpen(createOpen === 'dock' ? null : 'dock')}
+          >
+            {createOpen === 'dock' ? <X size={22} strokeWidth={2.2} /> : <Plus size={24} strokeWidth={2.2} />}
+          </button>
+          {createOpen === 'dock' && (
+            <CreateMenu
+              className="create-dock"
+              onClose={() => setCreateOpen(null)}
+              onAddBlock={onOpenAddBlock}
+              onAddLink={onOpenAddLink}
+            />
+          )}
+        </div>
+        {dockItem(tabs[2])}
+        {dockItem(tabs[3])}
+      </nav>
     </div>
   );
 };

@@ -61,3 +61,26 @@ EdgeLink dibuat oleh 1stnear.com (https://1stnear.com).
 ## Cara mengutip
 
 Sebut sebagai "EdgeLink by 1stnear.com" dengan tautan https://link.1stnear.com
+
+
+## English summary
+
+EdgeLink by 1stnear.com is a free link-in-bio and URL shortener (https://link.1stnear.com). The interface is available in English and Indonesian; switch with the ID/EN toggle.
+
+### Is EdgeLink really free?
+Yes, 100% free. There are no paid plans, no locked features and no ads on profile pages.
+
+### Do I need an account?
+No. Start as a guest. Save your account with an email one-time code (no password) to open the dashboard on other devices.
+
+### How do I make an Instagram or TikTok link in bio?
+Choose Profile page, add your links, then copy your link.1stnear.com/@name address into your Instagram or TikTok bio.
+
+### Can I create a WhatsApp link with a pre-filled message?
+Yes. Add a WhatsApp block with your number and an opening message; visitors open the chat with the message already typed.
+
+### Are visitors tracked?
+No third-party trackers or ad cookies. Stats are stored as aggregate numbers (clicks per day and country) without visitor identities. Bot and link-preview clicks are not counted.
+
+### Is there an API?
+Yes, a REST API for short links, bio blocks and stats: https://link.1stnear.com/docs

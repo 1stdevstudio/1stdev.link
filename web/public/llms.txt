@@ -28,3 +28,13 @@ Fakta utama:
 
 - [Sitemap](https://link.1stnear.com/sitemap.xml): daftar halaman profil publik
 - [1stnear.com](https://1stnear.com): situs pembuat EdgeLink
+
+## English
+
+EdgeLink by 1stnear.com is a 100% free link-in-bio and URL shortener. One profile page at https://link.1stnear.com/@name holds all your links for Instagram, TikTok and WhatsApp bios, plus short links with click stats. No ads, no sign-up required, no paid plans. The app interface is available in English and Indonesian.
+
+- Price: free. No Pro/Premium tier and no ads on profile pages.
+- Start without signing up; save the account later with a one-time email code.
+- Profile blocks: link, featured, WhatsApp (number + pre-filled message), heading, text, divider, video, online shop, location and social profiles, plus 30 templates.
+- Short links: https://link.1stnear.com/code with daily and per-country click stats; per-device destinations for iOS and Android via the API.
+- Privacy: no third-party trackers or ad cookies on profile pages; aggregate stats only; bot clicks are not counted.

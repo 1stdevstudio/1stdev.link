@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink, Star, MessageCircle, Link2, Check } from 'lucide-react';
 import { BioProfile, LinkItem } from '../types';
+import { useI18n } from '../i18n/context';
 
 interface LivePhonePreviewProps {
   profile: BioProfile;
@@ -77,6 +78,7 @@ const THEME_STYLES: Record<
 };
 
 export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, links }) => {
+  const { tx } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const publicUrl = `${baseUrl}/@${profile.handle}`;
   const theme = THEME_STYLES[profile.theme || ''] || THEME_STYLES['1stnear'];
@@ -144,7 +146,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         <div className="flex flex-col gap-2 w-full mt-3">
           {bioLinks.length === 0 ? (
             <div className="p-4 text-center text-[12px] opacity-40">
-              Belum ada link yang ditampilkan
+              {tx('Belum ada link yang ditampilkan', 'No links to show yet')}
             </div>
           ) : (
             bioLinks.map((block) => {
@@ -218,7 +220,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
 
         {/* Badge footer */}
         <div className="mt-auto pt-6 pb-2 text-[10px] tracking-wider uppercase opacity-40">
-          Dibuat dengan EdgeLink by 1stnear.com
+          {tx('Dibuat dengan', 'Made with')} EdgeLink by 1stnear.com
         </div>
       </div>
 
@@ -230,7 +232,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         className="btn btn-g btn-sm text-[13px]"
       >
         <ExternalLink size={14} strokeWidth={1.75} />
-        <span>Buka halaman</span>
+        <span>{tx('Buka halaman', 'Open page')}</span>
       </a>
     </div>
   );

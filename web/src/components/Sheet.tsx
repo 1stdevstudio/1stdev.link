@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useI18n } from '../i18n/context';
 
 interface SheetProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface SheetProps {
 }
 
 export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }) => {
+  const { tx } = useI18n();
   const sheetRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -83,7 +85,7 @@ export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }
             type="button"
             className="iconbtn"
             onClick={onClose}
-            aria-label="Tutup"
+            aria-label={tx('Tutup', 'Close')}
           >
             <X size={20} strokeWidth={1.75} />
           </button>

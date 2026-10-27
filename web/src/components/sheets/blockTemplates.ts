@@ -20,13 +20,13 @@ export interface BlockTemplate {
 
 export type TemplateCat = 'jualan' | 'kreator' | 'kontak' | 'info' | 'acara' | 'komunitas';
 
-export const TEMPLATE_CATS: { id: TemplateCat; label: string }[] = [
-  { id: 'jualan', label: 'Jualan' },
-  { id: 'kreator', label: 'Kreator' },
-  { id: 'kontak', label: 'Kontak' },
-  { id: 'info', label: 'Info' },
-  { id: 'acara', label: 'Acara' },
-  { id: 'komunitas', label: 'Komunitas' },
+export const TEMPLATE_CATS: { id: TemplateCat; label: [string, string] }[] = [
+  { id: 'jualan', label: ['Jualan', 'Selling'] },
+  { id: 'kreator', label: ['Kreator', 'Creator'] },
+  { id: 'kontak', label: ['Kontak', 'Contact'] },
+  { id: 'info', label: ['Info', 'Info'] },
+  { id: 'acara', label: ['Acara', 'Events'] },
+  { id: 'komunitas', label: ['Komunitas', 'Community'] },
 ];
 
 export const TEMPLATES: BlockTemplate[] = [
@@ -72,3 +72,40 @@ export const TEMPLATES: BlockTemplate[] = [
   { id: 'hiring', cat: 'komunitas', name: 'Lowongan kerja', kind: 'url', type: 'link', title: 'Kami sedang merekrut', hint: 'https://forms.gle/…' },
   { id: 'download', cat: 'komunitas', name: 'Unduhan gratis', kind: 'url', type: 'link', title: 'Unduh e-book gratis', hint: 'https://drive.google.com/…' },
 ];
+
+/** Versi Inggris: nama, judul, dan pesan bawaan per template (id sama). */
+export const TEMPLATES_EN: Record<string, Pick<BlockTemplate, 'name' | 'title'> & { msg?: string }> = {
+  'order-wa': { name: 'Order via WhatsApp', title: 'Order now', msg: 'Hi, I would like to order:' },
+  catalog: { name: 'Product catalog', title: 'See the catalog' },
+  promo: { name: "Today's promo", title: "Today's promo: 20% off all products. Valid until 9 PM." },
+  stock: { name: 'Stock & shipping check', title: 'Check stock & shipping', msg: 'Hi, is this product still available? How much is shipping to my city?' },
+  testimoni: { name: 'Customer reviews', title: 'Read customer reviews' },
+  latest: { name: 'Latest content', title: 'Watch my latest content' },
+  collab: { name: 'Collabs & sponsorships', title: 'Collabs & sponsorships', msg: 'Hi, I am interested in working together. Could I see your rate card?' },
+  support: { name: 'Support my work', title: 'Support my work' },
+  ratecard: { name: 'Rate card', title: 'See my rate card' },
+  about: { name: 'About me', title: 'Hi! I make content about food and travel. New posts every Monday and Thursday.' },
+  cs: { name: 'Customer service chat', title: 'Contact support', msg: 'Hi, I need some help.' },
+  hours: { name: 'Opening hours', title: 'Mon–Fri 9 AM–5 PM · Sat 9 AM–2 PM · Closed Sunday' },
+  store: { name: 'Store address', title: 'Visit our store' },
+  booking: { name: 'Booking / reservation', title: 'Book now', msg: 'Hi, I would like to make a reservation for:' },
+  'h-contact': { name: 'Heading: Contact us', title: 'Contact us' },
+  announce: { name: 'Announcement', title: 'Announcement: the store is closed on Aug 17. Orders ship again on the 18th.' },
+  faq: { name: 'FAQ', title: 'Frequently asked questions' },
+  return: { name: 'Return policy', title: 'Items can be exchanged within 3 days of delivery, with an unboxing video.' },
+  howto: { name: 'How to order', title: '1. Pick a product  2. Chat on WhatsApp  3. Pay  4. Ships the same day' },
+  'h-info': { name: 'Heading: Important info', title: 'Important info' },
+  register: { name: 'Event sign-up', title: 'Register now' },
+  schedule: { name: 'Event schedule', title: 'Saturday, July 12 · 7 PM · Online via Zoom' },
+  ticket: { name: 'Buy tickets', title: 'Buy tickets' },
+  replay: { name: 'Event recording', title: 'Watch the recording' },
+  'h-event': { name: 'Heading: Upcoming events', title: 'Upcoming events' },
+  'wa-group': { name: 'Join WhatsApp group', title: 'Join our WhatsApp group' },
+  newsletter: { name: 'Newsletter', title: 'Subscribe to the newsletter' },
+  portfolio: { name: 'Portfolio', title: 'See my portfolio' },
+  hiring: { name: 'Job openings', title: "We're hiring" },
+  download: { name: 'Free download', title: 'Download the free e-book' },
+};
+
+export const localizedTemplates = (lang: 'id' | 'en'): BlockTemplate[] =>
+  lang === 'en' ? TEMPLATES.map((t) => ({ ...t, ...TEMPLATES_EN[t.id] })) : TEMPLATES;

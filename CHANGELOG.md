@@ -7,6 +7,23 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
 
+## [0.6.0] - 2026-10-28
+
+Panel baru tanpa sidebar dan versi bahasa Inggris penuh.
+
+### Ditambahkan
+- Bahasa Inggris untuk seluruh aplikasi: layar, sheet, toast, pesan error, ketentuan & privasi, dan 30 template blok (judul serta pesan awal ikut diterjemahkan).
+- Tombol ID/EN di header (desktop), layar Welcome, dan halaman Akun. Bahasa terdeteksi otomatis dari perangkat dan diingat; `<html lang>` dan judul tab ikut berubah.
+- Menu "Buat" satu pintu: Tambah isi profil atau Pendekkan link.
+- Bagian bahasa Inggris di konten statis landing, `llms.txt`, dan `llms-full.txt`.
+
+### Diubah
+- Navigasi: sidebar diganti header dengan tab tengah (desktop) dan dock melayang dengan tombol + di tengah (mobile/tablet). Akun dibuka lewat avatar di header.
+- Pratinjau ponsel tampil sebagai kolom samping hanya di tab Profil (layar lebar).
+
+### Diperbaiki
+- `I18nProvider` sebelumnya tidak pernah dipasang sehingga pengalih bahasa tidak berfungsi.
+
 ## [0.5.0] - 2026-10-27
 
 SEO dan GEO (Generative Engine Optimization): mudah ditemukan Google dan dikutip mesin jawab AI.

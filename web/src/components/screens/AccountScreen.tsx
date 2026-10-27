@@ -163,7 +163,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-[13px] text-[var(--ac)] hover:underline pt-1 font-semibold"
             >
-              <span>Buka dokumentasi API</span>
+              <span>{lang === 'en' ? 'Open API docs' : 'Buka dokumentasi API'}</span>
               <ChevronRight size={14} strokeWidth={2} />
             </a>
           </div>

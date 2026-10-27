@@ -23,6 +23,7 @@ import { ShareSheet } from './components/sheets/ShareSheet';
 import { SaveAccountSheet } from './components/sheets/SaveAccountSheet';
 import { LoginSheet } from './components/sheets/LoginSheet';
 import { DeviceTransferSheet } from './components/sheets/DeviceTransferSheet';
+import { useI18n } from './i18n/context';
 
 type SheetType =
   | 'add_link'
@@ -35,6 +36,7 @@ type SheetType =
   | null;
 
 export const App: React.FC = () => {
+  const { tx } = useI18n();
   // Session State
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
@@ -118,10 +120,10 @@ export const App: React.FC = () => {
       setSession(newSession);
       handleTabChange(goal);
       await loadUserData();
-      showToast('Sesi dimulai');
+      showToast(tx('Sesi dimulai', 'Session started'));
     } catch (err: any) {
       console.error('Error starting guest session:', err);
-      alert(err.message || 'Gagal memulai sesi baru.');
+      alert(err.message || tx('Gagal memulai sesi baru.', 'Could not start a new session.'));
     } finally {
       setStartingGuest(false);
     }
@@ -140,7 +142,7 @@ export const App: React.FC = () => {
     setLinks([]);
     setCurrentTab('profile');
     localStorage.removeItem('edgelink_tab');
-    showToast('Telah keluar dari akun');
+    showToast(tx('Telah keluar dari akun', 'Logged out'));
   };
 
   // Profile Mutations
@@ -149,7 +151,7 @@ export const App: React.FC = () => {
     setProfile((prev) => ({ ...prev, ...updated }));
     const saved = await api.updateBioProfile(updated);
     setProfile(saved);
-    showToast('Profil disimpan');
+    showToast(tx('Profil disimpan', 'Profile saved'));
   };
 
   const handleUpdateTheme = (theme: string) => {
@@ -172,7 +174,7 @@ export const App: React.FC = () => {
   }) => {
     const newLink = await api.createLink(payload);
     setLinks((prev) => [newLink, ...prev]);
-    showToast('Link dibuat');
+    showToast(tx('Link dibuat', 'Link created'));
   };
 
   const handleToggleLinkActive = async (id: string, currentState: boolean) => {
@@ -181,7 +183,7 @@ export const App: React.FC = () => {
       prev.map((l) => (l.id === id ? { ...l, is_active: nextState ? 1 : 0 } : l))
     );
     await api.toggleLinkActive(id, nextState);
-    showToast(nextState ? 'Link diaktifkan' : 'Link dinonaktifkan');
+    showToast(nextState ? tx('Link diaktifkan', 'Link enabled') : tx('Link dinonaktifkan', 'Link disabled'));
   };
 
   const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
@@ -189,13 +191,13 @@ export const App: React.FC = () => {
   const handleUpdateLink = async (id: string, patch: BlockPatch) => {
     await api.updateLink(id, patch);
     setLinks((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
-    showToast('Perubahan disimpan');
+    showToast(tx('Perubahan disimpan', 'Changes saved'));
   };
 
   const handleDeleteLink = async (id: string) => {
     await api.deleteLink(id);
     setLinks((prev) => prev.filter((l) => l.id !== id));
-    showToast('Link dihapus');
+    showToast(tx('Link dihapus', 'Link deleted'));
   };
 
   const reorderTimerRef = React.useRef<any>(null);
@@ -222,7 +224,7 @@ export const App: React.FC = () => {
   if (loadingSession) {
     return (
       <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center text-[var(--tx2)] text-[14px]">
-        Memuat EdgeLink...
+        {tx('Memuat EdgeLink...', 'Loading EdgeLink...')}
       </div>
     );
   }
@@ -270,6 +272,7 @@ export const App: React.FC = () => {
           setAddLinkDefaultBlock('link');
           setActiveSheet('add_link');
         }}
+        onOpenAddBlock={() => setActiveSheet('add_block')}
         previewColumn={<LivePhonePreview profile={profile} links={links} />}
       >
         {currentTab === 'home' && (

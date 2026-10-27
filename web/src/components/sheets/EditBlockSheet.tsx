@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Sheet } from '../Sheet';
 import { BioBlockType, LinkItem } from '../../types';
+import { useI18n } from '../../i18n/context';
 
 export interface BlockPatch {
   title?: string;
@@ -35,18 +36,19 @@ const buildWa = (num: string, msg: string) => {
   return `https://wa.me/${n}${msg.trim() ? `?text=${encodeURIComponent(msg.trim())}` : ''}`;
 };
 
-const STYLE_OPTIONS: { id: BioBlockType; label: string }[] = [
-  { id: 'link', label: 'Biasa' },
-  { id: 'featured', label: 'Sorotan' },
-  { id: 'video', label: 'Video' },
+const STYLE_OPTIONS: { id: BioBlockType; label: [string, string] }[] = [
+  { id: 'link', label: ['Biasa', 'Regular'] },
+  { id: 'featured', label: ['Sorotan', 'Featured'] },
+  { id: 'video', label: ['Video', 'Video'] },
 ];
 
-const KIND_NAME: Partial<Record<BioBlockType, string>> = {
-  header: 'judul bagian', text: 'teks', divider: 'garis pemisah', whatsapp: 'WhatsApp',
-  featured: 'sorotan', video: 'video', link: 'link',
+const KIND_NAME: Partial<Record<BioBlockType, [string, string]>> = {
+  header: ['judul bagian', 'section heading'], text: ['teks', 'text'], divider: ['garis pemisah', 'divider'], whatsapp: ['WhatsApp', 'WhatsApp'],
+  featured: ['sorotan', 'featured'], video: ['video', 'video'], link: ['link', 'link'],
 };
 
 export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, onSave, onDelete }) => {
+  const { tx, lang } = useI18n();
   const type: BioBlockType = link?.block_type || 'link';
   const isContent = type === 'header' || type === 'text' || type === 'divider';
   const isWa = type === 'whatsapp' || /^https:\/\/wa\.me\//.test(link?.destination_url || '');
@@ -91,7 +93,7 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
     if (!link) return;
     const patch = buildPatch();
     if (!patch) {
-      setError('Isian belum lengkap atau formatnya belum benar.');
+      setError(tx('Isian belum lengkap atau formatnya belum benar.', 'Some fields are missing or invalid.'));
       return;
     }
     setError('');
@@ -100,7 +102,7 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
       await onSave(link.id, patch);
       onClose();
     } catch (err: any) {
-      setError(err?.message ? `Gagal menyimpan: ${err.message}` : 'Gagal menyimpan. Periksa koneksi lalu coba lagi.');
+      setError(err?.message ? `${tx('Gagal menyimpan', 'Could not save')}: ${err.message}` : tx('Gagal menyimpan. Periksa koneksi lalu coba lagi.', 'Could not save. Check your connection and try again.'));
     } finally {
       setLoading(false);
     }
@@ -117,14 +119,14 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
       await onDelete(link.id);
       onClose();
     } catch (err: any) {
-      setError(err?.message ? `Gagal menghapus: ${err.message}` : 'Gagal menghapus. Coba lagi.');
+      setError(err?.message ? `${tx('Gagal menghapus', 'Could not delete')}: ${err.message}` : tx('Gagal menghapus. Coba lagi.', 'Could not delete. Try again.'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Sheet isOpen={Boolean(link)} onClose={onClose} title={`Ubah ${isWa ? 'WhatsApp' : KIND_NAME[type] || 'blok'}`}>
+    <Sheet isOpen={Boolean(link)} onClose={onClose} title={`${tx('Ubah', 'Edit')} ${isWa ? 'WhatsApp' : (KIND_NAME[type] && (lang === 'en' ? KIND_NAME[type]![1] : KIND_NAME[type]![0])) || tx('blok', 'block')}`}>
       {error && (
         <p role="alert" className="mb-3 rounded-[var(--r2)] bg-[rgba(248,113,113,0.12)] px-3 py-2.5 text-[13px] leading-snug text-rose-300">
           {error}
@@ -132,11 +134,11 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
       )}
       <form onSubmit={save} className="flex flex-col gap-3">
         {type === 'divider' ? (
-          <p className="small muted">Garis pemisah tidak punya isian. Geser posisinya dari daftar, atau hapus di bawah.</p>
+          <p className="small muted">{tx('Garis pemisah tidak punya isian. Geser posisinya dari daftar, atau hapus di bawah.', 'A divider has no fields. Reorder it from the list, or delete it below.')}</p>
         ) : (
           <div className="field">
             <label htmlFor="edit-title">
-              {type === 'header' ? 'Nama bagian' : type === 'text' ? 'Isi teks' : 'Judul tombol'}
+              {type === 'header' ? tx('Nama bagian', 'Section name') : type === 'text' ? tx('Isi teks', 'Text') : tx('Judul tombol', 'Button title')}
             </label>
             {type === 'text' ? (
               <textarea id="edit-title" rows={3} maxLength={280} required value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -149,11 +151,11 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
         {isWa && (
           <>
             <div className="field">
-              <label htmlFor="edit-num">Nomor WhatsApp</label>
-              <input id="edit-num" type="tel" required placeholder="mis. 08123456789" value={num} onChange={(e) => setNum(e.target.value)} />
+              <label htmlFor="edit-num">{tx('Nomor WhatsApp', 'WhatsApp number')}</label>
+              <input id="edit-num" type="tel" required placeholder={tx('mis. 08123456789', 'e.g. 08123456789')} value={num} onChange={(e) => setNum(e.target.value)} />
             </div>
             <div className="field">
-              <label htmlFor="edit-msg">Pesan awal <span className="muted font-normal">(opsional)</span></label>
+              <label htmlFor="edit-msg">{tx('Pesan awal', 'Opening message')} <span className="muted font-normal">({tx('opsional', 'optional')})</span></label>
               <input id="edit-msg" type="text" value={msg} onChange={(e) => setMsg(e.target.value)} />
             </div>
           </>
@@ -162,16 +164,16 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
         {!isContent && !isWa && (
           <>
             <div className="field">
-              <label htmlFor="edit-url">Link tujuan</label>
+              <label htmlFor="edit-url">{tx('Link tujuan', 'Destination link')}</label>
               <input id="edit-url" type="url" required placeholder="https://…" value={url} onChange={(e) => setUrl(e.target.value)} />
             </div>
             {STYLE_OPTIONS.some((o) => o.id === type) && (
               <div className="flex flex-col gap-2">
-                <span className="text-[13px] text-[var(--tx2)] font-medium">Gaya tombol</span>
-                <div className="seg" role="group" aria-label="Gaya tombol">
+                <span className="text-[13px] text-[var(--tx2)] font-medium">{tx('Gaya tombol', 'Button style')}</span>
+                <div className="seg" role="group" aria-label={tx('Gaya tombol', 'Button style')}>
                   {STYLE_OPTIONS.map((o) => (
                     <button key={o.id} type="button" aria-pressed={style === o.id} onClick={() => setStyle(o.id)}>
-                      {o.label}
+                      {lang === 'en' ? o.label[1] : o.label[0]}
                     </button>
                   ))}
                 </div>
@@ -182,7 +184,7 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
 
         {type !== 'divider' && (
           <button type="submit" disabled={loading} className="btn btn-p btn-w mt-2 disabled:opacity-50">
-            {loading ? 'Menyimpan…' : 'Simpan perubahan'}
+            {loading ? tx('Menyimpan…', 'Saving…') : tx('Simpan perubahan', 'Save changes')}
           </button>
         )}
         <button
@@ -192,7 +194,7 @@ export const EditBlockSheet: React.FC<EditBlockSheetProps> = ({ link, onClose, o
           className={`btn btn-w ${confirmDelete ? 'bg-[rgba(248,113,113,0.16)] text-rose-300' : 'btn-g text-rose-300'} disabled:opacity-50`}
         >
           <Trash2 size={18} strokeWidth={1.75} />
-          <span>{confirmDelete ? 'Tekan lagi untuk hapus' : 'Hapus blok'}</span>
+          <span>{confirmDelete ? tx('Tekan lagi untuk hapus', 'Tap again to delete') : tx('Hapus blok', 'Delete block')}</span>
         </button>
       </form>
     </Sheet>

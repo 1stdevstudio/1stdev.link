@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sheet } from '../Sheet';
 import { ChevronRight } from 'lucide-react';
 import { BioBlockType } from '../../types';
+import { useI18n } from '../../i18n/context';
 
 interface AddLinkSheetProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
   onCreateLink,
   defaultBlockType = 'link',
 }) => {
+  const { tx } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const [destinationUrl, setDestinationUrl] = useState('');
@@ -64,14 +66,14 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
       setAndroidUrl('');
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Gagal membuat link');
+      setError(err.message || tx('Gagal membuat link', 'Could not create link'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Sheet isOpen={isOpen} onClose={onClose} title="Tambah link">
+    <Sheet isOpen={isOpen} onClose={onClose} title={tx('Tambah link', 'Add link')}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {error && (
           <div className="p-3 rounded-[var(--r2)] bg-rose-500/10 text-rose-400 text-[13px]">
@@ -80,13 +82,13 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
         )}
 
         <div className="field">
-          <label htmlFor="f-url">Link tujuan</label>
+          <label htmlFor="f-url">{tx('Link tujuan', 'Destination link')}</label>
           <input
             id="f-url"
             type="url"
             inputMode="url"
             required
-            placeholder="Tempel link, mis. tokoku.com/produk"
+            placeholder={tx('Tempel link, mis. tokoku.com/produk', 'Paste a link, e.g. myshop.com/product')}
             value={destinationUrl}
             onChange={(e) => setDestinationUrl(e.target.value)}
           />
@@ -94,7 +96,7 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
 
         <div className="field">
           <label htmlFor="f-title">
-            Judul <span className="muted font-normal">(opsional)</span>
+            {tx('Judul', 'Title')} <span className="muted font-normal">({tx('opsional', 'optional')})</span>
           </label>
           <input
             id="f-title"
@@ -111,17 +113,17 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
             checked={showInBio}
             onChange={(e) => setShowInBio(e.target.checked)}
           />
-          <span>Tampilkan juga di halaman profil</span>
+          <span>{tx('Tampilkan juga di halaman profil', 'Also show on profile page')}</span>
         </label>
 
         <details className="adv">
           <summary>
-            <span>Opsi lanjutan</span>
+            <span>{tx('Opsi lanjutan', 'Advanced options')}</span>
             <ChevronRight size={18} strokeWidth={1.75} className="muted transition-transform" />
           </summary>
           <div className="body">
             <div className="field">
-              <label htmlFor="f-slug">Nama link sendiri</label>
+              <label htmlFor="f-slug">{tx('Nama link sendiri', 'Custom link name')}</label>
               <div className="flex items-center gap-0">
                 <span className="mono muted bg-[var(--in)] min-h-[44px] flex items-center pl-3 rounded-l-[var(--r2)] select-none">
                   {shortHost}/
@@ -136,31 +138,31 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
                   }
                 />
               </div>
-              <div className="hint">Kosongkan untuk dibuat otomatis.</div>
+              <div className="hint">{tx('Kosongkan untuk dibuat otomatis.', 'Leave empty to generate one.')}</div>
             </div>
 
             <div className="field">
-              <label htmlFor="f-ios">Link khusus iPhone</label>
+              <label htmlFor="f-ios">{tx('Link khusus iPhone', 'iPhone-only link')}</label>
               <input
                 id="f-ios"
                 type="url"
-                placeholder="Link App Store"
+                placeholder={tx('Link App Store', 'App Store link')}
                 value={iosUrl}
                 onChange={(e) => setIosUrl(e.target.value)}
               />
             </div>
 
             <div className="field">
-              <label htmlFor="f-and">Link khusus Android</label>
+              <label htmlFor="f-and">{tx('Link khusus Android', 'Android-only link')}</label>
               <input
                 id="f-and"
                 type="url"
-                placeholder="Link Google Play"
+                placeholder={tx('Link Google Play', 'Google Play link')}
                 value={androidUrl}
                 onChange={(e) => setAndroidUrl(e.target.value)}
               />
               <div className="hint">
-                Pengunjung dari HP otomatis diarahkan ke toko aplikasi yang sesuai.
+                {tx('Pengunjung dari HP otomatis diarahkan ke toko aplikasi yang sesuai.', 'Phone visitors are sent to the matching app store automatically.')}
               </div>
             </div>
           </div>
@@ -171,7 +173,7 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
           disabled={loading}
           className="btn btn-p btn-w mt-2 disabled:opacity-50"
         >
-          {loading ? 'Membuat link...' : 'Buat link'}
+          {loading ? tx('Membuat link...', 'Creating link...') : tx('Buat link', 'Create link')}
         </button>
       </form>
     </Sheet>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { id, TranslationKey } from './id';
 import { en } from './en';
 
@@ -8,17 +8,21 @@ interface I18nContextType {
   lang: Language;
   setLang: (lang: Language) => void;
   t: (key: TranslationKey) => string;
+  /** Teks dua bahasa di tempat: tx('Simpan', 'Save'). */
+  tx: (idText: string, enText: string) => string;
 }
 
 const I18nContext = createContext<I18nContextType>({
   lang: 'id',
   setLang: () => {},
   t: (key: TranslationKey) => id[key] || key,
+  tx: (idText: string) => idText,
 });
 
 export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLangState] = useState<Language>(() => {
-    const saved = localStorage.getItem('edgelink_lang');
+    let saved: string | null = null;
+    try { saved = localStorage.getItem('edgelink_lang'); } catch { /* storage diblokir */ }
     if (saved === 'id' || saved === 'en') return saved;
     const navLang = navigator.language.toLowerCase();
     return navLang.startsWith('id') ? 'id' : 'en';
@@ -26,7 +30,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setLang = (newLang: Language) => {
     setLangState(newLang);
-    localStorage.setItem('edgelink_lang', newLang);
+    try { localStorage.setItem('edgelink_lang', newLang); } catch { /* storage diblokir */ }
   };
 
   const t = (key: TranslationKey): string => {
@@ -34,8 +38,18 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return dict[key] || id[key] || key;
   };
 
+  const tx = (idText: string, enText: string) => (lang === 'en' ? enText : idText);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.title =
+      lang === 'en'
+        ? 'Free Link in Bio & URL Shortener – EdgeLink by 1stnear.com'
+        : 'Link Bio & Link Pendek Gratis – EdgeLink by 1stnear.com';
+  }, [lang]);
+
   return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
+    <I18nContext.Provider value={{ lang, setLang, t, tx }}>
       {children}
     </I18nContext.Provider>
   );

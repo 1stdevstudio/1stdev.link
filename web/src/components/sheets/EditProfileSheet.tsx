@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sheet } from '../Sheet';
 import { BioProfile } from '../../types';
+import { useI18n } from '../../i18n/context';
 
 interface EditProfileSheetProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   profile,
   onUpdateProfile,
 }) => {
+  const { tx } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const [displayName, setDisplayName] = useState(profile.display_name || '');
@@ -42,14 +44,14 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
       });
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Gagal menyimpan profil');
+      setError(err.message || tx('Gagal menyimpan profil', 'Could not save profile'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Sheet isOpen={isOpen} onClose={onClose} title="Ubah profil">
+    <Sheet isOpen={isOpen} onClose={onClose} title={tx('Ubah profil', 'Edit profile')}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {error && (
           <div className="p-3 rounded-[var(--r2)] bg-rose-500/10 text-rose-400 text-[13px]">
@@ -74,13 +76,13 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
             className="btn btn-g btn-sm"
             onClick={() => setShowAvatarInput(!showAvatarInput)}
           >
-            {showAvatarInput ? 'Tutup URL Foto' : 'Ganti foto'}
+            {showAvatarInput ? tx('Tutup URL foto', 'Close photo URL') : tx('Ganti foto', 'Change photo')}
           </button>
         </div>
 
         {showAvatarInput && (
           <div className="field">
-            <label htmlFor="p-avatar">URL Foto Profil</label>
+            <label htmlFor="p-avatar">{tx('URL foto profil', 'Profile photo URL')}</label>
             <input
               id="p-avatar"
               type="url"
@@ -92,7 +94,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         )}
 
         <div className="field">
-          <label htmlFor="p-name">Nama</label>
+          <label htmlFor="p-name">{tx('Nama', 'Name')}</label>
           <input
             id="p-name"
             type="text"
@@ -103,7 +105,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         </div>
 
         <div className="field">
-          <label htmlFor="p-handle">Alamat halaman</label>
+          <label htmlFor="p-handle">{tx('Alamat halaman', 'Page address')}</label>
           <div className="flex items-center gap-0">
             <span className="mono muted bg-[var(--in)] min-h-[44px] flex items-center pl-3 rounded-l-[var(--r2)] select-none">
               {shortHost}/@
@@ -118,7 +120,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
               }
             />
           </div>
-          <div className="hint text-[var(--ok)]">Tersedia</div>
+          <div className="hint text-[var(--ok)]">{tx('Tersedia', 'Available')}</div>
         </div>
 
         <div className="field">
@@ -127,7 +129,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
             id="p-bio"
             rows={3}
             maxLength={160}
-            placeholder="Ceritakan singkat tentang kamu"
+            placeholder={tx('Ceritakan singkat tentang kamu', 'A short line about you')}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
           />
@@ -140,7 +142,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
             checked={verifiedBadge}
             onChange={(e) => setVerifiedBadge(e.target.checked)}
           />
-          <span>Tampilkan tanda terverifikasi</span>
+          <span>{tx('Tampilkan tanda terverifikasi', 'Show verified badge')}</span>
         </label>
 
         <button
@@ -148,7 +150,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
           disabled={loading}
           className="btn btn-p btn-w mt-2 disabled:opacity-50"
         >
-          {loading ? 'Menyimpan...' : 'Simpan'}
+          {loading ? tx('Menyimpan...', 'Saving...') : tx('Simpan', 'Save')}
         </button>
       </form>
     </Sheet>

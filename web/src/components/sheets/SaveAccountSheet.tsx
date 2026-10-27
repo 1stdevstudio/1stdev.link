@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sheet } from '../Sheet';
 import { ChevronLeft } from 'lucide-react';
 import { AuthSession } from '../../types';
+import { useI18n } from '../../i18n/context';
 
 interface SaveAccountSheetProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
   onSuccess,
   onToast,
 }) => {
+  const { tx } = useI18n();
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -61,7 +63,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
         setDevCode(res.dev_code);
       }
     } catch (err: any) {
-      setError(err.message || 'Gagal mengirim kode verifikasi');
+      setError(err.message || tx('Gagal mengirim kode verifikasi', 'Could not send verification code'));
     } finally {
       setLoading(false);
     }
@@ -105,7 +107,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
     e.preventDefault();
     const fullCode = otp.join('');
     if (fullCode.length < 6) {
-      setError('Masukkan 6 digit kode lengkap');
+      setError(tx('Masukkan 6 digit kode lengkap', 'Enter the full 6-digit code'));
       return;
     }
 
@@ -114,21 +116,21 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
     try {
       const session = await onVerifyOtp(email.trim(), fullCode, 'claim');
       onSuccess(session);
-      onToast('Akun tersimpan');
+      onToast(tx('Akun tersimpan', 'Account saved'));
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Kode verifikasi tidak sesuai atau sudah kedaluwarsa');
+      setError(err.message || tx('Kode verifikasi tidak sesuai atau sudah kedaluwarsa', 'Code does not match or has expired'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Sheet isOpen={isOpen} onClose={onClose} title="Simpan akun">
+    <Sheet isOpen={isOpen} onClose={onClose} title={tx('Simpan akun', 'Save account')}>
       {step === 1 ? (
         <form onSubmit={handleSendOtp} className="flex flex-col gap-3">
           <p className="text-[13px] text-[var(--tx2)] leading-normal">
-            Kami kirim kode 6 digit ke email kamu. Tanpa kata sandi.
+            {tx('Kami kirim kode 6 digit ke email kamu. Tanpa kata sandi.', 'We send a 6-digit code to your email. No password needed.')}
           </p>
 
           {error && (
@@ -145,7 +147,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
               inputMode="email"
               autoComplete="email"
               required
-              placeholder="nama@email.com"
+              placeholder={tx('nama@email.com', 'name@email.com')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -156,13 +158,13 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
             disabled={loading}
             className="btn btn-p btn-w mt-2 disabled:opacity-50"
           >
-            {loading ? 'Mengirim kode...' : 'Kirim kode'}
+            {loading ? tx('Mengirim kode...', 'Sending code...') : tx('Kirim kode', 'Send code')}
           </button>
         </form>
       ) : (
         <form onSubmit={handleVerify} className="flex flex-col gap-3">
           <p className="text-[13px] text-[var(--tx2)] leading-normal">
-            Masukkan kode yang dikirim ke{' '}
+            {tx('Masukkan kode yang dikirim ke', 'Enter the code sent to')}{' '}
             <strong className="text-[var(--tx)] font-semibold">{email}</strong>. Berlaku 10 menit.
           </p>
 
@@ -178,7 +180,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
             </div>
           )}
 
-          <div className="otp" aria-label="Kode 6 digit">
+          <div className="otp" aria-label={tx('Kode 6 digit', '6-digit code')}>
             {otp.map((digit, idx) => (
               <input
                 key={idx}
@@ -200,7 +202,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
             disabled={loading || otp.join('').length < 6}
             className="btn btn-p btn-w mt-1 disabled:opacity-50"
           >
-            {loading ? 'Memverifikasi...' : 'Konfirmasi'}
+            {loading ? tx('Memverifikasi...', 'Verifying...') : tx('Konfirmasi', 'Confirm')}
           </button>
 
           <div className="flex items-center justify-between text-[13px] pt-1">
@@ -213,7 +215,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
               }}
             >
               <ChevronLeft size={16} strokeWidth={1.75} />
-              <span>Ganti email</span>
+              <span>{tx('Ganti email', 'Change email')}</span>
             </button>
             <span className="text-[var(--tx2)]">
               {countdown > 0 ? (
@@ -224,7 +226,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
                   className="text-[var(--ac)] hover:underline font-medium"
                   onClick={handleSendOtp}
                 >
-                  Kirim ulang kode
+                  {tx('Kirim ulang kode', 'Resend code')}
                 </button>
               )}
             </span>
