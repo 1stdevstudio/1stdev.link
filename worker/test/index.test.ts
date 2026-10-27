@@ -273,6 +273,42 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     assert.match(html, /--text: #111111/);
   });
 
+  test('PATCH /api/links/:id edits a block in place (title, URL, type) with SSRF + tenant checks', async () => {
+    const auth = { 'Content-Type': 'application/json', 'X-API-Key': 'sec_key_456' };
+    await app.fetch(new Request('http://localhost/api/bio-profile', {
+      method: 'PUT', headers: auth, body: JSON.stringify({ handle: 'editor', display_name: 'Editor' }),
+    }), env);
+    mockDb.tables.links.push({
+      id: 'lnk_edit', user_id: 'usr_test123', slug: 'shop', destination_url: 'https://typo.example.com',
+      title: 'Tko saya', is_bio_entry: 1, sort_order: 0, is_active: 1, block_type: 'link', created_at: 1700000000,
+    });
+    mockDb.tables.links.push({
+      id: 'lnk_other', user_id: 'usr_someone_else', slug: 'theirs', destination_url: 'https://other.example.com',
+      title: 'Not yours', is_bio_entry: 1, sort_order: 0, is_active: 1, block_type: 'link', created_at: 1700000000,
+    });
+    await app.fetch(new Request('http://localhost/@editor'), env); // warm cache
+
+    const patch = (id: string, body: object) => app.fetch(new Request(`http://localhost/api/links/${id}`, {
+      method: 'PATCH', headers: auth, body: JSON.stringify(body),
+    }), env);
+
+    const ok = await patch('lnk_edit', { title: 'Toko saya', destination_url: 'https://shop.example.com', block_type: 'featured' });
+    assert.equal(ok.status, 200);
+    const row = mockDb.tables.links.find((l) => l.id === 'lnk_edit');
+    assert.equal(row.title, 'Toko saya');
+    assert.equal(row.destination_url, 'https://shop.example.com');
+    assert.equal(row.block_type, 'featured');
+    assert.equal(((await mockKv.get('slug:shop', 'json')) as any)?.url, 'https://shop.example.com');
+    assert.match(await (await app.fetch(new Request('http://localhost/@editor'), env)).text(), /Toko saya/);
+
+    assert.equal((await patch('lnk_edit', { destination_url: 'http://127.0.0.1/admin' })).status, 422);
+    assert.equal(row.destination_url, 'https://shop.example.com');
+    assert.equal((await patch('lnk_edit', { title: '' })).status, 400);
+
+    assert.equal((await patch('lnk_other', { title: 'hijack' })).status, 404);
+    assert.equal(mockDb.tables.links.find((l) => l.id === 'lnk_other').title, 'Not yours');
+  });
+
   test('GET /api/links and GET /api/links/:id/analytics', async () => {
     const today = new Date().toISOString().slice(0, 10);
     mockDb.tables.links.push({

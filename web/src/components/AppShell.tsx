@@ -41,7 +41,7 @@ const Logo: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'sm' }) => (
     >
       <Link2 size={size === 'md' ? 16 : 14} strokeWidth={2} />
     </span>
-    <span className="truncate">EdgeLink <span className="font-normal text-[var(--tx2)]">by 1stnear.com</span></span>
+    <span className="min-w-0 flex flex-col leading-tight"><span className="truncate">EdgeLink</span><span className="truncate text-[11px] font-normal text-[var(--tx2)]">by 1stnear.com</span></span>
   </div>
 );
 

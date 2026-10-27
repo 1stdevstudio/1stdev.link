@@ -17,6 +17,7 @@ import { LegalModal } from './components/LegalModal';
 // Sheets
 import { AddLinkSheet } from './components/sheets/AddLinkSheet';
 import { AddBlockSheet } from './components/sheets/AddBlockSheet';
+import { EditBlockSheet, BlockPatch } from './components/sheets/EditBlockSheet';
 import { EditProfileSheet } from './components/sheets/EditProfileSheet';
 import { ShareSheet } from './components/sheets/ShareSheet';
 import { SaveAccountSheet } from './components/sheets/SaveAccountSheet';
@@ -183,6 +184,14 @@ export const App: React.FC = () => {
     showToast(nextState ? 'Link diaktifkan' : 'Link dinonaktifkan');
   };
 
+  const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
+
+  const handleUpdateLink = async (id: string, patch: BlockPatch) => {
+    await api.updateLink(id, patch);
+    setLinks((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+    showToast('Perubahan disimpan');
+  };
+
   const handleDeleteLink = async (id: string) => {
     await api.deleteLink(id);
     setLinks((prev) => prev.filter((l) => l.id !== id));
@@ -294,6 +303,7 @@ export const App: React.FC = () => {
             onUpdateAvatarShape={handleUpdateAvatarShape}
             onReorderLinks={handleReorderLinks}
             onDeleteLink={handleDeleteLink}
+            onEditLink={setEditingLink}
             onToast={showToast}
           />
         )}
@@ -349,6 +359,13 @@ export const App: React.FC = () => {
             block_type: payload.block_type,
           });
         }}
+      />
+
+      <EditBlockSheet
+        link={editingLink}
+        onClose={() => setEditingLink(null)}
+        onSave={handleUpdateLink}
+        onDelete={handleDeleteLink}
       />
 
       <EditProfileSheet

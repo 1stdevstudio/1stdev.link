@@ -1038,8 +1038,10 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
   }
 
   const { is_active, block_type } = body;
-  if (is_active === undefined && block_type === undefined) {
-    return c.json({ status: 'error', message: 'is_active or block_type is required' }, 400);
+  const hasTitle = body.title !== undefined;
+  const hasUrl = body.destination_url !== undefined;
+  if (is_active === undefined && block_type === undefined && !hasTitle && !hasUrl) {
+    return c.json({ status: 'error', message: 'Nothing to update' }, 400);
   }
 
   const link = (await c.env.DB
@@ -1051,38 +1053,71 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
     return c.json({ status: 'error', message: 'Link not found' }, 404);
   }
 
-  if (is_active !== undefined) {
-    const activeVal = is_active ? 1 : 0;
-    await c.env.DB
-      .prepare('UPDATE links SET is_active = ? WHERE id = ? AND user_id = ?')
-      .bind(activeVal, linkId, user.id)
-      .run();
+  // Validate everything first so a bad field never leaves a half-applied edit.
+  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider'];
+  const nextType = block_type !== undefined ? String(block_type).toLowerCase() : (link as any).block_type || 'link';
+  if (!validBlockTypes.includes(nextType)) {
+    return c.json({ status: 'error', message: 'Invalid block_type' }, 400);
+  }
+  const isContentOnly = ['header', 'text', 'divider'].includes(nextType);
 
-    if (c.env.KV) {
-      if (activeVal === 1) {
-        safeWaitUntil(
-          c,
-          c.env.KV.put(
-            `slug:${link.slug}`,
-            JSON.stringify({ url: link.destination_url, id: link.id, ios_url: link.ios_url, android_url: link.android_url }),
-            { expirationTtl: 86400 }
-          ).catch(() => {})
-        );
-      } else {
-        safeWaitUntil(c, c.env.KV.delete(`slug:${link.slug}`).catch(() => {}));
-      }
+  const sets: string[] = [];
+  const vals: any[] = [];
+
+  if (hasTitle) {
+    const title = String(body.title ?? '').trim().slice(0, 280);
+    if (!title && nextType !== 'divider') {
+      return c.json({ status: 'error', message: 'title is required' }, 400);
     }
+    sets.push('title = ?');
+    vals.push(title || null);
   }
 
-  if (block_type !== undefined) {
-    const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider'];
-    if (!validBlockTypes.includes(block_type)) {
-      return c.json({ status: 'error', message: 'Invalid block_type' }, 400);
+  let nextUrl = link.destination_url;
+  if (hasUrl) {
+    nextUrl = String(body.destination_url ?? '').trim() || (isContentOnly ? '#' : '');
+    if (!nextUrl) {
+      return c.json({ status: 'error', message: 'destination_url is required' }, 400);
     }
-    await c.env.DB
-      .prepare('UPDATE links SET block_type = ? WHERE id = ? AND user_id = ?')
-      .bind(block_type, linkId, user.id)
-      .run();
+  } else if (!isContentOnly && nextUrl === '#') {
+    return c.json({ status: 'error', message: 'destination_url is required for this block type' }, 400);
+  }
+  if (hasUrl && !(isContentOnly && nextUrl === '#')) {
+    const validation = validateDestinationUrl(nextUrl);
+    if (!validation.valid) {
+      return c.json({ status: 'error', message: validation.error }, 422);
+    }
+  }
+  if (hasUrl) {
+    sets.push('destination_url = ?');
+    vals.push(nextUrl);
+  }
+  if (block_type !== undefined) {
+    sets.push('block_type = ?');
+    vals.push(nextType);
+  }
+  const activeVal = is_active !== undefined ? (is_active ? 1 : 0) : link.is_active;
+  if (is_active !== undefined) {
+    sets.push('is_active = ?');
+    vals.push(activeVal);
+  }
+
+  await c.env.DB
+    .prepare(`UPDATE links SET ${sets.join(', ')} WHERE id = ? AND user_id = ?`)
+    .bind(...vals, linkId, user.id)
+    .run();
+
+  // Keep the redirect cache in step with the new URL / active state.
+  if (c.env.KV && (is_active !== undefined || hasUrl)) {
+    if (activeVal && nextUrl !== '#') {
+      await c.env.KV.put(
+        `slug:${link.slug}`,
+        JSON.stringify({ url: nextUrl, id: link.id, ios_url: link.ios_url, android_url: link.android_url }),
+        { expirationTtl: 86400 }
+      ).catch(() => {});
+    } else {
+      await c.env.KV.delete(`slug:${link.slug}`).catch(() => {});
+    }
   }
 
   await invalidateUserBioCache(c, user.id);

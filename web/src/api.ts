@@ -394,6 +394,21 @@ export class ApiClient {
     });
   }
 
+  async updateLink(
+    id: string,
+    patch: { title?: string; destination_url?: string; block_type?: import('./types').BioBlockType }
+  ): Promise<void> {
+    if (this.useMock) {
+      saveMockLinks(getMockLinks().map((l) => (l.id === id ? { ...l, ...patch } : l)));
+      return;
+    }
+
+    await this.request(`/api/links/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+  }
+
   async updateLinkOrder(items: { id: string; sort_order: number }[]): Promise<void> {
     if (this.useMock) {
       const links = getMockLinks();

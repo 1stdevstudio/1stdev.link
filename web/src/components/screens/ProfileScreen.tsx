@@ -16,6 +16,7 @@ import {
   ArrowUp,
   ArrowDown,
   Trash2,
+  Pencil,
 } from 'lucide-react';
 import { BioProfile, LinkItem } from '../../types';
 
@@ -31,6 +32,7 @@ interface ProfileScreenProps {
   onUpdateAvatarShape: (shape: 'circle' | 'squircle' | 'rounded') => void;
   onReorderLinks: (links: LinkItem[]) => void;
   onDeleteLink: (id: string) => void;
+  onEditLink: (link: LinkItem) => void;
   onToast: (msg: string) => void;
 }
 
@@ -55,6 +57,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onUpdateAvatarShape,
   onReorderLinks,
   onDeleteLink,
+  onEditLink,
   onToast,
 }) => {
   const { t } = useI18n();
@@ -237,8 +240,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   )}
                 </span>
 
-                {/* Info */}
-                <div className="grow min-w-0">
+                {/* Info: ketuk untuk ubah isi blok */}
+                <button
+                  type="button"
+                  onClick={() => onEditLink(link)}
+                  className="grow min-w-0 min-h-[44px] text-left"
+                  aria-label={`Ubah ${link.title || 'blok'}`}
+                >
                   <h4 className="text-[14px] font-semibold text-[var(--tx)] truncate">
                     {link.title || link.slug || 'Tanpa judul'}
                   </h4>
@@ -253,10 +261,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                       ? 'Chat Langsung'
                       : link.destination_url}
                   </p>
-                </div>
+                </button>
 
-                {/* Status Tag */}
-                <span className="tag shrink-0 hidden sm:inline-flex">Tampil</span>
+                {/* Edit button */}
+                <button
+                  type="button"
+                  onClick={() => onEditLink(link)}
+                  className="iconbtn text-[var(--tx3)] hover:text-[var(--tx)] p-1 shrink-0"
+                  aria-label="Ubah blok"
+                >
+                  <Pencil size={16} strokeWidth={1.75} />
+                </button>
 
                 {/* Delete button */}
                 <button

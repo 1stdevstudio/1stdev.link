@@ -60,6 +60,15 @@ export class MockD1 {
   }
 
   private executeRun(query: string, params: any[]) {
+    // Generic tenant-scoped update: UPDATE links SET a = ?, b = ? WHERE id = ? AND user_id = ?
+    const upd = query.match(/^UPDATE links SET (.+) WHERE id = \? AND user_id = \?$/);
+    if (upd) {
+      const cols = upd[1].split(',').map((p) => p.trim().replace(/ = \?$/, ''));
+      const [id, user_id] = params.slice(cols.length);
+      const row = this.tables.links.find((l) => l.id === id && l.user_id === user_id);
+      if (row) cols.forEach((col, i) => (row[col] = params[i]));
+      return { success: true, meta: { changes: row ? 1 : 0 } };
+    }
     // 1. Insert into links
     if (query.startsWith('INSERT INTO links')) {
       // Matches worker: (id, user_id, slug, destination_url, ios_url, android_url, title, is_bio_entry, sort_order, 1, block_type, created_at)
