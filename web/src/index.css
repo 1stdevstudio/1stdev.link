@@ -133,9 +133,17 @@
 }
 
 .btn-sm {
-  min-height: 36px;
+  position: relative;
+  min-height: 40px;
   padding: 0 12px;
   font-size: 13px;
+}
+/* Area sentuh 44px tanpa membesarkan tampilan */
+.btn-sm::after,
+.seg button::after {
+  content: '';
+  position: absolute;
+  inset: -2px 0;
 }
 
 .btn-w {
@@ -198,8 +206,10 @@
 }
 
 .seg button {
+  position: relative;
   flex: 1;
-  min-height: 36px;
+  min-width: 0;
+  min-height: 40px;
   border-radius: var(--r1);
   font-size: 13px;
   font-weight: 500;
@@ -214,13 +224,13 @@
 
 .themes {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
 @media (min-width: 640px) {
   .themes {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
@@ -386,7 +396,7 @@ details.adv .body {
 /* OTP 6-Digit Box */
 .otp {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -401,7 +411,7 @@ details.adv .body {
 /* Share Grid */
 .share-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -507,13 +517,13 @@ details.adv .body {
 /* Stat & Sparks */
 .stat-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 @media (min-width: 640px) {
   .stat-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -605,3 +615,36 @@ button.menu-item:hover { background: var(--s2); }
 .quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .quick-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px; padding: 8px 4px; border-radius: var(--r3); background: var(--s1); font-size: 12px; font-weight: 500; color: var(--tx2); text-align: center; }
 .quick-btn:hover { background: var(--s2); color: var(--tx); }
+
+/* ===== App shell responsif (topbar, nav bawah, FAB) ===== */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 56px;
+  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+  background: rgba(7, 8, 12, 0.85);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+.bottomnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  padding: 4px max(8px, env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  background: rgba(7, 8, 12, 0.9);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+}
+.main-area { padding-bottom: calc(148px + env(safe-area-inset-bottom)); }
+@media (min-width: 1024px) { .main-area { padding-bottom: 48px; } }
+.fab {
+  position: fixed; z-index: 30;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  width: 56px; height: 56px; border-radius: var(--r3);
+  background: var(--ac); color: var(--ink);
+  display: grid; place-items: center;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  transition: transform 0.15s ease;
+}
+.fab:active { transform: scale(0.95); }
+@media (max-width: 359px) {
+  .topbar .btn-sm { padding: 0 10px; font-size: 12px; }
+}

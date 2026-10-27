@@ -87,7 +87,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
     <div className="flex flex-col gap-4">
       <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
 
-      <div className="grid gap-4 xl:grid-cols-2 items-start">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 items-start">
       <div className="card free-card">
         <Gift size={20} strokeWidth={1.75} className="shrink-0 text-[var(--ok)]" />
         <div className="min-w-0">
@@ -119,7 +119,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
 
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-3 items-start">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3 items-start">
       <section className="flex flex-col gap-1">
         <h3 className="sec-label">{s.secDev}</h3>
         <Row icon={<Smartphone size={18} strokeWidth={1.75} />} title={s.move} desc={s.moveD} onClick={onOpenDeviceTransfer} />

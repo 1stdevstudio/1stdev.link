@@ -67,7 +67,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
       <p className="free-strip"><b>{t('heroFreeHeadline')}</b> {t('heroFreeSub')}</p>
 
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         {/* Bio link hero */}
         <section className="card home-hero">
           <div className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         ))}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="card">
           <div className="flex justify-between items-center mb-3">
             <h3 className="text-[15px] font-semibold">Paling banyak diklik</h3>

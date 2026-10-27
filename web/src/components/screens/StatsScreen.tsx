@@ -158,7 +158,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
       </section>
 
       {agg && agg.total > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-3">
           <section className="card">
             <h3 className="text-[15px] font-semibold mb-3">{s.top}</h3>
             <ol className="flex flex-col gap-3">

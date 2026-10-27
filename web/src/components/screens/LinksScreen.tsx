@@ -110,9 +110,16 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
         <div className="kpi"><span>{s.best}</span><b className="truncate">{best && best.clicks > 0 ? best.title || `/${best.slug}` : '–'}</b></div>
       </div>
 
-      <div className="relative">
-        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--tx3)]" />
-        <input className="input pl-10" placeholder={s.search} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={s.search} />
+      <div className="flex gap-2">
+        <div className="relative grow min-w-0">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--tx3)]" />
+          <input className="input pl-10" placeholder={s.search} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={s.search} />
+        </div>
+        <select className="chip-select max-w-[44%]" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Urutkan">
+          <option value="new">{s.sNew}</option>
+          <option value="clicks">{s.sClicks}</option>
+          <option value="az">{s.sAz}</option>
+        </select>
       </div>
 
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
@@ -121,17 +128,12 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
             {s[c]} <span>{counts[c]}</span>
           </button>
         ))}
-        <select className="chip-select ml-auto" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort">
-          <option value="new">{s.sNew}</option>
-          <option value="clicks">{s.sClicks}</option>
-          <option value="az">{s.sAz}</option>
-        </select>
       </div>
 
       {shown.length === 0 ? (
         <p className="small muted text-center py-6">{s.noRes}</p>
       ) : (
-        <ul className="grid gap-2 xl:grid-cols-2 2xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-2 xl:grid-cols-2 2xl:grid-cols-3">
           {shown.map((l) => (
             <li key={l.id} className={`card lcard ${l.is_active ? '' : 'dim'}`}>
               <div className="flex items-start gap-3">

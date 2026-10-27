@@ -196,24 +196,24 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 className="card flex items-center gap-3 p-3 transition hover:bg-[var(--s2)] group"
               >
                 {/* Grip & Reorder Controls */}
-                <div className="flex flex-col gap-0.5 text-[var(--tx3)]">
+                <div className="flex flex-col text-[var(--tx3)] shrink-0">
                   <button
                     type="button"
                     disabled={idx === 0}
                     onClick={() => moveLink(idx, 'up')}
-                    className="hover:text-[var(--tx)] disabled:opacity-20 p-0.5"
+                    className="w-11 h-8 -ml-2 grid place-items-center rounded-[var(--r1)] hover:bg-[var(--s2)] hover:text-[var(--tx)] disabled:opacity-20"
                     aria-label="Geser ke atas"
                   >
-                    <ArrowUp size={14} strokeWidth={1.75} />
+                    <ArrowUp size={16} strokeWidth={1.75} />
                   </button>
                   <button
                     type="button"
                     disabled={idx === bioLinks.length - 1}
                     onClick={() => moveLink(idx, 'down')}
-                    className="hover:text-[var(--tx)] disabled:opacity-20 p-0.5"
+                    className="w-11 h-8 -ml-2 grid place-items-center rounded-[var(--r1)] hover:bg-[var(--s2)] hover:text-[var(--tx)] disabled:opacity-20"
                     aria-label="Geser ke bawah"
                   >
-                    <ArrowDown size={14} strokeWidth={1.75} />
+                    <ArrowDown size={16} strokeWidth={1.75} />
                   </button>
                 </div>
 
@@ -255,7 +255,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 </div>
 
                 {/* Status Tag */}
-                <span className="tag shrink-0">Tampil</span>
+                <span className="tag shrink-0 hidden sm:inline-flex">Tampil</span>
 
                 {/* Delete button */}
                 <button
