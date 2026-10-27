@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>EdgeLink Bio Editor v3</title>
+<title>EdgeLink by 1stnear.com · Bio Editor v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#07080c;--s1:rgba(255,255,255,.04);--s2:rgba(255,255,255,.07);--in:rgba(255,255,255,.09);--tx:#f2f3f7;--tx2:#b4b8c5;--tx3:#8b90a0;--ac:#7c8cff;--ink:#0b0d16;--ok:#4ade80;--r1:4px;--r2:6px;--r3:8px;--ring:0 0 0 3px rgba(124,140,255,.55)}
@@ -209,7 +209,7 @@ body.pv-on .pv-fab{display:none}
       <div class="pcard">
         <label class="pcover" id="pc-cover"><input type="file" accept="image/*" data-target="cover" hidden><span class="pc-hint"><svg class="ic" style="width:16px;height:16px"><use href="#i-img"/></svg>Ganti sampul</span></label>
         <label class="pav" id="th-av" title="Ganti foto profil"><input type="file" accept="image/*" data-target="av" hidden><span id="pav-letter">N</span><span class="pav-edit"><svg class="ic" style="width:16px;height:16px"><use href="#i-upload"/></svg></span></label>
-        <div class="pc-meta"><b id="pc-name">Nadia Pramesti</b><span class="mono muted" id="pc-url">edgelink.app/@nadia.art</span></div>
+        <div class="pc-meta"><b id="pc-name">Nadia Pramesti</b><span class="mono muted" id="pc-url">link.1stnear.com/@nadia.art</span></div>
         <button class="iconbtn" data-clear="cover" aria-label="Hapus sampul" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.45);color:#fff"><svg class="ic"><use href="#i-trash"/></svg></button>
       </div>
       <p class="small muted" style="margin:8px 0 4px">Ketuk foto atau sampul untuk mengganti. Perubahan langsung tampil di halaman bio.</p>
@@ -367,7 +367,7 @@ function renderBio(){
   const name=$('#in-name').value,desc=$('#in-desc').value,ver=$('#verified').checked;
   const handle=$('#in-handle').value.trim().toLowerCase(),okH=/^[a-z0-9._]{3,24}$/.test(handle),zoom=$('#av-zoom').value;
   const avStyle=S.av?`style="--b-av:${bgUrl(S.av)};background-size:${zoom}%;font-size:0"`:'';
-  $('#pc-name').textContent=name||'Nama kamu';$('#pc-url').textContent='edgelink.app/@'+(handle||'…');$('#pav-letter').textContent=S.av?'':(name[0]||'?');
+  $('#pc-name').textContent=name||'Nama kamu';$('#pc-url').textContent='link.1stnear.com/@'+(handle||'…');$('#pav-letter').textContent=S.av?'':(name[0]||'?');
   $('#th-av').style.backgroundSize=zoom+'%';$('#desc-count').textContent=desc.length+'/160';
   const hk=$('#handle-ok');hk.textContent=okH?'Tersedia':'3–24 karakter: huruf kecil, angka, titik, garis bawah';hk.style.color=okH?'var(--ok)':'var(--warn,#fbbf24)';
   const SOC={ig:'i-img',tt:'i-play',yt:'i-play',em:'i-at'},socs=$$('[data-soc]').filter(i=>i.value.trim());
@@ -390,7 +390,7 @@ function renderBio(){
       case'social':h+=`${socs.length?`<div class="socials">${socs.map(i=>`<a href="#" title="${esc(i.value)}"><svg class="ic" style="width:18px;height:18px"><use href="#${SOC[i.dataset.soc]}"/></svg></a>`).join('')}</div>`:''}`;break;
     }
   });
-  h+=`<div class="foot">Dibuat dengan EdgeLink · gratis 100%</div>`;
+  h+=`<div class="foot">Dibuat dengan EdgeLink by 1stnear.com · gratis 100%</div>`;
   $('#bio-content').innerHTML=h;tr();
   bio.className=['bio','btn-'+S.btn,S.hover,S.enter,...S.bgfx].filter(Boolean).join(' ');
   bio.style.setProperty('--b-font',S.font);
@@ -498,7 +498,7 @@ const EN={'Desain halaman':'Page design','Acak':'Shuffle','Simpan':'Save','Isi':
 'Link':'Link','Sorotan':'Highlight','Gambar':'Image','Galeri':'Gallery','Video':'Video','Judul bagian':'Section title','WhatsApp':'WhatsApp','Ikon sosial':'Social icons',
 'Tombol ke website':'Button to a website','Tombol besar berwarna':'Big colored button','Foto atau banner':'Photo or banner','3–9 foto':'3–9 photos','Paragraf bebas':'Free text','Pemisah berjudul':'Titled divider','Chat langsung':'Direct chat','Baris ikon':'Icon row','Pemisah tipis':'Thin divider',
 'Kilau':'Shimmer','Denyut':'Pulse','Goyang':'Wiggle','Miring':'Tilt','Zoom saat disentuh':'Zoom on tap','Hitam putih → warna':'Mono → color','Senja':'Dusk','Laut':'Sea','Hutan':'Forest','Pasir':'Sand',
-'Dibuat dengan EdgeLink · gratis 100%':'Made with EdgeLink · 100% free'};
+'Dibuat dengan EdgeLink by 1stnear.com · gratis 100%':'Made with EdgeLink by 1stnear.com · 100% free'};
 let LANG='id';const ID=Object.fromEntries(Object.entries(EN).map(([a,b])=>[b,a]));
 function tr(root=document.body){const map=LANG==='en'?EN:ID,w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){const t=n.nodeValue.trim();if(map[t]&&!n.parentElement.closest('#in-name,#in-desc'))n.nodeValue=n.nodeValue.replace(t,map[t])}}
 $('#lang').onclick=()=>{LANG=LANG==='id'?'en':'id';document.documentElement.lang=LANG;$('#lang').textContent=LANG==='id'?'EN':'ID';tr()};

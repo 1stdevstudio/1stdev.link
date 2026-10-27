@@ -23,7 +23,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
                 {tab === 'terms' ? 'Ketentuan Layanan' : 'Kebijakan Privasi'}
               </h3>
               <p className="text-[12px] text-[var(--tx3)] font-mono">
-                EdgeLink Platform • 100% Gratis &amp; Bebas Iklan
+                EdgeLink by 1stnear.com • 100% Gratis &amp; Bebas Iklan
               </p>
             </div>
           </div>
@@ -75,7 +75,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
                   1. Prinsip Layanan: 100% Gratis & Bebas Iklan
                 </h4>
                 <p>
-                  EdgeLink adalah platform manajemen tautan ringkas (shortlink) dan laman profil digital (bio page) yang disediakan secara <strong>sepenuhnya gratis untuk umum tanpa syarat apapun</strong>. Kami tidak memungut biaya langganan, tidak meminta kartu kredit, dan tidak menyelipkan iklan komersial maupun banner pihak ketiga pada tautan dan laman bio pengguna.
+                  EdgeLink by 1stnear.com adalah platform manajemen tautan ringkas (shortlink) dan laman profil digital (bio page) yang disediakan secara <strong>sepenuhnya gratis untuk umum tanpa syarat apapun</strong>. Kami tidak memungut biaya langganan, tidak meminta kartu kredit, dan tidak menyelipkan iklan komersial maupun banner pihak ketiga pada tautan dan laman bio pengguna.
                 </p>
               </section>
 
@@ -159,7 +159,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
 
         {/* Footer */}
         <div className="p-4 px-5 bg-[var(--s1)] flex items-center justify-between text-[12px] text-[var(--tx3)]">
-          <span className="mono">EdgeLink • 100% Free &amp; Private</span>
+          <span className="mono">EdgeLink by 1stnear.com • 100% Free &amp; Private</span>
           <button
             type="button"
             onClick={onClose}

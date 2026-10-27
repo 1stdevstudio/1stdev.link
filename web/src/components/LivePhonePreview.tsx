@@ -209,7 +209,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
 
         {/* Badge footer */}
         <div className="mt-auto pt-6 pb-2 text-[10px] tracking-wider uppercase opacity-40">
-          Dibuat dengan EdgeLink
+          Dibuat dengan EdgeLink by 1stnear.com
         </div>
       </div>
 

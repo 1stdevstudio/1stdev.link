@@ -5,7 +5,7 @@ export const en: Record<TranslationKey, string> = {
   badgeFree: '100% Free Forever',
   heroFreeHeadline: '100% free, forever.',
   heroFreeSub: 'Every feature, photo and effect at no cost. No paid plans, no credit card, no ads.',
-  footerBio: 'Made with EdgeLink · 100% free',
+  footerBio: 'Made with EdgeLink by 1stnear.com · 100% free',
   
   // Tabs
   tabProfile: 'Profile',
@@ -14,7 +14,7 @@ export const en: Record<TranslationKey, string> = {
   tabAccount: 'Account',
 
   // Welcome Screen
-  welcomeTagline: 'High-performance link-in-bio & URL shortener powered by Cloudflare Edge. Zero friction, instant access.',
+  welcomeTagline: 'Fast link-in-bio & URL shortener. Zero friction, instant access.',
   btnStartProfile: 'Profile Page',
   btnStartProfileDesc: 'Build a stunning bio link for Instagram, TikTok, and WhatsApp',
   btnStartShortlink: 'Shorten Links',

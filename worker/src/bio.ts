@@ -56,7 +56,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 
   // Language check for footer
   const isId = acceptLanguage.toLowerCase().includes('id');
-  const footerText = isId ? 'Dibuat dengan EdgeLink · gratis 100%' : 'Made with EdgeLink · 100% free';
+  const footerText = isId ? 'Dibuat dengan EdgeLink by 1stnear.com · gratis 100%' : 'Made with EdgeLink by 1stnear.com · 100% free';
 
   let socialMap: Record<string, string> = {};
   if (profile.social_links) {
@@ -160,8 +160,8 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>${name} (@${handle}) · EdgeLink</title>
-  <meta name="description" content="${bio || name + ' on EdgeLink'}">
+  <title>${name} (@${handle}) · EdgeLink by 1stnear.com</title>
+  <meta name="description" content="${bio || name + ' on EdgeLink by 1stnear.com'}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
