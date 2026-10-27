@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Home,
   Link2,
   User,
   Scissors,
@@ -11,7 +12,7 @@ import {
 } from 'lucide-react';
 import { AuthSession } from '../types';
 
-export type TabType = 'profile' | 'links' | 'stats' | 'account';
+export type TabType = 'home' | 'profile' | 'links' | 'stats' | 'account';
 
 interface AppShellProps {
   currentTab: TabType;
@@ -84,6 +85,19 @@ export const AppShell: React.FC<AppShellProps> = ({
 
           {/* Navigation Items */}
           <nav className="flex flex-col gap-1 grow" aria-label="Navigasi utama">
+            <button
+              type="button"
+              className={`flex items-center gap-3 w-full px-3.5 h-11 rounded-[var(--r2)] text-left font-medium text-[14px] transition ${
+                currentTab === 'home'
+                  ? 'bg-[var(--s2)] text-[var(--tx)] font-semibold'
+                  : 'text-[var(--tx2)] hover:bg-[var(--s1)] hover:text-[var(--tx)]'
+              }`}
+              onClick={() => onTabChange('home')}
+            >
+              <Home size={18} strokeWidth={1.75} />
+              <span>Beranda</span>
+            </button>
+
             <button
               type="button"
               className={`flex items-center gap-3 w-full px-3.5 h-11 rounded-[var(--r2)] text-left font-medium text-[14px] transition ${
@@ -179,7 +193,18 @@ export const AppShell: React.FC<AppShellProps> = ({
       >
         <button
           type="button"
-          className={`flex flex-col items-center justify-center gap-1 w-16 h-12 rounded-[var(--r1)] transition ${
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 rounded-[var(--r1)] transition ${
+            currentTab === 'home' ? 'text-[var(--ac)] font-semibold' : 'text-[var(--tx2)]'
+          }`}
+          onClick={() => onTabChange('home')}
+        >
+          <Home size={18} strokeWidth={1.75} />
+          <span className="text-[11px]">Beranda</span>
+        </button>
+
+        <button
+          type="button"
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 rounded-[var(--r1)] transition ${
             currentTab === 'profile' ? 'text-[var(--ac)] font-semibold' : 'text-[var(--tx2)]'
           }`}
           onClick={() => onTabChange('profile')}
@@ -190,7 +215,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
         <button
           type="button"
-          className={`flex flex-col items-center justify-center gap-1 w-16 h-12 rounded-[var(--r1)] transition ${
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 rounded-[var(--r1)] transition ${
             currentTab === 'links' ? 'text-[var(--ac)] font-semibold' : 'text-[var(--tx2)]'
           }`}
           onClick={() => onTabChange('links')}
@@ -201,7 +226,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
         <button
           type="button"
-          className={`flex flex-col items-center justify-center gap-1 w-16 h-12 rounded-[var(--r1)] transition ${
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 rounded-[var(--r1)] transition ${
             currentTab === 'stats' ? 'text-[var(--ac)] font-semibold' : 'text-[var(--tx2)]'
           }`}
           onClick={() => onTabChange('stats')}
@@ -212,7 +237,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
         <button
           type="button"
-          className={`flex flex-col items-center justify-center gap-1 w-16 h-12 rounded-[var(--r1)] transition ${
+          className={`flex flex-col items-center justify-center gap-1 w-14 h-12 rounded-[var(--r1)] transition ${
             currentTab === 'account' ? 'text-[var(--ac)] font-semibold' : 'text-[var(--tx2)]'
           }`}
           onClick={() => onTabChange('account')}

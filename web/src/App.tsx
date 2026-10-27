@@ -7,6 +7,7 @@ import { Welcome } from './components/Welcome';
 import { AppShell, TabType } from './components/AppShell';
 import { ProfileScreen } from './components/screens/ProfileScreen';
 import { LinksScreen } from './components/screens/LinksScreen';
+import { HomeScreen } from './components/screens/HomeScreen';
 import { StatsScreen } from './components/screens/StatsScreen';
 import { AccountScreen } from './components/screens/AccountScreen';
 import { LivePhonePreview } from './components/LivePhonePreview';
@@ -40,7 +41,7 @@ export const App: React.FC = () => {
 
   // App Navigation Tab
   const [currentTab, setCurrentTab] = useState<TabType>(() => {
-    return (localStorage.getItem('edgelink_tab') as TabType) || 'profile';
+    return (localStorage.getItem('edgelink_tab') as TabType) || 'home';
   });
 
   // App Data
@@ -262,6 +263,24 @@ export const App: React.FC = () => {
         }}
         previewColumn={<LivePhonePreview profile={profile} links={links} />}
       >
+        {currentTab === 'home' && (
+          <HomeScreen
+            session={session}
+            profile={profile}
+            links={links}
+            onOpenShare={() => setActiveSheet('share')}
+            onOpenAddLink={() => {
+              setAddLinkDefaultBlock('link');
+              setActiveSheet('add_link');
+            }}
+            onOpenAddBlock={() => setActiveSheet('add_block')}
+            onOpenEditProfile={() => setActiveSheet('edit_profile')}
+            onOpenSaveAccount={() => setActiveSheet('save_account')}
+            onGoTo={handleTabChange}
+            onToast={showToast}
+          />
+        )}
+
         {currentTab === 'profile' && (
           <ProfileScreen
             isGuest={session.is_guest}
