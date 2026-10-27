@@ -4,21 +4,21 @@
 
 @layer base {
   :root {
-    --bg: #07080c;
+    --bg: #0e1f1b;
     --s1: rgba(255, 255, 255, 0.04);
     --s2: rgba(255, 255, 255, 0.07);
     --in: rgba(255, 255, 255, 0.09);
-    --tx: #f2f3f7;
-    --tx2: #b4b8c5;
-    --tx3: #8b90a0;
-    --ac: #7c8cff;
-    --ink: #0b0d16;
+    --tx: #e8efea;
+    --tx2: #a9b8b0;
+    --tx3: #8a9d94;
+    --ac: #e9be54;
+    --ink: #182822;
     --ok: #4ade80;
     --warn: #fbbf24;
     --r1: 4px;
     --r2: 6px;
     --r3: 8px;
-    --ring: 0 0 0 3px rgba(124, 140, 255, 0.55);
+    --ring: 0 0 0 3px rgba(233, 190, 84, 0.55);
   }
 
   * {
@@ -274,7 +274,7 @@
   right: 0;
   bottom: 0;
   z-index: 50;
-  background: #11131a;
+  background: #142a24;
   border-radius: var(--r3) var(--r3) 0 0;
   padding: 8px 16px calc(24px + env(safe-area-inset-bottom));
   max-height: 90vh;
@@ -323,7 +323,7 @@
   bottom: 0;
   z-index: 2;
   flex-shrink: 0;
-  box-shadow: 0 -14px 14px 6px #11131a, 0 10px 0 10px #11131a;
+  box-shadow: 0 -14px 14px 6px #142a24, 0 10px 0 10px #142a24;
 }
 
 .sheet .handle {
@@ -438,7 +438,7 @@ details.adv .body {
   bottom: calc(92px + env(safe-area-inset-bottom));
   transform: translate(-50%, 0);
   z-index: 60;
-  background: #1e2130;
+  background: #1d3a33;
   color: var(--tx);
   padding: 10px 16px;
   border-radius: var(--r2);
@@ -474,7 +474,7 @@ details.adv .body {
   height: 600px;
   border-radius: 28px;
   background: var(--bg);
-  box-shadow: 0 0 0 6px #1a1c24, 0 30px 60px -20px #000;
+  box-shadow: 0 0 0 6px #16302a, 0 30px 60px -20px #000;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 36px 18px 18px;
@@ -558,7 +558,7 @@ details.adv .body {
 
 .spark i {
   flex: 1;
-  background: rgba(124, 140, 255, 0.35);
+  background: rgba(233, 190, 84, 0.35);
   border-radius: 2px 2px 0 0;
   transition: height 0.3s ease;
 }
@@ -596,11 +596,11 @@ details.adv .body {
 .switch i { width: 36px; height: 20px; border-radius: 4px; background: var(--s2); position: relative; transition: background 0.15s; }
 .switch i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 2px; background: var(--tx2); transition: transform 0.15s, background 0.15s; }
 .switch.on i { background: var(--ac); }
-.switch.on i::after { transform: translateX(16px); background: #0b0d16; }
+.switch.on i::after { transform: translateX(16px); background: #182822; }
 .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 32px 16px; }
 .chart { display: flex; align-items: flex-end; gap: 3px; height: 140px; }
 .chart .col { flex: 1; height: 100%; display: flex; align-items: flex-end; min-width: 0; padding: 0; }
-.chart .col i { display: block; width: 100%; background: rgba(124, 140, 255, 0.4); border-radius: 2px 2px 0 0; transition: height 0.3s ease, background 0.15s; }
+.chart .col i { display: block; width: 100%; background: rgba(233, 190, 84, 0.4); border-radius: 2px 2px 0 0; transition: height 0.3s ease, background 0.15s; }
 .chart .col:hover i, .chart .col.on i { background: var(--ac); }
 .free-card { display: flex; gap: 12px; align-items: flex-start; background: rgba(74, 222, 128, 0.08); }
 .sec-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tx3); padding: 8px 4px 4px; }
@@ -609,7 +609,7 @@ details.adv .body {
 .menu-item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 12px; border-radius: var(--r2); background: var(--s1); color: var(--tx2); }
 button.menu-item:hover { background: var(--s2); }
 .seg button { white-space: nowrap; padding: 0 10px; }
-.home-hero { background: linear-gradient(135deg, rgba(124, 140, 255, 0.16), rgba(124, 140, 255, 0.04)); }
+.home-hero { background: linear-gradient(135deg, rgba(233, 190, 84, 0.16), rgba(233, 190, 84, 0.04)); }
 .check-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; font-size: 14px; color: var(--tx); }
 .check-row:disabled { cursor: default; }
 .quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }

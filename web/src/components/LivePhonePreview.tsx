@@ -11,6 +11,15 @@ const THEME_STYLES: Record<
   string,
   { bg: string; text: string; subtext: string; cardBg: string; cardText: string; featBg: string; featText: string }
 > = {
+  '1stnear': {
+    bg: '#0e1f1b',
+    text: '#e8efea',
+    subtext: '#a9b8b0',
+    cardBg: 'rgba(232, 239, 234, 0.07)',
+    cardText: '#e8efea',
+    featBg: '#e9be54',
+    featText: '#182822',
+  },
   obsidian: {
     bg: '#07080c',
     text: '#f2f3f7',
@@ -70,7 +79,7 @@ const THEME_STYLES: Record<
 export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, links }) => {
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const publicUrl = `${baseUrl}/@${profile.handle}`;
-  const theme = THEME_STYLES[profile.theme || 'obsidian'] || THEME_STYLES.obsidian;
+  const theme = THEME_STYLES[profile.theme || ''] || THEME_STYLES['1stnear'];
 
   const bioLinks = links.filter((l) => Boolean(l.is_bio_entry));
 

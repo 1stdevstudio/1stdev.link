@@ -364,9 +364,9 @@ app.post('/api/auth/guest', async (c) => {
     await c.env.DB
       .prepare(
         `INSERT INTO bio_profiles (user_id, handle, display_name, bio, theme, updated_at)
-         VALUES (?, ?, ?, ?, 'minimal-dark', ?)`
+         VALUES (?, ?, ?, ?, '1stnear', ?)`
       )
-      .bind(userId, handle, `Creator ${randomSuffix}`, 'Instant Cloudflare Edge Bio Link', now)
+      .bind(userId, handle, `Creator ${randomSuffix}`, 'Semua link saya ada di sini.', now)
       .run();
 
     return c.json(
@@ -572,7 +572,7 @@ app.post('/api/auth/verify-otp', async (c) => {
 
     await db
       .prepare('INSERT INTO bio_profiles (user_id, handle, display_name, theme, updated_at) VALUES (?, ?, ?, ?, ?)')
-      .bind(userId, handle, cleanEmail.split('@')[0], 'minimal-dark', now)
+      .bind(userId, handle, cleanEmail.split('@')[0], '1stnear', now)
       .run();
 
     return c.json({
@@ -1302,7 +1302,7 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
   const newDisplayName = display_name !== undefined ? display_name : existing?.display_name || user.email.split('@')[0];
   const newBio = bio !== undefined ? bio : existing?.bio || null;
   const newAvatarUrl = avatar_url !== undefined ? avatar_url : existing?.avatar_url || null;
-  const newTheme = theme !== undefined ? theme : existing?.theme || 'obsidian';
+  const newTheme = theme !== undefined ? theme : existing?.theme || '1stnear';
   const newAvatarShape = avatar_shape !== undefined ? avatar_shape : existing?.avatar_shape || 'circle';
   const newVerifiedBadge = verified_badge !== undefined ? (verified_badge ? 1 : 0) : existing?.verified_badge || 0;
 

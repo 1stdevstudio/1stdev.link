@@ -11,6 +11,7 @@ function escapeHtml(str: string): string {
 
 /** Sama dengan THEMES di web/src/components/screens/ProfileScreen.tsx. */
 const THEME_PRESETS: Record<string, { bg: string; text: string; muted: string; accent: string }> = {
+  '1stnear': { bg: '#0e1f1b', text: '#e8efea', muted: '#a9b8b0', accent: '#e9be54' },
   obsidian: { bg: '#0b0c12', text: '#f2f3f7', muted: '#b4b8c5', accent: '#7c8cff' },
   'clean-paper': { bg: '#f4f4f2', text: '#111111', muted: '#5f6368', accent: '#111111' },
   'aurora-emerald': { bg: '#0f1f1a', text: '#bff3d8', muted: '#86b8a0', accent: '#34d399' },
@@ -38,8 +39,9 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 
   const bg = style.bg || 'dark';
   // Preset tema dari dashboard (profile.theme). style.bg/accent (editor v3) tetap menang bila diisi.
-  const preset = style.bg ? undefined : THEME_PRESETS[profile.theme || ''];
-  const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset?.accent || '#7c8cff';
+  // Tema kosong/lama (mis. 'minimal-dark') memakai tema bawaan 1stNear.
+  const preset = style.bg ? undefined : THEME_PRESETS[profile.theme || ''] || THEME_PRESETS['1stnear'];
+  const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset?.accent || '#e9be54';
   const font = style.font || 'modern';
   const btn = style.btn || 'soft';
   const radius = typeof style.radius === 'number' ? Math.max(0, Math.min(32, style.radius)) : 8;
@@ -169,7 +171,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      --bg: ${preset ? preset.bg : bg === 'light' ? '#f8fafc' : bg === 'gradient' ? 'linear-gradient(135deg, #07080c 0%, #1e1b4b 100%)' : '#07080c'};
+      --bg: ${preset ? preset.bg : bg === 'light' ? '#f8fafc' : bg === 'gradient' ? 'linear-gradient(135deg, #0e1f1b 0%, #123f36 100%)' : '#07080c'};
       --text: ${preset ? preset.text : bg === 'light' ? '#0f172a' : '#f2f3f7'};
       --text-muted: ${preset ? preset.muted : bg === 'light' ? '#64748b' : '#b4b8c5'};
       --accent: ${accent};
@@ -231,7 +233,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
       left: 10%;
       width: 80%;
       height: 60%;
-      background: radial-gradient(ellipse at center, ${accent}33, #6366f122, transparent 70%);
+      background: radial-gradient(ellipse at center, ${accent}33, ${accent}11, transparent 70%);
       filter: blur(80px);
       pointer-events: none;
       z-index: 1;
@@ -303,8 +305,8 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
       justify-content: center;
       font-size: 2rem;
       font-weight: 700;
-      color: #ffffff;
-      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: ${preset ? preset.bg : '#ffffff'};
+      background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #000));
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
       ${avatarRing ? `outline: 3px solid ${accent}; outline-offset: 3px;` : ''}
     }

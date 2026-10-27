@@ -167,7 +167,7 @@ export const SaveAccountSheet: React.FC<SaveAccountSheetProps> = ({
           </p>
 
           {devCode && (
-            <div className="p-2.5 rounded-[var(--r2)] bg-indigo-500/15 text-indigo-300 text-[12px] font-mono">
+            <div className="p-2.5 rounded-[var(--r2)] bg-[rgba(233,190,84,0.12)] text-[var(--ac)] text-[12px] font-mono">
               Sandbox Code: {devCode}
             </div>
           )}

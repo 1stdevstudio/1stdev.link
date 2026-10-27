@@ -271,6 +271,17 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     const html = await (await app.fetch(new Request('http://localhost/@paper'), env)).text();
     assert.match(html, /--bg: #f4f4f2/);
     assert.match(html, /--text: #111111/);
+
+    // Profile without a known theme (old 'minimal-dark' rows) gets the 1stNear default.
+    await app.fetch(new Request('http://localhost/api/bio-profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-API-Key': 'sec_key_456' },
+      body: JSON.stringify({ handle: 'paper', theme: 'minimal-dark' }),
+    }), env);
+    await mockKv.delete('bio:paper');
+    const def = await (await app.fetch(new Request('http://localhost/@paper'), env)).text();
+    assert.match(def, /--bg: #0e1f1b/);
+    assert.match(def, /--accent: #e9be54/);
   });
 
   test('PATCH /api/links/:id edits a block in place (title, URL, type) with SSRF + tenant checks', async () => {

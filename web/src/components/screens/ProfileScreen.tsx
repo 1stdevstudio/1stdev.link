@@ -37,6 +37,7 @@ interface ProfileScreenProps {
 }
 
 const THEMES = [
+  { id: '1stnear', name: '1stNear', bg: '#0e1f1b', text: '#e8efea' },
   { id: 'obsidian', name: 'Obsidian', bg: '#0b0c12', text: '#f2f3f7' },
   { id: 'clean-paper', name: 'Kertas', bg: '#f4f4f2', text: '#111111' },
   { id: 'aurora-emerald', name: 'Hutan', bg: '#0f1f1a', text: '#bff3d8' },
@@ -309,7 +310,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           <label className="text-[13px] text-[var(--tx2)] font-medium">Tema</label>
           <div className="themes">
             {THEMES.map((t) => {
-              const active = (profile.theme || 'obsidian') === t.id;
+              const current = THEMES.some((x) => x.id === profile.theme) ? profile.theme : '1stnear';
+              const active = current === t.id;
               return (
                 <button
                   key={t.id}

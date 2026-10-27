@@ -47,7 +47,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
             type="button"
             className={`flex items-start gap-3.5 w-full p-4 rounded-[var(--r3)] text-left transition ${
               goal === 'profile'
-                ? 'bg-[rgba(124,140,255,0.12)] shadow-[inset_0_0_0_1.5px_var(--ac)]'
+                ? 'bg-[rgba(233,190,84,0.12)] shadow-[inset_0_0_0_1.5px_var(--ac)]'
                 : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
             }`}
             aria-pressed={goal === 'profile'}
@@ -68,7 +68,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
             type="button"
             className={`flex items-start gap-3.5 w-full p-4 rounded-[var(--r3)] text-left transition ${
               goal === 'links'
-                ? 'bg-[rgba(124,140,255,0.12)] shadow-[inset_0_0_0_1.5px_var(--ac)]'
+                ? 'bg-[rgba(233,190,84,0.12)] shadow-[inset_0_0_0_1.5px_var(--ac)]'
                 : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
             }`}
             aria-pressed={goal === 'links'}

@@ -50,7 +50,7 @@ export const App: React.FC = () => {
     handle: 'creator',
     display_name: 'Edge Creator',
     bio: '',
-    theme: 'obsidian',
+    theme: '1stnear',
     avatar_shape: 'circle',
     verified_badge: false,
   });
