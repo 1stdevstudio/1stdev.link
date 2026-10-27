@@ -174,7 +174,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* MOBILE / TABLET BOTTOM NAV (<1024px)                          */}
       {/* ============================================================== */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 h-16 bg-[#07080c]/90 backdrop-blur-md flex items-center justify-around px-2 border-t border-white/[0.04]"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 h-16 bg-[#07080c]/90 backdrop-blur-md flex items-center justify-around px-2"
         aria-label="Navigasi bawah"
       >
         <button

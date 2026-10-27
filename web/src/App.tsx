@@ -188,10 +188,24 @@ export const App: React.FC = () => {
     showToast('Link dihapus');
   };
 
-  const handleReorderLinks = async (reordered: LinkItem[]) => {
+  const reorderTimerRef = React.useRef<any>(null);
+
+  const handleReorderLinks = (reordered: LinkItem[]) => {
+    // 1. Immediate optimistic UI update
     setLinks(reordered);
-    const updates = reordered.map((l, index) => ({ id: l.id, sort_order: index }));
-    await api.updateLinkOrder(updates);
+
+    // 2. Debounce remote PUT /api/links/reorder by 800ms to respect D1/KV limits
+    if (reorderTimerRef.current) {
+      clearTimeout(reorderTimerRef.current);
+    }
+    reorderTimerRef.current = setTimeout(async () => {
+      try {
+        const updates = reordered.map((l, index) => ({ id: l.id, sort_order: index }));
+        await api.updateLinkOrder(updates);
+      } catch (err) {
+        console.error('Failed to persist link order:', err);
+      }
+    }, 800);
   };
 
   // Loading Screen

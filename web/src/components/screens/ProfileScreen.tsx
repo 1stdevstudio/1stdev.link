@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   Share2,
   Copy,
+  Check,
   Star,
   Link2,
   MessageCircle,
@@ -128,8 +129,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <h2 className="text-[17px] font-semibold text-[var(--tx)] truncate flex items-center gap-1.5">
               <span>{profile.display_name || 'Edge Creator'}</span>
               {profile.verified_badge ? (
-                <span className="w-4 h-4 rounded-full bg-[var(--ac)] text-[var(--ink)] inline-grid place-items-center text-[10px]">
-                  ✓
+                <span className="w-4 h-4 rounded-full bg-[var(--ac)] text-[var(--ink)] inline-grid place-items-center">
+                  <Check size={11} strokeWidth={2.5} />
                 </span>
               ) : null}
             </h2>

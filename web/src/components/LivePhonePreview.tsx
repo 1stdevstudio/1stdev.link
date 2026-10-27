@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Star, MessageCircle, Link2 } from 'lucide-react';
+import { ExternalLink, Star, MessageCircle, Link2, Check } from 'lucide-react';
 import { BioProfile, LinkItem } from '../types';
 
 interface LivePhonePreviewProps {
@@ -118,8 +118,8 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
           <div className="flex items-center gap-1 font-semibold text-[15px] truncate max-w-full">
             <span className="truncate">{profile.display_name || 'Edge Creator'}</span>
             {profile.verified_badge ? (
-              <span className="w-3.5 h-3.5 rounded-full bg-[var(--ac)] text-[var(--ink)] inline-grid place-items-center text-[9px] shrink-0">
-                ✓
+              <span className="w-3.5 h-3.5 rounded-full bg-[var(--ac)] text-[var(--ink)] inline-grid place-items-center shrink-0">
+                <Check size={9} strokeWidth={2.5} />
               </span>
             ) : null}
           </div>
