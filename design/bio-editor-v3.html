@@ -57,7 +57,16 @@ input[type=range]{padding:0;min-height:32px;background:none;accent-color:var(--a
 .fx-dot{font-size:11px;padding:2px 6px;border-radius:var(--r1);background:rgba(124,140,255,.14);color:#c7cdff}
 
 .free{margin:0 16px 12px;padding:10px 12px;border-radius:var(--r2);background:rgba(74,222,128,.1);color:#bbf7d0;font-size:13px}.free b{color:var(--ok)}
-@media (min-width:1024px){.free{max-width:620px;margin:0 auto 12px}}
+@media (min-width:1024px){.free,.tabs{max-width:588px;margin:0 auto 12px}}
+.field>span.row{display:flex}
+[hidden]{display:none!important}
+.pcard{position:relative;border-radius:var(--r3);overflow:hidden;background:var(--s1);padding-bottom:14px}
+.pcover{display:block;height:96px;background:linear-gradient(135deg,#1b1e2b,#2a2f45) center/cover;cursor:pointer;position:relative}
+.pc-hint{position:absolute;left:10px;top:10px;display:flex;gap:6px;align-items:center;font-size:12px;padding:4px 8px;border-radius:var(--r1);background:rgba(0,0,0,.45);color:#fff}
+.pav{position:relative;display:grid;place-items:center;width:84px;height:84px;margin:-42px 0 0 14px;border-radius:50%;background:linear-gradient(135deg,#7c8cff,#a78bfa) center/cover;box-shadow:0 0 0 4px #0f1016;font-size:30px;font-weight:700;color:#0b0d16;cursor:pointer;overflow:hidden}
+.pav-edit{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.45);color:#fff;opacity:0;transition:.15s}.pav:hover .pav-edit,.pav:focus-within .pav-edit{opacity:1}
+.pc-meta{display:flex;flex-direction:column;padding:8px 14px 0;min-width:0}.pc-meta b{font-size:17px}.pc-meta span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:399px){.hide-xs{display:none}.top{gap:4px;padding:10px 8px 10px 4px}}
 /* sheet */
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:none}.scrim.on{display:block}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:#11131a;border-radius:var(--r3) var(--r3) 0 0;padding:8px 16px calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;transform:translateY(100%);visibility:hidden;transition:transform .22s}
@@ -69,9 +78,12 @@ input[type=range]{padding:0;min-height:32px;background:none;accent-color:var(--a
 .pv-fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:8;box-shadow:0 10px 30px -8px rgba(0,0,0,.8)}
 .preview-wrap{position:fixed;inset:0;z-index:15;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px}
 .preview-wrap.on{display:flex}
+.preview-wrap{flex-direction:column;gap:10px}
+.pv-head{width:min(340px,92vw);justify-content:space-between;color:#fff}
+body.pv-on .pv-fab{display:none}
 
 /* ================= BIO PAGE PREVIEW (mirrors SSR output) ================= */
-.phone{width:min(340px,92vw);height:min(700px,82vh);border-radius:32px;box-shadow:0 0 0 7px #1a1c24,0 30px 80px -20px #000;overflow:hidden;position:relative}
+.phone{width:min(340px,92vw);height:min(700px,calc(100dvh - 90px));flex:none;border-radius:32px;box-shadow:0 0 0 7px #1a1c24,0 30px 80px -20px #000;overflow:hidden;position:relative}
 .bio{--b-bg:#0b0c12;--b-tx:#f4f4f6;--b-tx2:rgba(244,244,246,.7);--b-btn:rgba(255,255,255,.1);--b-btn-tx:#fff;--b-ac:#7c8cff;--b-r:8px;--b-font:Inter,system-ui,sans-serif;--b-blur:0px;--b-dim:.35;--b-gap:10px;
   position:absolute;inset:0;overflow:auto;color:var(--b-tx);font-family:var(--b-font);background:var(--b-bg);scrollbar-width:none}
 .bio::-webkit-scrollbar{display:none}
@@ -89,18 +101,18 @@ input[type=range]{padding:0;min-height:32px;background:none;accent-color:var(--a
 .bio .has-cover .av{margin-top:-42px;box-shadow:0 0 0 4px var(--b-bg)}
 .bio .av.circle{border-radius:50%}.bio .av.soft{border-radius:22px}.bio .av.square{border-radius:var(--b-r)}
 .bio .av.ring{box-shadow:0 0 0 3px var(--b-bg),0 0 0 5px var(--b-ac)}
-.bio .name{font-size:20px;font-weight:700;display:flex;align-items:center;gap:6px;letter-spacing:-.01em}
-.bio .handle{font-size:13px;color:var(--b-tx2);margin-top:-8px}
+.bio .name{font-size:20px;font-weight:700;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;text-align:center;gap:6px;max-width:100%;overflow-wrap:anywhere;letter-spacing:-.01em}
+.bio .uname{font-size:13px;color:var(--b-tx2);margin-top:-8px}
 .bio .desc{font-size:14px;color:var(--b-tx2);text-align:center;max-width:280px;margin-bottom:6px}
 .bio .socials{display:flex;gap:6px;margin-bottom:4px}
 .bio .socials a{width:38px;height:38px;display:grid;place-items:center;border-radius:var(--b-r);color:var(--b-tx);background:var(--b-btn)}
 /* blocks */
 .bio .b{width:100%;text-decoration:none;color:var(--b-btn-tx);transition:transform .18s,box-shadow .18s,filter .18s;position:relative;overflow:hidden}
 .bio .b-link{min-height:52px;display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:var(--b-r);background:var(--b-btn);font-size:14px;font-weight:600}
-.bio .b-link .t{flex:1;text-align:center;padding-right:38px}
+.bio .b-link .t{flex:1;text-align:center;padding-right:38px;overflow-wrap:anywhere}
 .bio .b-link .lt{width:40px;height:40px;border-radius:calc(var(--b-r) * .7);background:center/cover;flex:none}
 .bio .b-link:not(:has(.lt)) .t{padding:0}
-.bio .b-feat{min-height:56px;display:flex;align-items:center;justify-content:center;border-radius:var(--b-r);background:var(--b-ac);color:#0b0d16;font-weight:700;font-size:15px}
+.bio .b-feat{min-height:56px;display:flex;align-items:center;justify-content:center;border-radius:var(--b-r);background:var(--b-ac);color:#0b0d16;font-weight:700;font-size:15px;text-align:center;padding:10px 16px}
 .bio .b-img{border-radius:var(--b-r);background:center/cover;aspect-ratio:var(--ar,16/9);display:flex;align-items:flex-end}
 .bio .b-img .cap{width:100%;padding:28px 12px 10px;font-size:13px;font-weight:600;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.65))}
 .bio .b-gal{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
@@ -178,8 +190,8 @@ input[type=range]{padding:0;min-height:32px;background:none;accent-color:var(--a
 <div>
   <header class="top">
     <button class="iconbtn" aria-label="Kembali"><svg class="ic"><use href="#i-back"/></svg></button>
-    <strong class="grow">Desain halaman</strong>
-    <button class="btn btn-g btn-sm" id="randomize" title="Coba kombinasi acak"><svg class="ic" style="width:16px;height:16px"><use href="#i-shuffle"/></svg>Acak</button>
+    <strong class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Desain halaman</strong>
+    <button class="btn btn-g btn-sm" id="randomize" title="Coba kombinasi acak"><svg class="ic" style="width:16px;height:16px"><use href="#i-shuffle"/></svg><span class="hide-xs">Acak</span></button>
     <button class="btn btn-g btn-sm" id="lang" aria-label="Ganti bahasa / Switch language">EN</button>
     <button class="btn btn-p btn-sm" onclick="toast()">Simpan</button>
   </header>
@@ -193,14 +205,29 @@ input[type=range]{padding:0;min-height:32px;background:none;accent-color:var(--a
   <main class="editor">
     <!-- ============ ISI ============ -->
     <section class="panel on" id="p-content">
-      <div class="label">Kepala halaman</div>
-      <div class="stack">
-        <label class="upload"><input type="file" accept="image/*" data-target="cover"><span class="thumb" id="th-cover"><svg class="ic"><use href="#i-img"/></svg></span><span class="grow"><b style="font-size:14px">Foto sampul</b><br><span class="small muted">Opsional. Tampil di bagian paling atas.</span></span><button class="iconbtn" data-clear="cover" aria-label="Hapus sampul"><svg class="ic"><use href="#i-trash"/></svg></button></label>
-        <label class="upload"><input type="file" accept="image/*" data-target="av"><span class="thumb" id="th-av" style="border-radius:50%">C</span><span class="grow"><b style="font-size:14px">Foto profil</b><br><span class="small muted">Rasio 1:1, minimal 400px.</span></span></label>
+      <div class="label">Profil</div>
+      <div class="pcard">
+        <label class="pcover" id="pc-cover"><input type="file" accept="image/*" data-target="cover" hidden><span class="pc-hint"><svg class="ic" style="width:16px;height:16px"><use href="#i-img"/></svg>Ganti sampul</span></label>
+        <label class="pav" id="th-av" title="Ganti foto profil"><input type="file" accept="image/*" data-target="av" hidden><span id="pav-letter">N</span><span class="pav-edit"><svg class="ic" style="width:16px;height:16px"><use href="#i-upload"/></svg></span></label>
+        <div class="pc-meta"><b id="pc-name">Nadia Pramesti</b><span class="mono muted" id="pc-url">edgelink.app/@nadia.art</span></div>
+        <button class="iconbtn" data-clear="cover" aria-label="Hapus sampul" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.45);color:#fff"><svg class="ic"><use href="#i-trash"/></svg></button>
+      </div>
+      <p class="small muted" style="margin:8px 0 4px">Ketuk foto atau sampul untuk mengganti. Perubahan langsung tampil di halaman bio.</p>
+      <div class="stack" id="av-adjust" hidden>
+        <label class="slider"><span>Perbesar foto</span><input type="range" min="100" max="200" value="100" id="av-zoom"><output>100%</output></label>
+      </div>
+      <div class="stack" style="margin-top:10px">
         <div class="seg" role="group" data-set="avShape"><button aria-pressed="true" data-v="circle">Bulat</button><button aria-pressed="false" data-v="soft">Membulat</button><button aria-pressed="false" data-v="square">Kotak</button></div>
         <label class="row small" style="min-height:40px"><input type="checkbox" id="ring" style="width:20px;height:20px;min-height:0;accent-color:var(--ac)">Cincin warna di foto</label>
-        <label class="field"><span>Nama</span><input id="in-name" value="Nadia Pramesti"></label>
-        <label class="field"><span>Bio</span><textarea id="in-desc" rows="2">Ilustrator &amp; pembuat konten. Pesanan custom dibuka tiap awal bulan.</textarea></label>
+        <label class="field"><span>Nama</span><input id="in-name" value="Nadia Pramesti" maxlength="40"></label>
+        <label class="field"><span>Nama pengguna</span><div class="row" style="gap:0;background:var(--in);border-radius:var(--r2)"><span class="mono muted" style="padding-left:12px">@</span><input id="in-handle" class="mono" value="nadia.art" maxlength="24" style="background:none;padding-left:2px"></div><small class="small" id="handle-ok" style="color:var(--ok)">Tersedia</small></label>
+        <label class="field"><span class="row" style="justify-content:space-between">Bio<small class="muted" id="desc-count">0/160</small></span><textarea id="in-desc" rows="2" maxlength="160">Ilustrator &amp; pembuat konten. Pesanan custom dibuka tiap awal bulan.</textarea></label>
+        <div class="field"><span>Akun sosial</span><div class="stack" id="soc-in" style="gap:6px">
+          <div class="row" style="gap:0;background:var(--in);border-radius:var(--r2)"><span class="small muted" style="width:92px;padding-left:12px">Instagram</span><input data-soc="ig" value="nadia.art" style="background:none"></div>
+          <div class="row" style="gap:0;background:var(--in);border-radius:var(--r2)"><span class="small muted" style="width:92px;padding-left:12px">TikTok</span><input data-soc="tt" value="nadia.draws" style="background:none"></div>
+          <div class="row" style="gap:0;background:var(--in);border-radius:var(--r2)"><span class="small muted" style="width:92px;padding-left:12px">YouTube</span><input data-soc="yt" placeholder="opsional" style="background:none"></div>
+          <div class="row" style="gap:0;background:var(--in);border-radius:var(--r2)"><span class="small muted" style="width:92px;padding-left:12px">Email</span><input data-soc="em" placeholder="opsional" style="background:none"></div>
+        </div><small class="small muted">Yang kosong tidak ditampilkan.</small></div>
         <label class="row small" style="min-height:40px"><input type="checkbox" id="verified" checked style="width:20px;height:20px;min-height:0;accent-color:var(--ac)">Tanda terverifikasi</label>
       </div>
 
@@ -276,7 +303,7 @@ input[type=range]{padding:0;min-height:32px;background:none;accent-color:var(--a
 
 <!-- preview -->
 <div class="preview-wrap" id="pvwrap">
-  <div class="row small muted" style="color:#fff"><svg class="ic" style="width:16px;height:16px"><use href="#i-eye"/></svg>Pratinjau langsung<button class="iconbtn close" style="color:#fff" onclick="pv(false)" aria-label="Tutup pratinjau"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="row small pv-head"><svg class="ic" style="width:16px;height:16px"><use href="#i-eye"/></svg><span class="grow">Pratinjau langsung</span><button class="iconbtn close" style="color:#fff" onclick="pv(false)" aria-label="Tutup pratinjau"><svg class="ic"><use href="#i-x"/></svg></button></div>
   <div class="phone"><div class="bio btn-soft hv-lift in-rise" id="bio">
     <div class="bg"></div><div class="dim"></div><div class="aurora"></div><div class="grain"></div>
     <div class="content" id="bio-content"></div>
@@ -338,11 +365,16 @@ const bgUrl=v=>v.startsWith('blob:')?`url(${v})`:v;
 
 function renderBio(){
   const name=$('#in-name').value,desc=$('#in-desc').value,ver=$('#verified').checked;
-  const avStyle=S.av?`style="--b-av:${bgUrl(S.av)};font-size:0"`:'';
+  const handle=$('#in-handle').value.trim().toLowerCase(),okH=/^[a-z0-9._]{3,24}$/.test(handle),zoom=$('#av-zoom').value;
+  const avStyle=S.av?`style="--b-av:${bgUrl(S.av)};background-size:${zoom}%;font-size:0"`:'';
+  $('#pc-name').textContent=name||'Nama kamu';$('#pc-url').textContent='edgelink.app/@'+(handle||'…');$('#pav-letter').textContent=S.av?'':(name[0]||'?');
+  $('#th-av').style.backgroundSize=zoom+'%';$('#desc-count').textContent=desc.length+'/160';
+  const hk=$('#handle-ok');hk.textContent=okH?'Tersedia':'3–24 karakter: huruf kecil, angka, titik, garis bawah';hk.style.color=okH?'var(--ok)':'var(--warn,#fbbf24)';
+  const SOC={ig:'i-img',tt:'i-play',yt:'i-play',em:'i-at'},socs=$$('[data-soc]').filter(i=>i.value.trim());
   let h=`<div class="${S.cover?'has-cover':''}" style="display:contents">`;
   if(S.cover)h+=`<div class="cover" style="--b-cover:${bgUrl(S.cover)}"></div>`;
   h+=`<div class="av ${S.avShape} ${$('#ring').checked?'ring':''}" ${avStyle}>${name[0]||'?'}</div></div>`;
-  h+=`<div class="name">${esc(name)}${ver?'<svg class="ic" style="width:18px;height:18px;color:var(--b-ac)"><use href="#i-check-badge"/></svg>':''}</div><div class="handle">@nadia.art</div><div class="desc">${esc(desc)}</div>`;
+  h+=`<div class="name">${esc(name)}${ver?'<svg class="ic" style="width:18px;height:18px;color:var(--b-ac)"><use href="#i-check-badge"/></svg>':''}</div><div class="uname">@${esc(handle)}</div><div class="desc">${esc(desc)}</div>`;
   blocks.forEach(b=>{
     const fx=b.fx&&b.fx!=='none'?'fx-'+b.fx:'';
     switch(b.t){
@@ -355,7 +387,7 @@ function renderBio(){
       case'text':h+=`<p class="b b-text">${esc(b.title)}</p>`;break;
       case'head':h+=`<div class="b b-head">${esc(b.title)}</div>`;break;
       case'div':h+=`<div class="b b-div"></div>`;break;
-      case'social':h+=`<div class="socials">${['i-at','i-play','i-img','i-msg'].map(i=>`<a href="#"><svg class="ic" style="width:18px;height:18px"><use href="#${i}"/></svg></a>`).join('')}</div>`;break;
+      case'social':h+=`${socs.length?`<div class="socials">${socs.map(i=>`<a href="#" title="${esc(i.value)}"><svg class="ic" style="width:18px;height:18px"><use href="#${SOC[i.dataset.soc]}"/></svg></a>`).join('')}</div>`:''}`;break;
     }
   });
   h+=`<div class="foot">Dibuat dengan EdgeLink · gratis 100%</div>`;
@@ -429,9 +461,11 @@ function syncSliders(){$$('[data-var]').forEach(r=>{const v=r.value*(+r.dataset.
 $$('[data-var]').forEach(r=>r.oninput=syncSliders);
 $$('input[type=file][data-target]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;const u=URL.createObjectURL(f),t=inp.dataset.target;
   if(t==='bg'){setBg('#0b0c12',`url(${u})`);$('#th-bg').style.backgroundImage=`url(${u})`;$('#th-bg').innerHTML='';syncSliders();return}
-  S[t]=u;$('#th-'+t).style.backgroundImage=`url(${u})`;$('#th-'+t).textContent='';renderBio()});
-$$('[data-clear]').forEach(b=>b.onclick=e=>{e.preventDefault();S[b.dataset.clear]=null;$('#th-cover').style.backgroundImage='';renderBio()});
-['#in-name','#in-desc','#verified','#ring'].forEach(s=>$(s).addEventListener('input',renderBio));
+  S[t]=u;const el=t==='av'?$('#th-av'):$('#pc-cover');el.style.backgroundImage=`url(${u})`;if(t==='av')$('#av-adjust').hidden=false;renderBio()});
+$$('[data-clear]').forEach(b=>b.onclick=e=>{e.preventDefault();S[b.dataset.clear]=null;$('#pc-cover').style.backgroundImage='';renderBio()});
+['#in-name','#in-desc','#in-handle','#verified','#ring','#av-zoom'].forEach(s=>$(s).addEventListener('input',renderBio));
+$$('[data-soc]').forEach(i=>i.addEventListener('input',renderBio));
+$('#av-zoom').addEventListener('input',e=>e.target.nextElementSibling.textContent=e.target.value+'%');
 $('#replay').onclick=()=>{const c=S.enter;bio.classList.remove(c);void bio.offsetWidth;bio.classList.add(c);$('#bio-content').innerHTML=$('#bio-content').innerHTML};
 $('#randomize').onclick=()=>{const r=a=>a[Math.random()*a.length|0];
   const g=r(['dusk','sea','forest','sand','art1','art3','art5']);setBg('#0b0c12',IMG[g]);bio.style.setProperty('--b-blur','0px');bio.style.setProperty('--b-dim','.2');
@@ -444,12 +478,12 @@ function open(id){$$('.sheet').forEach(s=>s.classList.remove('on'));$('#scrim').
 function closeAll(){$$('.sheet').forEach(s=>s.classList.remove('on'));$('#scrim').classList.remove('on')}
 $$('[data-open]').forEach(b=>b.onclick=()=>open(b.dataset.open));$$('.sheet-head [data-close]').forEach(b=>b.onclick=closeAll);
 $('#scrim').onclick=closeAll;document.addEventListener('keydown',e=>e.key==='Escape'&&(closeAll(),pv(false)));
-function pv(on){if(innerWidth<1024)$('#pvwrap').classList.toggle('on',on)}
+function pv(on){if(innerWidth<1024){$('#pvwrap').classList.toggle('on',on);document.body.classList.toggle('pv-on',on)}}
 function toast(){const t=$('#toast');t.style.transform='translate(-50%,0)';setTimeout(()=>t.style.transform='translate(-50%,-80px)',1600)}
 /* i18n ID <-> EN (production: pakai kamus i18n, bukan text-walk) */
 const EN={'Desain halaman':'Page design','Acak':'Shuffle','Simpan':'Save','Isi':'Content','Gaya':'Style','Efek':'Effects',
 '100% gratis, selamanya.':'100% free, forever.','Semua fitur, foto, dan efek tanpa biaya. Tanpa paket berbayar, tanpa kartu kredit, tanpa iklan.':'Every feature, photo and effect at no cost. No paid plans, no credit card, no ads.',
-'Kepala halaman':'Header','Foto sampul':'Cover photo','Opsional. Tampil di bagian paling atas.':'Optional. Shown at the very top.','Foto profil':'Profile photo','Rasio 1:1, minimal 400px.':'1:1 ratio, at least 400px.',
+'Profil':'Profile','Ganti sampul':'Change cover','Ketuk foto atau sampul untuk mengganti. Perubahan langsung tampil di halaman bio.':'Tap the photo or cover to change it. Changes show on your bio page instantly.','Perbesar foto':'Zoom photo','Nama pengguna':'Username','Tersedia':'Available','Akun sosial':'Social accounts','Yang kosong tidak ditampilkan.':'Empty ones are hidden.','opsional':'optional',
 'Bulat':'Round','Membulat':'Soft','Kotak':'Square','Cincin warna di foto':'Color ring on photo','Nama':'Name','Bio':'Bio','Tanda terverifikasi':'Verified badge',
 'Isi halaman':'Page content','Seret untuk mengurutkan':'Drag to reorder','Tambah isi':'Add content','Atur':'Edit','Atur isi':'Edit content',
 'Latar':'Background','Warna':'Color','Gradien':'Gradient','Foto':'Photo','Unggah foto latar':'Upload background photo','JPG/PNG/WebP, maks 2 MB. Dikompres otomatis.':'JPG/PNG/WebP, max 2 MB. Compressed automatically.',
