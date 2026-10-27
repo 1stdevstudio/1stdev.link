@@ -27,6 +27,14 @@ app.use('*', async (c, next) => {
       "font-src 'self' https://fonts.gstatic.com data:; img-src * data: blob:; connect-src 'self'; " +
       "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   );
+  // HTML: `no-transform` stops the Cloudflare zone from injecting its Web Analytics beacon
+  // (third-party tracker, forbidden on bio pages) and the CSP console errors it causes.
+  if ((c.res.headers.get('content-type') || '').includes('text/html')) {
+    const cc = c.res.headers.get('cache-control');
+    if (!cc || !/no-transform/i.test(cc)) {
+      c.header('Cache-Control', cc ? `${cc}, no-transform` : 'no-transform');
+    }
+  }
 });
 
 // Helper to safely execute background task via ctx.waitUntil or Promise fallback

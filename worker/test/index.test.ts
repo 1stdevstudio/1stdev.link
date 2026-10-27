@@ -214,6 +214,8 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     assert.match(html, /@spixels/);
     assert.match(html, /Penetration Tester &amp; Architect/);
     assert.match(html, /My Portfolio/);
+    // Edge must not rewrite HTML (blocks injected analytics beacon).
+    assert.match(getRes.headers.get('cache-control') || '', /no-transform/);
     // Payload should be lightweight (< 15KB)
     assert.ok(html.length < 15000);
   });
