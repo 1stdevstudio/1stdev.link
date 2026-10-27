@@ -62,7 +62,9 @@ export class MockD1 {
   private executeRun(query: string, params: any[]) {
     // 1. Insert into links
     if (query.startsWith('INSERT INTO links')) {
-      const [id, user_id, slug, destination_url, title, is_bio_entry, sort_order, is_active, created_at] = params;
+      // Matches worker: (id, user_id, slug, destination_url, ios_url, android_url, title, is_bio_entry, sort_order, 1, block_type, created_at)
+      const [id, user_id, slug, destination_url, ios_url, android_url, title, is_bio_entry, sort_order, block_type, created_at] = params;
+      const is_active = 1;
       const existing = this.tables.links.find((l) => l.slug === slug);
       if (existing) {
         throw new Error('UNIQUE constraint failed: links.slug');
@@ -72,10 +74,13 @@ export class MockD1 {
         user_id,
         slug,
         destination_url,
+        ios_url,
+        android_url,
         title,
         is_bio_entry,
         sort_order,
         is_active,
+        block_type,
         created_at
       });
       return { success: true };

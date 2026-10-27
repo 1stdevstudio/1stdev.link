@@ -213,6 +213,59 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     assert.ok(html.length < 15000);
   });
 
+  test('Adding a bio block invalidates the cached /@handle page before responding', async () => {
+    const auth = { 'Content-Type': 'application/json', 'X-API-Key': 'sec_key_456' };
+    await app.fetch(
+      new Request('http://localhost/api/bio-profile', {
+        method: 'PUT',
+        headers: auth,
+        body: JSON.stringify({ handle: 'cachey', display_name: 'Cache Test' })
+      }),
+      env
+    );
+
+    // First visit caches the empty page in KV.
+    await app.fetch(new Request('http://localhost/@cachey'), env);
+    assert.ok(await mockKv.get('bio:cachey'), 'bio page should be cached');
+
+    // Slow KV delete (like real KV): a fire-and-forget invalidation would lose the race.
+    const realDelete = mockKv.delete.bind(mockKv);
+    mockKv.delete = (key: string) =>
+      new Promise<void>((resolve) => setTimeout(() => realDelete(key).then(resolve), 5));
+
+    const postRes = await app.fetch(
+      new Request('http://localhost/api/links', {
+        method: 'POST',
+        headers: auth,
+        body: JSON.stringify({
+          destination_url: 'https://example.com/shop',
+          title: 'Fresh Block',
+          is_bio_entry: true
+        })
+      }),
+      env
+    );
+    assert.equal(postRes.status, 201);
+    assert.equal(await mockKv.get('bio:cachey'), null, 'cache must be cleared when the response returns');
+
+    const html = await (await app.fetch(new Request('http://localhost/@cachey'), env)).text();
+    assert.match(html, /Fresh Block/);
+  });
+
+  test('Dashboard theme preset is applied on the public bio page', async () => {
+    await app.fetch(
+      new Request('http://localhost/api/bio-profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-API-Key': 'sec_key_456' },
+        body: JSON.stringify({ handle: 'paper', display_name: 'Paper', theme: 'clean-paper' })
+      }),
+      env
+    );
+    const html = await (await app.fetch(new Request('http://localhost/@paper'), env)).text();
+    assert.match(html, /--bg: #f4f4f2/);
+    assert.match(html, /--text: #111111/);
+  });
+
   test('GET /api/links and GET /api/links/:id/analytics', async () => {
     const today = new Date().toISOString().slice(0, 10);
     mockDb.tables.links.push({

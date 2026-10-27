@@ -9,6 +9,16 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#039;');
 }
 
+/** Sama dengan THEMES di web/src/components/screens/ProfileScreen.tsx. */
+const THEME_PRESETS: Record<string, { bg: string; text: string; muted: string; accent: string }> = {
+  obsidian: { bg: '#0b0c12', text: '#f2f3f7', muted: '#b4b8c5', accent: '#7c8cff' },
+  'clean-paper': { bg: '#f4f4f2', text: '#111111', muted: '#5f6368', accent: '#111111' },
+  'aurora-emerald': { bg: '#0f1f1a', text: '#bff3d8', muted: '#86b8a0', accent: '#34d399' },
+  'midnight-neon': { bg: '#1a1024', text: '#e9d5ff', muted: '#b39cc9', accent: '#c084fc' },
+  'cyber-matrix': { bg: '#101826', text: '#bfdbfe', muted: '#8ea6c4', accent: '#60a5fa' },
+  'rose-gold': { bg: '#1f1a12', text: '#fde68a', muted: '#c2ad7a', accent: '#fbbf24' },
+};
+
 export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: string = '', acceptLanguage: string = ''): string {
   const name = escapeHtml(profile.display_name || 'EdgeLink User');
   const handle = escapeHtml(profile.handle || 'user');
@@ -27,7 +37,9 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
   }
 
   const bg = style.bg || 'dark';
-  const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : '#7c8cff';
+  // Preset tema dari dashboard (profile.theme). style.bg/accent (editor v3) tetap menang bila diisi.
+  const preset = style.bg ? undefined : THEME_PRESETS[profile.theme || ''];
+  const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset?.accent || '#7c8cff';
   const font = style.font || 'modern';
   const btn = style.btn || 'soft';
   const radius = typeof style.radius === 'number' ? Math.max(0, Math.min(32, style.radius)) : 8;
@@ -157,9 +169,9 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      --bg: ${bg === 'light' ? '#f8fafc' : bg === 'gradient' ? 'linear-gradient(135deg, #07080c 0%, #1e1b4b 100%)' : '#07080c'};
-      --text: ${bg === 'light' ? '#0f172a' : '#f2f3f7'};
-      --text-muted: ${bg === 'light' ? '#64748b' : '#b4b8c5'};
+      --bg: ${preset ? preset.bg : bg === 'light' ? '#f8fafc' : bg === 'gradient' ? 'linear-gradient(135deg, #07080c 0%, #1e1b4b 100%)' : '#07080c'};
+      --text: ${preset ? preset.text : bg === 'light' ? '#0f172a' : '#f2f3f7'};
+      --text-muted: ${preset ? preset.muted : bg === 'light' ? '#64748b' : '#b4b8c5'};
       --accent: ${accent};
       --radius: ${radius}px;
       --gap: ${gap}px;
@@ -204,7 +216,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
     .grain-layer {
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 0);
+      background-image: radial-gradient(color-mix(in srgb, var(--text) 8%, transparent) 1px, transparent 0);
       background-size: 24px 24px;
       opacity: 0.4;
       pointer-events: none;
@@ -276,7 +288,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
       height: 92px;
       object-fit: cover;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      background: rgba(255, 255, 255, 0.05);
+      background: color-mix(in srgb, var(--text) 5%, transparent);
       ${avatarRing ? `outline: 3px solid ${accent}; outline-offset: 3px;` : ''}
     }
     .avatar.shape-circle { border-radius: 50%; }
@@ -346,7 +358,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
       text-transform: uppercase;
       padding: 0.35rem 0.75rem;
       border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.06);
+      background: color-mix(in srgb, var(--text) 6%, transparent);
       transition: opacity 0.2s;
     }
     .social-link:hover {
@@ -376,7 +388,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 
     /* Button styles */
     .btn-soft {
-      background: rgba(255, 255, 255, 0.05);
+      background: color-mix(in srgb, var(--text) 5%, transparent);
     }
     .btn-solid {
       background: var(--text);
@@ -384,17 +396,17 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
     }
     .btn-solid .arrow { color: var(--bg); }
     .btn-glass {
-      background: rgba(255, 255, 255, 0.03);
+      background: color-mix(in srgb, var(--text) 3%, transparent);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
     }
     .btn-outline {
       background: transparent;
-      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border: 1.5px solid color-mix(in srgb, var(--text) 15%, transparent);
     }
     .btn-shadow {
-      background: rgba(255, 255, 255, 0.06);
+      background: color-mix(in srgb, var(--text) 6%, transparent);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
@@ -411,7 +423,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 
     .featured-card {
       position: relative;
-      background: linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      background: linear-gradient(135deg, color-mix(in srgb, var(--text) 9%, transparent), color-mix(in srgb, var(--text) 4%, transparent));
       border: 1px solid ${accent}44;
     }
     .featured-badge {
@@ -457,7 +469,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
     .block-divider hr {
       border: 0;
       height: 1px;
-      background: rgba(255, 255, 255, 0.08);
+      background: color-mix(in srgb, var(--text) 8%, transparent);
       margin: 0.25rem 0;
     }
 

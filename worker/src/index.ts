@@ -729,7 +729,7 @@ async function invalidateUserBioCache(c: any, userId: string) {
       .bind(userId)
       .first()) as { handle?: string } | null;
     if (profile?.handle) {
-      safeWaitUntil(c, c.env.KV.delete(`bio:${profile.handle}`).catch(() => {}));
+      await c.env.KV.delete(`bio:${profile.handle}`).catch(() => {});
     }
   } catch (err) {
     console.error('Failed to invalidate bio cache:', err);
@@ -852,7 +852,7 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
   }
 
   // Invalidate bio cache in KV
-  invalidateUserBioCache(c, user.id);
+  await invalidateUserBioCache(c, user.id);
 
   const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
   return c.json(
@@ -1073,7 +1073,7 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
       .run();
   }
 
-  invalidateUserBioCache(c, user.id);
+  await invalidateUserBioCache(c, user.id);
 
   return c.json({ status: 'success', message: 'Link updated' });
 });
@@ -1102,7 +1102,7 @@ app.put('/api/links/reorder', apiAuthMiddleware, async (c) => {
     await c.env.DB.batch(statements);
   }
 
-  invalidateUserBioCache(c, user.id);
+  await invalidateUserBioCache(c, user.id);
 
   return c.json({ status: 'success', message: 'Links reordered' });
 });
@@ -1130,7 +1130,7 @@ app.delete('/api/links/:id', apiAuthMiddleware, async (c) => {
     safeWaitUntil(c, c.env.KV.delete(`slug:${link.slug}`).catch(() => {}));
   }
 
-  invalidateUserBioCache(c, user.id);
+  await invalidateUserBioCache(c, user.id);
 
   return c.json({ status: 'success', message: 'Link deleted' });
 });
