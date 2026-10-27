@@ -131,7 +131,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
       {shown.length === 0 ? (
         <p className="small muted text-center py-6">{s.noRes}</p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="grid gap-2 xl:grid-cols-2 2xl:grid-cols-3">
           {shown.map((l) => (
             <li key={l.id} className={`card lcard ${l.is_active ? '' : 'dim'}`}>
               <div className="flex items-start gap-3">

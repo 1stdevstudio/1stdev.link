@@ -71,7 +71,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       {/* ============================================================== */}
       {/* DESKTOP SIDEBAR + MAIN + PREVIEW LAYOUT (>=1024px)              */}
       {/* ============================================================== */}
-      <div className="mx-auto max-w-[1400px] flex">
+      <div className="flex w-full">
         {/* Desktop Sidebar (240px) */}
         <aside className="hidden lg:flex flex-col w-[240px] h-screen sticky top-0 p-5 shrink-0">
           {/* Logo */}
@@ -157,8 +157,8 @@ export const AppShell: React.FC<AppShellProps> = ({
           )}
         </aside>
 
-        {/* Central Content Area (max 720px) */}
-        <main className="grow min-w-0 max-w-[720px] px-4 py-5 sm:px-6 sm:py-8 pb-28 lg:pb-12">
+        {/* Central Content Area (full width) */}
+        <main className="grow min-w-0 px-4 py-5 sm:px-6 sm:py-8 lg:px-10 pb-28 lg:pb-12">
           {children}
         </main>
 
