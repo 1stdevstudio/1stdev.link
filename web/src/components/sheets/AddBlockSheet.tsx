@@ -159,6 +159,7 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
   const [active, setActive] = useState<BlockDef | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [mode, setMode] = useState<'blocks' | 'templates'>('blocks');
   const [cat, setCat] = useState<TemplateCat | 'all'>('all');
   const shownTemplates = TEMPLATE_DEFS.filter((t) => cat === 'all' || t.cat === cat);
@@ -167,16 +168,24 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
     setActive(null);
     setValues({});
     setMode('blocks');
+    setError('');
     onClose();
   };
 
   const create = async (def: BlockDef, v: Record<string, string>) => {
     const payload = def.build?.(v);
-    if (!payload) return;
+    if (!payload) {
+      setError('Isian belum lengkap atau formatnya belum benar.');
+      return;
+    }
+    setError('');
     setLoading(true);
     try {
       await onCreateBlock(payload);
       handleClose();
+    } catch (err: any) {
+      // Jangan gagal diam-diam: blok tidak tersimpan di server.
+      setError(err?.message ? `Gagal menyimpan: ${err.message}` : 'Gagal menyimpan. Periksa koneksi lalu coba lagi.');
     } finally {
       setLoading(false);
     }
@@ -190,12 +199,17 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
       create(def, {});
     } else {
       setValues({});
-      setActive(def);
+      setError(''); setActive(def);
     }
   };
 
   return (
     <Sheet isOpen={isOpen} onClose={handleClose} title={active ? `Tambah ${active.name}` : 'Tambah isi'}>
+      {error && (
+        <p role="alert" className="mb-3 rounded-[var(--r2)] bg-[rgba(248,113,113,0.12)] px-3 py-2.5 text-[13px] leading-snug text-rose-300">
+          {error}
+        </p>
+      )}
       {!active && (
         <div className="seg mb-4" role="group" aria-label="Jenis isi">
           <button type="button" aria-pressed={mode === 'blocks'} onClick={() => setMode('blocks')}>Blok</button>
@@ -219,7 +233,7 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
             {shownTemplates.map(({ def, defaults }) => (
               <button
                 key={def.id} type="button" className="menu-item" disabled={loading}
-                onClick={() => { setValues(defaults); setActive(def); }}
+                onClick={() => { setValues(defaults); setError(''); setActive(def); }}
               >
                 <span className="w-10 h-10 rounded-[var(--r2)] bg-[var(--s2)] grid place-items-center shrink-0">{def.icon}</span>
                 <span className="grow text-left min-w-0">
@@ -256,7 +270,7 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
 
       {active && (
         <form onSubmit={(e) => { e.preventDefault(); create(active, values); }} className="flex flex-col gap-3">
-          <button type="button" className="btn btn-t btn-sm self-start -ml-2" onClick={() => setActive(null)}>
+          <button type="button" className="btn btn-t btn-sm self-start -ml-2" onClick={() => { setError(''); setActive(null); }}>
             <ArrowLeft size={16} strokeWidth={1.75} />
             <span>Kembali</span>
           </button>

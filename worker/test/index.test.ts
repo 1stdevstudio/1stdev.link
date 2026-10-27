@@ -40,7 +40,12 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
     assert.equal(res.headers.get('x-frame-options'), 'DENY');
     assert.equal(res.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
-    assert.match(res.headers.get('content-security-policy') || '', /default-src 'self'/);
+    const csp = res.headers.get('content-security-policy') || '';
+    assert.match(csp, /default-src 'self'/);
+    // Dashboard CSS (/assets) and Google Fonts must load; inline/3rd-party scripts must not.
+    assert.match(csp, /style-src 'self' 'unsafe-inline' https:\/\/fonts\.googleapis\.com/);
+    assert.match(csp, /font-src [^;]*https:\/\/fonts\.gstatic\.com/);
+    assert.match(csp, /script-src 'self';/);
   });
 
   test('POST /api/links creates shortlink with validation and SSRF protection', async () => {

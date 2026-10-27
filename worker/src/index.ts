@@ -21,7 +21,11 @@ app.use('*', async (c, next) => {
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   c.header(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'unsafe-inline'; img-src * data:;"
+    // Dashboard SPA (proxied from Pages) + SSR bio: own CSS/JS, Google Fonts, inline styles.
+    // Inline scripts and third-party scripts (incl. injected analytics beacons) stay blocked.
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+      "font-src 'self' https://fonts.gstatic.com data:; img-src * data: blob:; connect-src 'self'; " +
+      "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   );
 });
 

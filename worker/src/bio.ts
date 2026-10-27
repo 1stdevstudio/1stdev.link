@@ -531,7 +531,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
       ${blocksHtml}
     </div>
   </main>
-  <footer><a href="https://edgelink-afl.pages.dev" target="_blank" rel="noopener noreferrer">${footerText}</a></footer>
+  <footer><a href="${escapeHtml(baseUrl)}/" target="_blank" rel="noopener noreferrer">${footerText}</a></footer>
 </body>
 </html>`;
 }
