@@ -10,31 +10,53 @@ interface SheetProps {
 
 export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }) => {
   const sheetRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const prevOpenRef = useRef(false);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      prevOpenRef.current = false;
+      return;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
 
-    // Auto-focus first input or button in sheet
-    const timer = setTimeout(() => {
-      const focusable = sheetRef.current?.querySelector<HTMLElement>(
-        'input:not([disabled]), button:not([disabled]), textarea:not([disabled])'
-      );
-      focusable?.focus();
-    }, 50);
+    // Auto-focus only when sheet first opens, and never steal focus if user is already typing
+    if (!prevOpenRef.current) {
+      prevOpenRef.current = true;
+      const timer = setTimeout(() => {
+        if (sheetRef.current && !sheetRef.current.contains(document.activeElement)) {
+          const firstInput = sheetRef.current.querySelector<HTMLElement>(
+            'input:not([disabled]), textarea:not([disabled])'
+          );
+          if (firstInput) {
+            firstInput.focus();
+          } else {
+            const focusable = sheetRef.current.querySelector<HTMLElement>(
+              'button:not([disabled])'
+            );
+            focusable?.focus();
+          }
+        }
+      }, 50);
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        clearTimeout(timer);
+      };
+    }
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      clearTimeout(timer);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
