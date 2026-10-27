@@ -174,7 +174,7 @@ export async function sendOtpEmail(
           subject: `Your ${purpose === 'claim' ? 'Account Claim' : 'Login'} Code: ${code}`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #0c0d12; color: #fff; padding: 40px; border-radius: 16px; max-width: 460px; margin: auto;">
-              <h2 style="color: #fff; margin-bottom: 8px;">EdgeLink Security</h2>
+              <h2 style="color: #fff; margin-bottom: 8px;">1stdev.link Security</h2>
               <p style="color: #9ca3af; font-size: 14px; margin-bottom: 24px;">
                 Use the verification code below to complete your ${purpose === 'claim' ? 'workspace claim' : 'secure login'}.
               </p>
@@ -192,13 +192,13 @@ export async function sendOtpEmail(
 
     try {
       // 1. Try sending from official domain auth@1stnear.com
-      let res = await sendWithFrom('EdgeLink Security <auth@1stnear.com>');
+      let res = await sendWithFrom('1stdev.link Security <auth@1stnear.com>');
       if (res.ok) {
         return { success: true };
       }
 
       // 2. If 1stnear.com is not verified yet, fallback to onboarding@resend.dev
-      res = await sendWithFrom('EdgeLink Security <onboarding@resend.dev>');
+      res = await sendWithFrom('1stdev.link Security <onboarding@resend.dev>');
       if (res.ok) {
         return { success: true };
       }

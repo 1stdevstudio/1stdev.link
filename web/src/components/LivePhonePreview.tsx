@@ -225,7 +225,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
 
         {/* Badge footer */}
         <div className="mt-auto pt-6 pb-2 text-[10px] tracking-wider uppercase opacity-40">
-          {tx('Dibuat dengan', 'Made with')} EdgeLink by 1stnear.com
+          {tx('Dibuat dengan', 'Made with')} 1stdev.link by 1stdev.space
         </div>
       </div>
 

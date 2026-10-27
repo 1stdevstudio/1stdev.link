@@ -25,7 +25,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
                 {tab === 'terms' ? tx('Ketentuan Layanan', 'Terms of Service') : tx('Kebijakan Privasi', 'Privacy Policy')}
               </h3>
               <p className="text-[12px] text-[var(--tx3)] font-mono">
-                EdgeLink by 1stnear.com • {tx('100% Gratis & Bebas Iklan', '100% Free & Ad-Free')}
+                1stdev.link by 1stdev.space • {tx('100% Gratis & Bebas Iklan', '100% Free & Ad-Free')}
               </p>
             </div>
           </div>
@@ -77,7 +77,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
                   {lang === 'en' ? <>1. Service principle: 100% free & ad-free</> : <>1. Prinsip Layanan: 100% Gratis & Bebas Iklan</>}
                 </h4>
                 <p>
-                  {lang === 'en' ? <>EdgeLink by 1stnear.com is a short link and bio page platform offered <strong>completely free to everyone, with no conditions</strong>. We charge no subscription, ask for no credit card, and never insert commercial ads or third-party banners into users’ links or bio pages.</> : <>EdgeLink by 1stnear.com adalah platform manajemen tautan ringkas (shortlink) dan laman profil digital (bio page) yang disediakan secara <strong>sepenuhnya gratis untuk umum tanpa syarat apapun</strong>. Kami tidak memungut biaya langganan, tidak meminta kartu kredit, dan tidak menyelipkan iklan komersial maupun banner pihak ketiga pada tautan dan laman bio pengguna.</>}
+                  {lang === 'en' ? <>1stdev.link by 1stdev.space is a short link and bio page platform offered <strong>completely free to everyone, with no conditions</strong>. We charge no subscription, ask for no credit card, and never insert commercial ads or third-party banners into users’ links or bio pages.</> : <>1stdev.link by 1stdev.space adalah platform manajemen tautan ringkas (shortlink) dan laman profil digital (bio page) yang disediakan secara <strong>sepenuhnya gratis untuk umum tanpa syarat apapun</strong>. Kami tidak memungut biaya langganan, tidak meminta kartu kredit, dan tidak menyelipkan iklan komersial maupun banner pihak ketiga pada tautan dan laman bio pengguna.</>}
                 </p>
               </section>
 
@@ -117,7 +117,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
                   {lang === 'en' ? <>4. Availability & limitation of liability</> : <>4. Ketersediaan Layanan & Batasan Tanggung Jawab</>}
                 </h4>
                 <p>
-                  {lang === 'en' ? <>The service is provided &quot;as is&quot;. While we run a high-performance architecture with maximum uptime, EdgeLink is not liable for indirect losses, third-party network failures, or content uploaded by other users.</> : <>Layanan disediakan atas dasar apa adanya (&quot;as is&quot;). Meskipun kami menerapkan arsitektur berkinerja tinggi dengan uptime maksimal, EdgeLink tidak bertanggung jawab atas kerugian tidak langsung, kegagalan jaringan internet pihak ketiga, atau konten yang diunggah oleh pengguna pihak luar.</>}
+                  {lang === 'en' ? <>The service is provided &quot;as is&quot;. While we run a high-performance architecture with maximum uptime, 1stdev.link is not liable for indirect losses, third-party network failures, or content uploaded by other users.</> : <>Layanan disediakan atas dasar apa adanya (&quot;as is&quot;). Meskipun kami menerapkan arsitektur berkinerja tinggi dengan uptime maksimal, 1stdev.link tidak bertanggung jawab atas kerugian tidak langsung, kegagalan jaringan internet pihak ketiga, atau konten yang diunggah oleh pengguna pihak luar.</>}
                 </p>
               </section>
             </>
@@ -129,7 +129,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
                   {lang === 'en' ? <>1. Privacy philosophy: zero trackers, cookieless</> : <>1. Filosofi Privasi: Zero-Tracker & Cookieless</>}
                 </h4>
                 <p>
-                  {lang === 'en' ? <>We respect the privacy of users and link visitors. EdgeLink <strong>uses no third-party tracking cookies</strong>, builds no advertising profiles, and never sells or shares data with any data broker.</> : <>Kami menghormati hak privasi pengguna dan pengunjung tautan. EdgeLink <strong>tidak menggunakan cookie pelacak pihak ketiga</strong> (third-party tracking cookies), tidak membuat profil periklanan, dan tidak pernah menjual atau membagikan data kepada broker data manapun.</>}
+                  {lang === 'en' ? <>We respect the privacy of users and link visitors. 1stdev.link <strong>uses no third-party tracking cookies</strong>, builds no advertising profiles, and never sells or shares data with any data broker.</> : <>Kami menghormati hak privasi pengguna dan pengunjung tautan. 1stdev.link <strong>tidak menggunakan cookie pelacak pihak ketiga</strong> (third-party tracking cookies), tidak membuat profil periklanan, dan tidak pernah menjual atau membagikan data kepada broker data manapun.</>}
                 </p>
               </section>
 
@@ -161,7 +161,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
 
         {/* Footer */}
         <div className="p-4 px-5 bg-[var(--s1)] flex items-center justify-between text-[12px] text-[var(--tx3)]">
-          <span className="mono">EdgeLink by 1stnear.com • 100% Free &amp; Private</span>
+          <span className="mono">1stdev.link by 1stdev.space • 100% Free &amp; Private</span>
           <button
             type="button"
             onClick={onClose}

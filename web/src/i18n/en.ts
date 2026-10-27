@@ -5,7 +5,7 @@ export const en: Record<TranslationKey, string> = {
   badgeFree: '100% Free Forever',
   heroFreeHeadline: '100% free, forever.',
   heroFreeSub: 'Every feature, photo and effect at no cost. No paid plans, no credit card, no ads.',
-  footerBio: 'Made with EdgeLink by 1stnear.com · 100% free',
+  footerBio: 'Made with 1stdev.link by 1stdev.space · 100% free',
   
   // Tabs
   tabProfile: 'Profile',

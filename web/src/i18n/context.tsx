@@ -59,8 +59,8 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     document.documentElement.lang = lang;
     document.title =
       lang === 'en'
-        ? 'Free Link in Bio & URL Shortener – EdgeLink by 1stnear.com'
-        : 'Link Bio & Link Pendek Gratis – EdgeLink by 1stnear.com';
+        ? 'Free Link in Bio & URL Shortener – 1stdev.link by 1stdev.space'
+        : 'Link Bio & Link Pendek Gratis – 1stdev.link by 1stdev.space';
   }, [lang]);
 
   return (

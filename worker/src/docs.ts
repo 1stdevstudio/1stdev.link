@@ -9,8 +9,8 @@ export function renderDocsHtml(): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EdgeLink Developer API — by 1stnear.com</title>
-  <meta name="description" content="Dokumentasi resmi API EdgeLink v1 untuk integrasi bot, shortlink, dan bio generator.">
+  <title>1stdev.link Developer API — by 1stdev.space</title>
+  <meta name="description" content="Dokumentasi resmi API 1stdev.link v1 untuk integrasi bot, shortlink, dan bio generator.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e9be54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -135,7 +135,7 @@ export function renderDocsHtml(): string {
   <div class="container">
     <header>
       <div class="badge">API v1.0 • Cloudflare Edge Sub-15ms</div>
-      <h1>EdgeLink Developer API</h1>
+      <h1>1stdev.link Developer API</h1>
       <div class="subtitle">Dokumentasi integrasi resmi untuk shortlink, bio profil, dan sistem otomasi di <strong>link.1stnear.com</strong></div>
     </header>
 
@@ -161,7 +161,7 @@ Content-Type: application/json
 
 {
   "title": "Katalog Menu Kopi",
-  "destination_url": "https://1stnear.com/fitur",
+  "destination_url": "https://1stdev.space/fitur",
   "slug": "katalog-kopi",
   "is_bio_entry": true,
   "block_type": "featured"
@@ -173,7 +173,7 @@ Content-Type: application/json
     "id": "lnk_9a8b7c6d5e",
     "slug": "katalog-kopi",
     "short_url": "https://link.1stnear.com/katalog-kopi",
-    "destination_url": "https://1stnear.com/fitur",
+    "destination_url": "https://1stdev.space/fitur",
     "title": "Katalog Menu Kopi",
     "is_bio_entry": 1,
     "block_type": "featured",
@@ -197,7 +197,7 @@ Content-Type: application/json
       "id": "lnk_9a8b7c6d5e",
       "slug": "katalog-kopi",
       "short_url": "https://link.1stnear.com/katalog-kopi",
-      "destination_url": "https://1stnear.com/fitur",
+      "destination_url": "https://1stdev.space/fitur",
       "title": "Katalog Menu Kopi",
       "is_bio_entry": 1,
       "block_type": "featured",
@@ -260,7 +260,7 @@ Content-Type: application/json
         </tr>
         <tr>
           <td><code>featured</code></td>
-          <td>Tombol sorotan warna emas 1stNear</td>
+          <td>Tombol sorotan warna emas 1stdev</td>
           <td>URL https://...</td>
         </tr>
         <tr>
@@ -292,12 +292,12 @@ Content-Type: application/json
   -H "Content-Type: application/json" \\
   -d '{
     "title": "Daftar Outlet",
-    "destination_url": "https://1stnear.com/jelajah",
+    "destination_url": "https://1stdev.space/jelajah",
     "is_bio_entry": true
   }'</pre>
 
     <footer style="margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--tx3); font-size: 13px;">
-      © 2026 EdgeLink by 1stnear.com • 100% Free Forever • Global Serverless Edge
+      © 2026 1stdev.link by 1stdev.space • 100% Free Forever • Global Serverless Edge
     </footer>
   </div>
 </body>

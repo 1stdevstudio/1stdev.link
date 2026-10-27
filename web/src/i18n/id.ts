@@ -3,7 +3,7 @@ export const id = {
   badgeFree: '100% Gratis Selamanya',
   heroFreeHeadline: '100% gratis, selamanya.',
   heroFreeSub: 'Semua fitur, foto, dan efek tanpa biaya. Tanpa paket berbayar, tanpa kartu kredit, tanpa iklan.',
-  footerBio: 'Dibuat dengan EdgeLink by 1stnear.com · gratis 100%',
+  footerBio: 'Dibuat dengan 1stdev.link by 1stdev.space · gratis 100%',
   
   // Tabs
   tabProfile: 'Profil',

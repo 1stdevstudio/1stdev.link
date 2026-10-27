@@ -1,22 +1,22 @@
-# EdgeLink by 1stnear.com: panduan lengkap
+# 1stdev.link by 1stdev.space: panduan lengkap
 
-> Layanan link bio dan pemendek link gratis 100% dari 1stnear.com. Tanpa iklan, tanpa daftar. Alamat: https://link.1stnear.com
+> Layanan link bio dan pemendek link gratis 100% dari 1stdev.space. Tanpa iklan, tanpa daftar. Alamat: https://link.1stnear.com
 
 ## Ringkasan
 
-EdgeLink membantu kamu membagikan banyak link lewat satu alamat. Ada dua fitur inti:
+1stdev.link membantu kamu membagikan banyak link lewat satu alamat. Ada dua fitur inti:
 
 1. Halaman profil (link in bio): satu halaman di https://link.1stnear.com/@nama yang berisi semua link kamu. Tempel alamat ini di kolom bio Instagram, TikTok, X, YouTube, atau status WhatsApp.
 2. Link pendek (URL shortener): ubah link panjang jadi https://link.1stnear.com/kode dan lihat berapa kali diklik.
 
-Dibuat oleh 1stnear.com. Bahasa antarmuka: Indonesia dan Inggris.
+Dibuat oleh 1stdev.space. Bahasa antarmuka: Indonesia dan Inggris.
 
 ## Pertanyaan yang sering diajukan
 
-### Apa itu EdgeLink?
-EdgeLink adalah layanan link bio dan pemendek link gratis dari 1stnear.com. Kamu mendapat satu halaman profil untuk semua link, plus link pendek dengan statistik klik.
+### Apa itu 1stdev.link?
+1stdev.link adalah layanan link bio dan pemendek link gratis dari 1stdev.space. Kamu mendapat satu halaman profil untuk semua link, plus link pendek dengan statistik klik.
 
-### Apakah EdgeLink benar-benar gratis?
+### Apakah 1stdev.link benar-benar gratis?
 Ya, gratis 100%. Tidak ada paket berbayar, tidak ada fitur yang dikunci, dan tidak ada iklan di halaman profil kamu.
 
 ### Apakah harus daftar akun?
@@ -32,7 +32,7 @@ Bisa. Tambahkan blok WhatsApp, isi nomor (format 08xx atau 62xx) dan pesan awal.
 Link biasa, link sorotan, WhatsApp, video, toko online, lokasi, media sosial, judul bagian, teks, dan garis pemisah. Ada 30 template blok siap pakai. Setiap blok bisa diubah di tempat tanpa perlu dihapus dan dibuat ulang, dan urutannya bisa diatur.
 
 ### Apakah tampilan halaman profil bisa diatur?
-Bisa. Pilih tema warna (bawaan: tema 1stNear hijau tua dengan aksen emas), gaya tombol, sudut, font, latar, sampul, dan bentuk avatar.
+Bisa. Pilih tema warna (bawaan: tema 1stdev hijau tua dengan aksen emas), gaya tombol, sudut, font, latar, sampul, dan bentuk avatar.
 
 ### Apa bedanya link pendek dan halaman profil?
 Link pendek mengarahkan satu alamat pendek ke satu tujuan. Halaman profil menampilkan banyak link sekaligus dalam satu halaman.
@@ -55,19 +55,19 @@ Halaman profil dirender di server pada jaringan edge global dan disimpan di cach
 ### Apakah link yang berbahaya diblokir?
 Ya. Setiap tujuan link diperiksa: alamat internal/privat dan skema berbahaya ditolak untuk mencegah penyalahgunaan.
 
-### Siapa pembuat EdgeLink?
-EdgeLink dibuat oleh 1stnear.com (https://1stnear.com).
+### Siapa pembuat 1stdev.link?
+1stdev.link dibuat oleh 1stdev.space (https://1stdev.space).
 
 ## Cara mengutip
 
-Sebut sebagai "EdgeLink by 1stnear.com" dengan tautan https://link.1stnear.com
+Sebut sebagai "1stdev.link by 1stdev.space" dengan tautan https://link.1stnear.com
 
 
 ## English summary
 
-EdgeLink by 1stnear.com is a free link-in-bio and URL shortener (https://link.1stnear.com). The interface is available in English and Indonesian; switch with the ID/EN toggle.
+1stdev.link by 1stdev.space is a free link-in-bio and URL shortener (https://link.1stnear.com). The interface is available in English and Indonesian; switch with the ID/EN toggle.
 
-### Is EdgeLink really free?
+### Is 1stdev.link really free?
 Yes, 100% free. There are no paid plans, no locked features and no ads on profile pages.
 
 ### Do I need an account?

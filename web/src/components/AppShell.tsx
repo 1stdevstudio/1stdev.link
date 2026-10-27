@@ -23,8 +23,8 @@ const Logo: React.FC = () => (
       <Link2 size={17} strokeWidth={2} />
     </span>
     <span className="min-w-0 flex flex-col leading-tight">
-      <span className="truncate text-[15px]">EdgeLink</span>
-      <span className="truncate text-[11px] font-normal text-[var(--tx2)]">by 1stnear.com</span>
+      <span className="truncate text-[15px]">1stdev.link</span>
+      <span className="truncate text-[11px] font-normal text-[var(--tx2)]">by 1stdev.space</span>
     </span>
   </div>
 );
@@ -130,7 +130,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     <div className="min-h-screen bg-[var(--bg)] text-[var(--tx)]">
       <header className="appbar">
         <div className="appbar-in">
-          <button type="button" className="shrink-0 min-h-[44px] rounded-[var(--r2)]" onClick={() => onTabChange('home')} aria-label="EdgeLink">
+          <button type="button" className="shrink-0 min-h-[44px] rounded-[var(--r2)]" onClick={() => onTabChange('home')} aria-label="1stdev.link">
             <Logo />
           </button>
 

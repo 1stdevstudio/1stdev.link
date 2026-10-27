@@ -35,7 +35,7 @@ export const DeviceTransferSheet: React.FC<DeviceTransferSheetProps> = ({
     <Sheet isOpen={isOpen} onClose={onClose} title={tx('Pindah perangkat', 'Move to another device')}>
       <div className="flex flex-col gap-4">
         <p className="text-[13px] text-[var(--tx2)] leading-normal">
-          {tx('Di perangkat baru, buka EdgeLink, pilih', 'On the new device, open EdgeLink, choose')}{' '}
+          {tx('Di perangkat baru, buka 1stdev.link, pilih', 'On the new device, open 1stdev.link, choose')}{' '}
           <strong className="text-[var(--tx)] font-semibold">{tx('Masuk', 'Log in')}</strong>{tx(', lalu scan kode ini.', ', then scan this code.')}
         </p>
 

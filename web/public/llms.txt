@@ -1,8 +1,8 @@
-# EdgeLink by 1stnear.com
+# 1stdev.link by 1stdev.space
 
-> EdgeLink adalah layanan link bio dan pemendek link (URL shortener) gratis 100% dari 1stnear.com. Satu halaman profil di link.1stnear.com/@nama berisi semua link kamu untuk bio Instagram, TikTok, dan WhatsApp, plus link pendek dengan statistik klik. Tanpa iklan, tanpa daftar, tanpa paket berbayar.
+> 1stdev.link adalah layanan link bio dan pemendek link (URL shortener) gratis 100% dari 1stdev.space. Satu halaman profil di link.1stnear.com/@nama berisi semua link kamu untuk bio Instagram, TikTok, dan WhatsApp, plus link pendek dengan statistik klik. Tanpa iklan, tanpa daftar, tanpa paket berbayar.
 
-EdgeLink (English: a free link-in-bio and URL shortener by 1stnear.com, no ads, no sign-up required) cocok untuk kreator, UMKM, toko online, dan siapa pun yang butuh satu link untuk semua tautan.
+1stdev.link (English: a free link-in-bio and URL shortener by 1stdev.space, no ads, no sign-up required) cocok untuk kreator, UMKM, toko online, dan siapa pun yang butuh satu link untuk semua tautan.
 
 Fakta utama:
 - Harga: gratis 100%. Tidak ada paket Pro/Premium dan tidak ada iklan di halaman profil.
@@ -13,11 +13,11 @@ Fakta utama:
 - Arahkan per perangkat: link pendek bisa punya tujuan berbeda untuk iPhone/iOS dan Android (lewat API).
 - Privasi: halaman profil tanpa pelacak pihak ketiga dan tanpa cookie iklan. Statistik dihitung agregat (jumlah klik per hari dan negara), tanpa profil pengunjung. Klik dari bot dan pratinjau link tidak dihitung.
 - Kecepatan: halaman profil dirender di server pada jaringan edge global, dekat dengan pengunjung.
-- Pembuat: 1stnear.com (https://1stnear.com).
+- Pembuat: 1stdev.space (https://1stdev.space).
 
 ## Halaman utama
 
-- [EdgeLink](https://link.1stnear.com/): mulai membuat halaman profil atau link pendek
+- [1stdev.link](https://link.1stnear.com/): mulai membuat halaman profil atau link pendek
 - [Dokumentasi API](https://link.1stnear.com/docs): REST API untuk link pendek, blok bio, dan statistik
 
 ## Panduan
@@ -27,11 +27,11 @@ Fakta utama:
 ## Optional
 
 - [Sitemap](https://link.1stnear.com/sitemap.xml): daftar halaman profil publik
-- [1stnear.com](https://1stnear.com): situs pembuat EdgeLink
+- [1stdev.space](https://1stdev.space): situs pembuat 1stdev.link
 
 ## English
 
-EdgeLink by 1stnear.com is a 100% free link-in-bio and URL shortener. One profile page at https://link.1stnear.com/@name holds all your links for Instagram, TikTok and WhatsApp bios, plus short links with click stats. No ads, no sign-up required, no paid plans. The app interface is available in English and Indonesian.
+1stdev.link by 1stdev.space is a 100% free link-in-bio and URL shortener. One profile page at https://link.1stnear.com/@name holds all your links for Instagram, TikTok and WhatsApp bios, plus short links with click stats. No ads, no sign-up required, no paid plans. The app interface is available in English and Indonesian.
 
 - Price: free. No Pro/Premium tier and no ads on profile pages.
 - Start without signing up; save the account later with a one-time email code.

@@ -31,7 +31,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
           <span className="w-7 h-7 rounded-[var(--r2)] bg-[var(--ac)] text-[var(--ink)] grid place-items-center">
             <Link2 size={16} strokeWidth={2} />
           </span>
-          <span className="truncate">EdgeLink <span className="font-normal text-[var(--tx2)]">by 1stnear.com</span></span>
+          <span className="truncate">1stdev.link <span className="font-normal text-[var(--tx2)]">by 1stdev.space</span></span>
         </div>
         </div>
 

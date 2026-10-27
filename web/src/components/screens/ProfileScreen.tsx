@@ -46,7 +46,7 @@ interface ProfileScreenProps {
 type BuilderTab = 'content' | 'design' | 'preview';
 
 const THEMES: { id: string; name: [string, string] }[] = [
-  { id: '1stnear', name: ['1stNear', '1stNear'] },
+  { id: '1stnear', name: ['1stdev', '1stdev'] },
   { id: 'obsidian', name: ['Obsidian', 'Obsidian'] },
   { id: 'clean-paper', name: ['Kertas', 'Paper'] },
   { id: 'aurora-emerald', name: ['Hutan', 'Forest'] },

@@ -1,15 +1,15 @@
 import type { BioProfile, Link } from './types.js';
 
 /**
- * SEO + GEO (Generative Engine Optimization) untuk EdgeLink.
+ * SEO + GEO (Generative Engine Optimization) untuk 1stdev.link.
  * Satu sumber untuk robots.txt, sitemap.xml, meta/JSON-LD halaman bio, dan deteksi bot.
  * Konten landing (meta, FAQ, llms.txt, og.png) ada sebagai file statis di web/.
  */
 
 export const SITE = {
-  name: 'EdgeLink by 1stnear.com',
-  publisher: '1stnear.com',
-  publisherUrl: 'https://1stnear.com',
+  name: '1stdev.link by 1stdev.space',
+  publisher: '1stdev.space',
+  publisherUrl: 'https://1stdev.space',
   ogImage: '/og.png',
   themeColor: '#0e1f1b',
   favicon:
@@ -82,7 +82,7 @@ const AI_ANSWER_AGENTS = [
 
 export function renderRobotsTxt(baseUrl: string): string {
   return [
-    '# EdgeLink by 1stnear.com',
+    '# 1stdev.link by 1stdev.space',
     '# Halaman profil publik (/@handle) dan halaman utama boleh diindeks.',
     '# Kebijakan crawler pelatihan AI diatur di level zona 1stnear.com.',
     '',
@@ -145,7 +145,7 @@ export interface BioSeoInput {
 
 /** Tag <head> untuk SEO + kartu sosial + JSON-LD ProfilePage. Semua teks pengguna di-escape. */
 export function renderBioSeoHead({ profile, links, baseUrl, lang, themeColor, socials }: BioSeoInput): string {
-  const rawName = (profile.display_name || 'EdgeLink User').trim();
+  const rawName = (profile.display_name || '1stdev.link User').trim();
   const rawHandle = (profile.handle || 'user').trim();
   const canonical = `${baseUrl}/@${encodeURIComponent(rawHandle)}`;
   const realLinks = links

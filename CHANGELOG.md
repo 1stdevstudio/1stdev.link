@@ -1,11 +1,17 @@
 # Changelog
 
-Semua perubahan penting pada EdgeLink by 1stnear.com dicatat di sini.
+Semua perubahan penting pada 1stdev.link by 1stdev.space dicatat di sini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi mengikuti [SemVer](https://semver.org/lang/id/).
 
 - Live: https://link.1stnear.com
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
+
+## [0.7.2] - 2026-10-28
+
+### Diubah
+- Nama brand menjadi **1stdev.link by 1stdev.space** di dashboard, halaman bio publik, dokumen API, SEO/JSON-LD, manifest, llms.txt, dan email OTP (nama pengirim). Tautan situs pembuat ke https://1stdev.space.
+- Domain layanan (link.1stnear.com), alamat pengirim email, dan ID tema internal `1stnear` tidak berubah.
 
 ## [0.7.1] - 2026-10-28
 

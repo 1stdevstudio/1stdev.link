@@ -33,7 +33,7 @@ export const ShareSheet: React.FC<ShareSheetProps> = ({
   };
 
   const handleWhatsApp = () => {
-    const text = tx(`Kunjungi halaman profil saya di EdgeLink by 1stnear.com: ${shareUrl}`, `Check out my profile on EdgeLink by 1stnear.com: ${shareUrl}`);
+    const text = tx(`Kunjungi halaman profil saya di 1stdev.link by 1stdev.space: ${shareUrl}`, `Check out my profile on 1stdev.link by 1stdev.space: ${shareUrl}`);
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -55,7 +55,7 @@ export const ShareSheet: React.FC<ShareSheetProps> = ({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `@${handle} · EdgeLink by 1stnear.com`,
+          title: `@${handle} · 1stdev.link by 1stdev.space`,
           url: shareUrl,
         });
         return;

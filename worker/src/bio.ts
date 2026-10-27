@@ -13,7 +13,7 @@ const THEME_PRESETS: Record<string, { bg: string; text: string; muted: string; a
 };
 
 export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: string = '', acceptLanguage: string = ''): string {
-  const name = escapeHtml(profile.display_name || 'EdgeLink User');
+  const name = escapeHtml(profile.display_name || '1stdev.link User');
   const handle = escapeHtml(profile.handle || 'user');
   const bio = profile.bio ? escapeHtml(profile.bio) : '';
   const avatar = profile.avatar_url ? escapeHtml(profile.avatar_url) : '';
@@ -31,7 +31,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 
   const bg = style.bg || 'dark';
   // Preset tema dari dashboard (profile.theme). style.bg/accent (editor v3) tetap menang bila diisi.
-  // Tema kosong/lama (mis. 'minimal-dark') memakai tema bawaan 1stNear.
+  // Tema kosong/lama (mis. 'minimal-dark') memakai tema bawaan 1stdev.
   const preset = style.bg ? undefined : THEME_PRESETS[profile.theme || ''] || THEME_PRESETS['1stnear'];
   const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset?.accent || '#e9be54';
   const font = style.font || 'modern';
@@ -50,7 +50,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 
   // Language check for footer
   const isId = acceptLanguage.toLowerCase().includes('id');
-  const footerText = isId ? 'Dibuat dengan EdgeLink by 1stnear.com · gratis 100%' : 'Made with EdgeLink by 1stnear.com · 100% free';
+  const footerText = isId ? 'Dibuat dengan 1stdev.link by 1stdev.space · gratis 100%' : 'Made with 1stdev.link by 1stdev.space · 100% free';
 
   let socialMap: Record<string, string> = {};
   if (profile.social_links) {
@@ -154,7 +154,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>${name} (@${handle}) · EdgeLink by 1stnear.com</title>
+  <title>${name} (@${handle}) · 1stdev.link by 1stdev.space</title>
   ${renderBioSeoHead({ profile, links, baseUrl, lang: isId ? 'id' : 'en', themeColor: preset ? preset.bg : style.bg && /^#[0-9a-fA-F]{3,8}$/.test(style.bg) ? style.bg : '#0e1f1b', socials: socialMap })}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -227,7 +227,7 @@ export const App: React.FC = () => {
   if (loadingSession) {
     return (
       <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center text-[var(--tx2)] text-[14px]">
-        {tx('Memuat EdgeLink...', 'Loading EdgeLink...')}
+        {tx('Memuat 1stdev.link...', 'Loading 1stdev.link...')}
       </div>
     );
   }
