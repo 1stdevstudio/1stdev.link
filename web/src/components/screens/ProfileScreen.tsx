@@ -153,7 +153,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           className="btn btn-g btn-sm shrink-0"
           onClick={onOpenEditProfile}
         >
-          Ubah
+          Ubah profil
         </button>
       </div>
 
@@ -283,7 +283,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
       {/* Section: Tampilan */}
       <div className="flex flex-col gap-4">
-        <h3 className="text-[15px] font-semibold text-[var(--tx)]">Tampilan</h3>
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-[15px] font-semibold text-[var(--tx)]">Tampilan</h3>
+          <span className="small muted">Tersimpan otomatis</span>
+        </div>
 
         {/* 6 Luxury Themes */}
         <div className="flex flex-col gap-2">
