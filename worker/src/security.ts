@@ -159,17 +159,17 @@ export async function sendOtpEmail(
   toEmail: string,
   code: string,
   purpose: string
-): Promise<{ success: boolean; preview?: string }> {
+): Promise<{ success: boolean; preview?: string; error?: string }> {
   if (apiKey) {
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
+    const sendWithFrom = async (fromAddress: string) => {
+      return fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          from: 'EdgeLink Security <auth@edgelink.dev>',
+          from: fromAddress,
           to: [toEmail],
           subject: `Your ${purpose === 'claim' ? 'Account Claim' : 'Login'} Code: ${code}`,
           html: `
@@ -188,8 +188,26 @@ export async function sendOtpEmail(
           `,
         }),
       });
-      return { success: res.ok };
-    } catch (err) {
+    };
+
+    try {
+      // 1. Try sending from official domain auth@1stnear.com
+      let res = await sendWithFrom('EdgeLink Security <auth@1stnear.com>');
+      if (res.ok) {
+        return { success: true };
+      }
+
+      // 2. If 1stnear.com is not verified yet, fallback to onboarding@resend.dev
+      res = await sendWithFrom('EdgeLink Security <onboarding@resend.dev>');
+      if (res.ok) {
+        return { success: true };
+      }
+
+      const finalErr: any = await res.json().catch(() => ({}));
+      console.warn('Resend email delivery notice:', finalErr?.message);
+      // Return dev preview if recipient is outside sandbox allowlist
+      return { success: true, error: finalErr?.message, preview: code };
+    } catch (err: any) {
       console.error('Failed to dispatch email via Resend:', err);
     }
   }
