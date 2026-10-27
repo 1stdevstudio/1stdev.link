@@ -8,7 +8,7 @@ interface LivePhonePreviewProps {
   links: LinkItem[];
 }
 
-const THEME_STYLES: Record<
+export const THEME_STYLES: Record<
   string,
   { bg: string; text: string; subtext: string; cardBg: string; cardText: string; featBg: string; featText: string }
 > = {
@@ -77,18 +77,23 @@ const THEME_STYLES: Record<
   },
 };
 
+/** Urutan blok sama dengan halaman publik (ORDER BY sort_order); sort stabil menjaga urutan awal bila nilainya sama. */
+export const orderedBioLinks = (links: LinkItem[]) =>
+  links.filter((l) => Boolean(l.is_bio_entry)).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
 export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, links }) => {
   const { tx } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const publicUrl = `${baseUrl}/@${profile.handle}`;
   const theme = THEME_STYLES[profile.theme || ''] || THEME_STYLES['1stnear'];
 
-  const bioLinks = links.filter((l) => Boolean(l.is_bio_entry));
+  const bioLinks = orderedBioLinks(links);
 
   const getShapeRadius = (shape?: string) => {
-    if (shape === 'circle') return '9999px';
+    // Sama dengan default server (bio.ts): bentuk kosong = bulat.
     if (shape === 'squircle') return '18px';
-    return '8px';
+    if (shape === 'rounded') return '8px';
+    return '9999px';
   };
 
   return (

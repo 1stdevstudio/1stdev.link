@@ -7,6 +7,21 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
 
+## [0.6.1] - 2026-10-28
+
+Tata letak baru untuk editor profil (profile builder).
+
+### Diubah
+- Editor profil kini berbentuk studio: kartu identitas besar (foto, nama, handle, bio) dengan aksi Bagikan, Salin, Buka, Ubah dalam satu baris.
+- Tab tetap di atas: **Isi**, **Tampilan**, dan **Pratinjau** (Pratinjau hanya di ponsel; layar lebar memakai kolom pratinjau samping).
+- Baris blok baru: ikon berwarna per jenis, label jenis, domain tujuan, jumlah klik, tombol geser naik/turun, dan hapus.
+- Pilihan tema tampil sebagai mockup ponsel mini sesuai warna aslinya; nama tema kini dwibahasa (Paper, Forest, Dusk, Ocean, Sand).
+- Pilihan bentuk foto menampilkan bentuk sebenarnya.
+
+### Diperbaiki
+- Geser urutan blok sebelumnya tidak berpengaruh: urutan di editor, pratinjau, dan halaman publik kini sama (berdasarkan `sort_order`), dan hanya blok profil yang dikirim ke server.
+- Pratinjau ponsel memakai bentuk foto bulat sebagai bawaan, sama dengan halaman publik.
+
 ## [0.6.0] - 2026-10-28
 
 Panel baru tanpa sidebar dan versi bahasa Inggris penuh.

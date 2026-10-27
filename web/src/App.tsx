@@ -212,7 +212,10 @@ export const App: React.FC = () => {
     }
     reorderTimerRef.current = setTimeout(async () => {
       try {
-        const updates = reordered.map((l, index) => ({ id: l.id, sort_order: index }));
+        // Hanya blok profil yang punya urutan; kirim sort_order apa adanya (hemat write D1).
+        const updates = reordered
+          .filter((l) => l.is_bio_entry)
+          .map((l) => ({ id: l.id, sort_order: l.sort_order ?? 0 }));
         await api.updateLinkOrder(updates);
       } catch (err) {
         console.error('Failed to persist link order:', err);
@@ -298,6 +301,7 @@ export const App: React.FC = () => {
             isGuest={session.is_guest}
             profile={profile}
             links={links}
+            preview={<LivePhonePreview profile={profile} links={links} />}
             onOpenEditProfile={() => setActiveSheet('edit_profile')}
             onOpenShare={() => setActiveSheet('share')}
             onOpenAddBlock={() => setActiveSheet('add_block')}
