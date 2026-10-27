@@ -133,7 +133,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
 
     const res = await app.fetch(
       new Request('http://localhost/promo', {
-        headers: { 'cf-ipcountry': 'ID' }
+        headers: { 'cf-ipcountry': 'ID', 'user-agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130 Mobile Safari/537.36' }
       }),
       env,
       executionCtx as any
@@ -156,7 +156,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     // Call second time -> check KV hit & click increment
     const res2 = await app.fetch(
       new Request('http://localhost/promo', {
-        headers: { 'cf-ipcountry': 'ID' }
+        headers: { 'cf-ipcountry': 'ID', 'user-agent': 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/130 Mobile Safari/537.36' }
       }),
       env,
       executionCtx as any
@@ -364,5 +364,97 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     assert.equal(statsData.by_country.length, 2);
     assert.equal(statsData.by_country[0].country, 'ID');
     assert.equal(statsData.by_country[0].clicks, 42);
+  });
+
+  // ---------- SEO & GEO ----------
+  const seedProfile = (handle: string, user_id: string, opts: { guest?: boolean; links?: number; social?: string; bio?: string } = {}) => {
+    if (user_id !== 'usr_test123') {
+      mockDb.tables.users.push({ id: user_id, email: `${user_id}@x.id`, is_guest: opts.guest ? 1 : 0, created_at: 1, updated_at: 1 });
+    }
+    mockDb.tables.bio_profiles.push({
+      user_id, handle, display_name: 'Sari <Toko>', bio: opts.bio ?? 'Kue rumahan & hampers', avatar_url: 'https://cdn.example.com/a.png',
+      social_links: opts.social ?? JSON.stringify({ instagram: 'https://instagram.com/sari', bad: 'javascript:alert(1)' }),
+      theme: '1stnear', updated_at: 1761580800
+    });
+    for (let i = 0; i < (opts.links ?? 1); i++) {
+      mockDb.tables.links.push({ id: `l_${handle}_${i}`, user_id, slug: `${handle}${i}`, destination_url: `https://shop.example.com/${i}`, title: `Menu ${i}`, is_bio_entry: 1, sort_order: i, is_active: 1, block_type: 'link', created_at: 1 });
+    }
+  };
+
+  test('robots.txt allows search + AI answer engines, blocks /api, points to sitemap', async () => {
+    const res = await app.fetch(new Request('http://localhost/robots.txt'), env);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /text\/plain/);
+    const txt = await res.text();
+    assert.match(txt, /User-agent: \*\nAllow: \/\nDisallow: \/api\//);
+    for (const bot of ['OAI-SearchBot', 'ChatGPT-User', 'PerplexityBot', 'Claude-SearchBot']) assert.ok(txt.includes(`User-agent: ${bot}`), bot);
+    assert.ok(txt.includes('Sitemap: https://edgelink.id/sitemap.xml'));
+  });
+
+  test('sitemap.xml lists home, docs and only indexable public profiles', async () => {
+    seedProfile('sari', 'usr_sari');
+    seedProfile('edge_abc123', 'usr_guest', { guest: true });
+    seedProfile('kosong', 'usr_empty', { links: 0 });
+    const res = await app.fetch(new Request('http://localhost/sitemap.xml'), env);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /application\/xml/);
+    const xml = await res.text();
+    assert.ok(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>'));
+    assert.ok(xml.includes('<loc>https://edgelink.id/</loc>'));
+    assert.ok(xml.includes('<loc>https://edgelink.id/docs</loc>'));
+    assert.ok(xml.includes('<loc>https://edgelink.id/@sari</loc>'));
+    assert.ok(xml.includes('<lastmod>2025-10-27</lastmod>'));
+    assert.ok(!xml.includes('edge_abc123'), 'guest excluded');
+    assert.ok(!xml.includes('@kosong'), 'empty profile excluded');
+  });
+
+  test('bio page ships canonical, Open Graph, Twitter and ProfilePage JSON-LD', async () => {
+    seedProfile('sari', 'usr_sari');
+    const html = await (await app.fetch(new Request('http://localhost/@sari'), env)).text();
+    assert.ok(html.includes('<link rel="canonical" href="https://edgelink.id/@sari">'));
+    assert.ok(html.includes('<meta name="robots" content="index, follow, max-image-preview:large">'));
+    assert.ok(html.includes('<meta property="og:type" content="profile">'));
+    assert.ok(html.includes('<meta property="og:image" content="https://cdn.example.com/a.png">'));
+    assert.ok(html.includes('<meta name="twitter:card" content="summary">'));
+    assert.ok(html.includes('<meta property="og:title" content="Sari &lt;Toko&gt; (@sari)">'));
+    const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    assert.ok(m, 'JSON-LD present');
+    assert.ok(!m![1].includes('<'), 'JSON-LD has no raw <');
+    const ld = JSON.parse(m![1]);
+    assert.equal(ld['@type'], 'ProfilePage');
+    assert.equal(ld.mainEntity['@type'], 'Person');
+    assert.equal(ld.mainEntity.name, 'Sari <Toko>');
+    assert.equal(ld.mainEntity.alternateName, '@sari');
+    assert.deepEqual(ld.mainEntity.sameAs, ['https://instagram.com/sari']);
+    assert.deepEqual(ld.significantLink, ['https://shop.example.com/0']);
+    assert.equal(ld.dateModified, '2025-10-27T16:00:00.000Z');
+  });
+
+  test('bio page of default guest handle or without links is noindex', async () => {
+    seedProfile('edge_abc123', 'usr_guest', { guest: true });
+    seedProfile('kosong', 'usr_empty', { links: 0, bio: '' });
+    const guest = await (await app.fetch(new Request('http://localhost/@edge_abc123'), env)).text();
+    assert.ok(guest.includes('<meta name="robots" content="noindex, follow">'));
+    const empty = await (await app.fetch(new Request('http://localhost/@kosong', { headers: { 'accept-language': 'id-ID,id;q=0.9' } }), env)).text();
+    assert.ok(empty.includes('<meta name="robots" content="noindex, follow">'));
+    assert.ok(empty.includes('<meta name="description" content="Semua link Sari &lt;Toko&gt; di satu halaman.'), 'fallback description');
+  });
+
+  test('API responses carry X-Robots-Tag noindex', async () => {
+    const res = await app.fetch(new Request('http://localhost/api/links', { headers: { Authorization: 'Bearer usr_test123' } }), env);
+    assert.equal(res.headers.get('x-robots-tag'), 'noindex, nofollow');
+  });
+
+  test('crawler and link-preview hits on short links are not counted as clicks', async () => {
+    seedProfile('sari', 'usr_sari');
+    const hit = (ua: string) => app.fetch(new Request('http://localhost/sari0', { headers: { 'user-agent': ua, 'cf-ipcountry': 'ID' } }), env);
+    assert.equal((await hit('Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')).status, 302);
+    await hit('WhatsApp/2.23.20.0 A');
+    await hit('facebookexternalhit/1.1');
+    await new Promise((r) => setTimeout(r, 10));
+    assert.equal(mockDb.tables.link_analytics.length, 0, 'bots not counted');
+    await hit('Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1');
+    await new Promise((r) => setTimeout(r, 10));
+    assert.equal(mockDb.tables.link_analytics[0]?.clicks, 1, 'human counted');
   });
 });

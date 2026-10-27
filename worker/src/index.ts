@@ -4,6 +4,7 @@ import type { Env, User, BioProfile, Link, CachedSlug, CachedBioProfile, OtpReco
 import { isReservedSlug, validateDestinationUrl, checkRateLimit, generateSecureOtp, sendOtpEmail } from './security.js';
 import { renderBioPage } from './bio.js';
 import { renderDocsHtml } from './docs.js';
+import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
 const app = new Hono<{ Bindings: Env; Variables: { user?: User } }>();
 
@@ -20,6 +21,8 @@ app.use('*', async (c, next) => {
   c.header('X-Content-Type-Options', 'nosniff');
   c.header('X-Frame-Options', 'DENY');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // API JSON tidak untuk mesin pencari.
+  if (c.req.path.startsWith('/api/')) c.header('X-Robots-Tag', 'noindex, nofollow');
   c.header(
     'Content-Security-Policy',
     // Dashboard SPA (proxied from Pages) + SSR bio: own CSS/JS, Google Fonts, inline styles.
@@ -136,6 +139,48 @@ app.get('/favicon.ico', async (c) => {
   const resp = await fetch(`${PAGES_ORIGIN}/favicon.ico`, c.req.raw);
   return new Response(resp.body, { status: resp.status, headers: resp.headers });
 });
+
+// ---------- SEO & GEO ----------
+app.get('/robots.txt', (c) => {
+  const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
+  return c.text(renderRobotsTxt(baseUrl), 200, { 'cache-control': 'public, max-age=86400' });
+});
+
+app.get('/sitemap.xml', async (c) => {
+  const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
+  // Edge cache 1 jam: crawler tidak menghabiskan kuota baca D1.
+  const cache = typeof caches !== 'undefined' ? (caches as any).default : null;
+  const cacheKey = new Request(`${baseUrl}/sitemap.xml`);
+  if (cache) {
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit;
+  }
+  let rows: SitemapProfileRow[] = [];
+  if (c.env.DB) {
+    try {
+      const res = (await c.env.DB.prepare(SITEMAP_PROFILES_SQL).all()) as { results?: SitemapProfileRow[] };
+      rows = res.results || [];
+    } catch (err) {
+      console.error('sitemap query failed:', err);
+    }
+  }
+  const res = new Response(renderSitemapXml(baseUrl, rows), {
+    headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+  });
+  if (cache) safeWaitUntil(c, cache.put(cacheKey, res.clone()));
+  return res;
+});
+
+// Aset statis SEO/GEO dari Pages (web/public): kartu sosial, ikon, manifest, llms.txt.
+const STATIC_SEO_FILES = ['/og.png', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/site.webmanifest', '/llms.txt', '/llms-full.txt'];
+for (const path of STATIC_SEO_FILES) {
+  app.get(path, async (c) => {
+    const resp = await fetch(`${PAGES_ORIGIN}${path}`);
+    const headers = new Headers(resp.headers);
+    if (resp.ok) headers.set('cache-control', 'public, max-age=86400');
+    return new Response(resp.body, { status: resp.status, headers });
+  });
+}
 
 // Root - Serve Dashboard SPA directly (no redirect, URL stays link.1stnear.com)
 app.get('/', async (c) => {
@@ -307,7 +352,8 @@ app.get('/:slug', async (c) => {
   }
 
   // 5. Non-blocking aggregated analytics UPSERT in ctx.waitUntil
-  if (linkId && c.env.DB) {
+  //    Crawler & pengambil pratinjau link (WhatsApp, Telegram, Googlebot, dll) tidak dihitung sebagai klik.
+  if (linkId && c.env.DB && !isLikelyBot(ua)) {
     const cfCountry = c.req.header('cf-ipcountry') || 'XX';
     const country = cfCountry.length === 2 ? cfCountry.toUpperCase() : 'XX';
     const date = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'

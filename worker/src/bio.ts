@@ -1,13 +1,5 @@
 import type { BioProfile, Link } from './types.js';
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml, renderBioSeoHead } from './seo.js';
 
 /** Sama dengan THEMES di web/src/components/screens/ProfileScreen.tsx. */
 const THEME_PRESETS: Record<string, { bg: string; text: string; muted: string; accent: string }> = {
@@ -70,7 +62,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
   }
 
   const socialIconsHtml = Object.entries(socialMap)
-    .filter(([_, url]) => typeof url === 'string' && url.trim().length > 0)
+    .filter(([_, url]) => typeof url === 'string' && /^(https?:\/\/|mailto:)/i.test(url.trim()))
     .map(([platform, url]) => {
       const cleanUrl = escapeHtml(url);
       const cleanPlatform = escapeHtml(platform);
@@ -163,7 +155,7 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>${name} (@${handle}) · EdgeLink by 1stnear.com</title>
-  <meta name="description" content="${bio || name + ' on EdgeLink by 1stnear.com'}">
+  ${renderBioSeoHead({ profile, links, baseUrl, lang: isId ? 'id' : 'en', themeColor: preset ? preset.bg : style.bg && /^#[0-9a-fA-F]{3,8}$/.test(style.bg) ? style.bg : '#0e1f1b', socials: socialMap })}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">

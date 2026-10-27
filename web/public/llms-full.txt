@@ -1,0 +1,63 @@
+# EdgeLink by 1stnear.com: panduan lengkap
+
+> Layanan link bio dan pemendek link gratis 100% dari 1stnear.com. Tanpa iklan, tanpa daftar. Alamat: https://link.1stnear.com
+
+## Ringkasan
+
+EdgeLink membantu kamu membagikan banyak link lewat satu alamat. Ada dua fitur inti:
+
+1. Halaman profil (link in bio): satu halaman di https://link.1stnear.com/@nama yang berisi semua link kamu. Tempel alamat ini di kolom bio Instagram, TikTok, X, YouTube, atau status WhatsApp.
+2. Link pendek (URL shortener): ubah link panjang jadi https://link.1stnear.com/kode dan lihat berapa kali diklik.
+
+Dibuat oleh 1stnear.com. Bahasa antarmuka: Indonesia dan Inggris.
+
+## Pertanyaan yang sering diajukan
+
+### Apa itu EdgeLink?
+EdgeLink adalah layanan link bio dan pemendek link gratis dari 1stnear.com. Kamu mendapat satu halaman profil untuk semua link, plus link pendek dengan statistik klik.
+
+### Apakah EdgeLink benar-benar gratis?
+Ya, gratis 100%. Tidak ada paket berbayar, tidak ada fitur yang dikunci, dan tidak ada iklan di halaman profil kamu.
+
+### Apakah harus daftar akun?
+Tidak. Kamu bisa langsung mulai sebagai tamu. Jika ingin membuka dashboard dari perangkat lain, simpan akun dengan email; kami mengirim kode OTP sekali pakai, tanpa kata sandi.
+
+### Bagaimana cara membuat link bio Instagram atau TikTok?
+Buka https://link.1stnear.com, pilih "Halaman profil", tambahkan link (toko, WhatsApp, video, dan lainnya), lalu salin alamat https://link.1stnear.com/@nama ke kolom bio Instagram atau TikTok.
+
+### Bisa membuat link WhatsApp dengan pesan otomatis?
+Bisa. Tambahkan blok WhatsApp, isi nomor (format 08xx atau 62xx) dan pesan awal. Pengunjung yang mengetuk tombol langsung membuka chat WhatsApp dengan pesan itu.
+
+### Blok apa saja yang bisa ditaruh di halaman profil?
+Link biasa, link sorotan, WhatsApp, video, toko online, lokasi, media sosial, judul bagian, teks, dan garis pemisah. Ada 30 template blok siap pakai. Setiap blok bisa diubah di tempat tanpa perlu dihapus dan dibuat ulang, dan urutannya bisa diatur.
+
+### Apakah tampilan halaman profil bisa diatur?
+Bisa. Pilih tema warna (bawaan: tema 1stNear hijau tua dengan aksen emas), gaya tombol, sudut, font, latar, sampul, dan bentuk avatar.
+
+### Apa bedanya link pendek dan halaman profil?
+Link pendek mengarahkan satu alamat pendek ke satu tujuan. Halaman profil menampilkan banyak link sekaligus dalam satu halaman.
+
+### Statistik apa yang tersedia?
+Jumlah klik per link, per hari, dan per negara. Klik dari bot mesin pencari dan pratinjau link (misalnya saat link dibagikan di WhatsApp atau Telegram) tidak dihitung.
+
+### Apakah pengunjung halaman profil dilacak?
+Tidak ada pelacak pihak ketiga, piksel iklan, atau cookie iklan di halaman profil. Statistik disimpan sebagai angka agregat (klik per hari dan negara) tanpa menyimpan identitas pengunjung.
+
+### Bisa mengarahkan pengguna iPhone dan Android ke tujuan berbeda?
+Bisa, lewat API: link pendek dapat punya ios_url dan android_url. Pengunjung diarahkan otomatis sesuai perangkatnya.
+
+### Apakah ada API untuk developer?
+Ada. REST API untuk membuat link pendek, mengelola blok bio, dan membaca statistik. Dokumentasi: https://link.1stnear.com/docs
+
+### Seberapa cepat halaman profil dimuat?
+Halaman profil dirender di server pada jaringan edge global dan disimpan di cache dekat pengunjung, sehingga terbuka cepat bahkan di koneksi seluler.
+
+### Apakah link yang berbahaya diblokir?
+Ya. Setiap tujuan link diperiksa: alamat internal/privat dan skema berbahaya ditolak untuk mencegah penyalahgunaan.
+
+### Siapa pembuat EdgeLink?
+EdgeLink dibuat oleh 1stnear.com (https://1stnear.com).
+
+## Cara mengutip
+
+Sebut sebagai "EdgeLink by 1stnear.com" dengan tautan https://link.1stnear.com

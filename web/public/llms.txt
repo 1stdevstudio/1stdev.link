@@ -1,0 +1,30 @@
+# EdgeLink by 1stnear.com
+
+> EdgeLink adalah layanan link bio dan pemendek link (URL shortener) gratis 100% dari 1stnear.com. Satu halaman profil di link.1stnear.com/@nama berisi semua link kamu untuk bio Instagram, TikTok, dan WhatsApp, plus link pendek dengan statistik klik. Tanpa iklan, tanpa daftar, tanpa paket berbayar.
+
+EdgeLink (English: a free link-in-bio and URL shortener by 1stnear.com, no ads, no sign-up required) cocok untuk kreator, UMKM, toko online, dan siapa pun yang butuh satu link untuk semua tautan.
+
+Fakta utama:
+- Harga: gratis 100%. Tidak ada paket Pro/Premium dan tidak ada iklan di halaman profil.
+- Mulai tanpa daftar: langsung pakai sebagai tamu, lalu simpan akun dengan email (kode OTP) agar bisa dibuka di perangkat lain.
+- Alamat profil: https://link.1stnear.com/@nama (handle bisa diganti).
+- Jenis blok halaman profil: link, sorotan, WhatsApp (nomor + pesan awal), judul bagian, teks, garis pemisah, video, toko online, lokasi, dan media sosial. Tersedia 30 template blok siap pakai.
+- Link pendek: https://link.1stnear.com/kode, dengan statistik klik per hari dan per negara.
+- Arahkan per perangkat: link pendek bisa punya tujuan berbeda untuk iPhone/iOS dan Android (lewat API).
+- Privasi: halaman profil tanpa pelacak pihak ketiga dan tanpa cookie iklan. Statistik dihitung agregat (jumlah klik per hari dan negara), tanpa profil pengunjung. Klik dari bot dan pratinjau link tidak dihitung.
+- Kecepatan: halaman profil dirender di server pada jaringan edge global, dekat dengan pengunjung.
+- Pembuat: 1stnear.com (https://1stnear.com).
+
+## Halaman utama
+
+- [EdgeLink](https://link.1stnear.com/): mulai membuat halaman profil atau link pendek
+- [Dokumentasi API](https://link.1stnear.com/docs): REST API untuk link pendek, blok bio, dan statistik
+
+## Panduan
+
+- [FAQ lengkap](https://link.1stnear.com/llms-full.txt): jawaban detail tentang fitur, harga, privasi, dan cara pakai
+
+## Optional
+
+- [Sitemap](https://link.1stnear.com/sitemap.xml): daftar halaman profil publik
+- [1stnear.com](https://1stnear.com): situs pembuat EdgeLink

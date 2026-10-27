@@ -1,17 +1,173 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="id" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="theme-color" content="#0e1f1b" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EdgeLink by 1stnear.com</title>
+    <title>Link Bio &amp; Link Pendek Gratis – EdgeLink by 1stnear.com</title>
+    <meta name="description" content="Buat link bio dan link pendek gratis 100%. Tanpa iklan, tanpa daftar. Satu halaman untuk semua link Instagram, TikTok, dan WhatsApp, plus statistik klik." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="canonical" href="https://link.1stnear.com/" />
+    <meta name="theme-color" content="#0e1f1b" />
+    <meta name="application-name" content="EdgeLink" />
+    <meta name="author" content="1stnear.com" />
+
+    <!-- Open Graph / kartu sosial -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="EdgeLink by 1stnear.com" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:url" content="https://link.1stnear.com/" />
+    <meta property="og:title" content="Link Bio &amp; Link Pendek Gratis – EdgeLink by 1stnear.com" />
+    <meta property="og:description" content="Satu link untuk semua yang kamu bagikan. Gratis 100%, tanpa iklan, tanpa daftar." />
+    <meta property="og:image" content="https://link.1stnear.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="EdgeLink by 1stnear.com – Satu link untuk semua yang kamu bagikan" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Link Bio &amp; Link Pendek Gratis – EdgeLink by 1stnear.com" />
+    <meta name="twitter:description" content="Satu link untuk semua yang kamu bagikan. Gratis 100%, tanpa iklan, tanpa daftar." />
+    <meta name="twitter:image" content="https://link.1stnear.com/og.png" />
+
+    <!-- Ikon & PWA -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e9be54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Data terstruktur: entitas, aplikasi, dan FAQ (dibaca mesin pencari & mesin jawab AI) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://1stnear.com/#organization",
+          "name": "1stnear.com",
+          "url": "https://1stnear.com",
+          "logo": "https://link.1stnear.com/icon-512.png"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://link.1stnear.com/#website",
+          "name": "EdgeLink by 1stnear.com",
+          "alternateName": "EdgeLink",
+          "url": "https://link.1stnear.com/",
+          "inLanguage": "id",
+          "publisher": { "@id": "https://1stnear.com/#organization" }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://link.1stnear.com/#app",
+          "name": "EdgeLink",
+          "alternateName": "EdgeLink by 1stnear.com",
+          "url": "https://link.1stnear.com/",
+          "description": "Layanan link bio dan pemendek link gratis 100%. Satu halaman untuk semua link Instagram, TikTok, dan WhatsApp, plus link pendek dengan statistik klik. Tanpa iklan, tanpa daftar.",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "Web, iOS, Android",
+          "browserRequirements": "Requires JavaScript",
+          "inLanguage": ["id", "en"],
+          "image": "https://link.1stnear.com/og.png",
+          "isAccessibleForFree": true,
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "IDR", "availability": "https://schema.org/InStock" },
+          "featureList": [
+            "Halaman profil link bio di link.1stnear.com/@nama",
+            "Link pendek dengan statistik klik per hari dan negara",
+            "Blok WhatsApp dengan nomor dan pesan awal",
+            "Blok link, sorotan, video, toko online, lokasi, media sosial, judul, teks, dan garis pemisah",
+            "30 template blok siap pakai",
+            "Tema warna dan gaya tombol yang bisa diatur",
+            "Mulai tanpa daftar, simpan akun dengan kode OTP email",
+            "Tanpa iklan dan tanpa pelacak pihak ketiga di halaman profil",
+            "REST API untuk developer"
+          ],
+          "publisher": { "@id": "https://1stnear.com/#organization" },
+          "isPartOf": { "@id": "https://link.1stnear.com/#website" }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://link.1stnear.com/#faq",
+          "inLanguage": "id",
+          "mainEntity": [
+            { "@type": "Question", "name": "Apa itu EdgeLink?", "acceptedAnswer": { "@type": "Answer", "text": "EdgeLink adalah layanan link bio dan pemendek link gratis dari 1stnear.com. Kamu mendapat satu halaman profil untuk semua link, plus link pendek dengan statistik klik." } },
+            { "@type": "Question", "name": "Apakah EdgeLink benar-benar gratis?", "acceptedAnswer": { "@type": "Answer", "text": "Ya, gratis 100%. Tidak ada paket berbayar, tidak ada fitur yang dikunci, dan tidak ada iklan di halaman profil." } },
+            { "@type": "Question", "name": "Apakah harus daftar akun?", "acceptedAnswer": { "@type": "Answer", "text": "Tidak. Langsung mulai sebagai tamu. Simpan akun dengan email lewat kode OTP sekali pakai agar dashboard bisa dibuka di perangkat lain." } },
+            { "@type": "Question", "name": "Bagaimana cara membuat link bio Instagram atau TikTok?", "acceptedAnswer": { "@type": "Answer", "text": "Buka link.1stnear.com, pilih Halaman profil, tambahkan link, lalu salin alamat link.1stnear.com/@nama ke kolom bio Instagram atau TikTok." } },
+            { "@type": "Question", "name": "Bisa membuat link WhatsApp dengan pesan otomatis?", "acceptedAnswer": { "@type": "Answer", "text": "Bisa. Tambahkan blok WhatsApp, isi nomor dan pesan awal. Pengunjung yang mengetuk tombol langsung membuka chat dengan pesan itu." } },
+            { "@type": "Question", "name": "Apakah pengunjung halaman profil dilacak?", "acceptedAnswer": { "@type": "Answer", "text": "Tidak ada pelacak pihak ketiga atau cookie iklan. Statistik disimpan sebagai angka agregat klik per hari dan negara, tanpa identitas pengunjung." } }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="antialiased selection:bg-[#e9be54] selection:text-[#182822]">
-    <div id="root"></div>
+    <!--
+      Konten statis untuk crawler tanpa JavaScript (mesin jawab AI, pratinjau link).
+      React (createRoot) mengganti seluruh isi #root saat aplikasi dimuat. Bagian atas sengaja
+      identik dengan layar Welcome agar tidak ada lompatan tampilan; sisanya berada di bawah layar.
+    -->
+    <div id="root">
+      <main>
+        <section class="min-h-screen flex items-center justify-center p-6 sm:p-8">
+          <div class="w-full max-w-[440px] flex flex-col gap-6">
+            <div class="flex items-center gap-2.5 font-bold text-base text-[var(--tx)]">
+              <span class="w-7 h-7 rounded-[var(--r2)] bg-[var(--ac)] text-[var(--ink)] grid place-items-center" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </span>
+              <span class="truncate">EdgeLink <span class="font-normal text-[var(--tx2)]">by 1stnear.com</span></span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <h1 class="text-2xl font-bold leading-tight tracking-tight text-[var(--tx)]">Satu link untuk semua yang kamu bagikan.</h1>
+              <p class="text-[14px] text-[var(--tx2)] leading-relaxed">Gratis, tanpa iklan, tanpa daftar. Pilih yang ingin kamu buat dulu, yang lain bisa menyusul.</p>
+            </div>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-start gap-3.5 w-full p-4 rounded-[var(--r3)] bg-[var(--s1)]">
+                <div>
+                  <h2 class="text-[15px] font-semibold text-[var(--tx)]">Halaman profil (link bio)</h2>
+                  <p class="text-[13px] text-[var(--tx2)] mt-0.5 leading-snug">Satu halaman berisi semua link kamu, untuk bio Instagram, TikTok, atau WhatsApp.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3.5 w-full p-4 rounded-[var(--r3)] bg-[var(--s1)]">
+                <div>
+                  <h2 class="text-[15px] font-semibold text-[var(--tx)]">Pendekkan link</h2>
+                  <p class="text-[13px] text-[var(--tx2)] mt-0.5 leading-snug">Ubah link panjang jadi pendek dan lihat berapa kali diklik.</p>
+                </div>
+              </div>
+            </div>
+            <a href="/" class="btn btn-p btn-w">Mulai gratis</a>
+          </div>
+        </section>
+
+        <section class="max-w-[720px] mx-auto px-6 pb-16 flex flex-col gap-8 text-[var(--tx2)] text-[14px] leading-relaxed">
+          <div class="flex flex-col gap-3">
+            <h2 class="text-xl font-bold text-[var(--tx)]">Link bio dan link pendek gratis untuk kreator dan UMKM</h2>
+            <p>EdgeLink by 1stnear.com memberi kamu satu halaman profil di <strong class="text-[var(--tx)]">link.1stnear.com/@nama</strong> untuk semua tautan: toko online, WhatsApp, video, lokasi, dan media sosial. Tempel di bio Instagram, TikTok, X, atau YouTube. Semua fitur gratis 100%, tanpa iklan dan tanpa paket berbayar.</p>
+            <ul class="list-disc pl-5 flex flex-col gap-1">
+              <li>Mulai tanpa daftar; simpan akun dengan kode OTP email.</li>
+              <li>Blok link, sorotan, WhatsApp, video, toko online, lokasi, sosial, judul, teks, dan garis pemisah, plus 30 template siap pakai.</li>
+              <li>Link pendek dengan statistik klik per hari dan per negara. Klik bot dan pratinjau link tidak dihitung.</li>
+              <li>Halaman profil tanpa pelacak pihak ketiga, dimuat cepat dari jaringan edge global.</li>
+              <li>REST API untuk developer: <a class="text-[var(--ac)]" href="/docs">dokumentasi API</a>.</li>
+            </ul>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <h2 class="text-xl font-bold text-[var(--tx)]">Pertanyaan umum</h2>
+            <div><h3 class="font-semibold text-[var(--tx)]">Apakah EdgeLink benar-benar gratis?</h3><p>Ya, gratis 100%. Tidak ada paket berbayar, tidak ada fitur yang dikunci, dan tidak ada iklan di halaman profil.</p></div>
+            <div><h3 class="font-semibold text-[var(--tx)]">Apakah harus daftar akun?</h3><p>Tidak. Langsung mulai sebagai tamu. Simpan akun dengan email lewat kode OTP agar dashboard bisa dibuka di perangkat lain.</p></div>
+            <div><h3 class="font-semibold text-[var(--tx)]">Bagaimana cara membuat link bio Instagram atau TikTok?</h3><p>Pilih Halaman profil, tambahkan link, lalu salin alamat link.1stnear.com/@nama ke kolom bio.</p></div>
+            <div><h3 class="font-semibold text-[var(--tx)]">Bisa membuat link WhatsApp dengan pesan otomatis?</h3><p>Bisa. Tambahkan blok WhatsApp, isi nomor dan pesan awal. Pengunjung langsung membuka chat dengan pesan itu.</p></div>
+            <div><h3 class="font-semibold text-[var(--tx)]">Apakah pengunjung dilacak?</h3><p>Tidak ada pelacak pihak ketiga atau cookie iklan. Statistik disimpan sebagai angka agregat, tanpa identitas pengunjung.</p></div>
+          </div>
+
+          <p class="text-[13px]">EdgeLink dibuat oleh <a class="text-[var(--ac)]" href="https://1stnear.com">1stnear.com</a>. <a class="text-[var(--ac)]" href="/llms.txt">Ringkasan untuk AI</a>.</p>
+        </section>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

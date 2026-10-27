@@ -7,6 +7,30 @@ Format mengikuti [Keep a Changelog](https://keepachangelog.com/id/1.1.0/), versi
 - Pages: https://edgelink-afl.pages.dev
 - Desain: https://edgelink-design.pages.dev
 
+## [0.5.0] - 2026-10-27
+
+SEO dan GEO (Generative Engine Optimization): mudah ditemukan Google dan dikutip mesin jawab AI.
+
+### Ditambahkan
+- `/robots.txt` dari worker: izinkan semua halaman publik, blokir `/api/`, grup eksplisit untuk mesin jawab AI (OAI-SearchBot, ChatGPT-User, PerplexityBot, Claude-SearchBot, Claude-User, DuckAssistBot, MistralAI-User), plus baris `Sitemap:`.
+- `/sitemap.xml` dinamis: halaman utama, `/docs`, dan semua profil `/@handle` akun email yang punya minimal satu link aktif, dengan `lastmod`. Disimpan di cache edge 1 jam (tanpa tulis KV).
+- Halaman bio SSR: meta description otomatis (bio atau ringkasan link teratas), canonical, robots, Open Graph `profile`, kartu Twitter, apple-touch-icon, dan JSON-LD `ProfilePage` + `Person` (`sameAs` dari tautan sosial, `significantLink`, `dateModified`).
+- Profil tamu bawaan (`edge_xxx`) dan profil kosong diberi `noindex, follow` dan tidak masuk sitemap (hindari thin content).
+- Landing: judul dan deskripsi berbahasa Indonesia, canonical, Open Graph + `og.png` 1200x630, JSON-LD `@graph` (Organization 1stnear.com, WebSite, WebApplication gratis, FAQPage).
+- Konten statis di `#root` (hero, fitur, FAQ) untuk crawler AI yang tidak menjalankan JavaScript; React menggantinya saat aplikasi dimuat.
+- `llms.txt` dan `llms-full.txt` (format llmstxt.org) berisi fakta produk dan FAQ untuk dikutip AI.
+- Ikon PWA (`icon-192.png`, `icon-512.png`, `apple-touch-icon.png`) dan `site.webmanifest`.
+- Header `X-Robots-Tag: noindex, nofollow` pada semua respons `/api/`.
+
+### Diubah
+- Klik dari bot, crawler, dan pengambil pratinjau link (WhatsApp, Telegram, Discord, dll.) tidak lagi dihitung di statistik.
+
+### Keamanan
+- Ikon sosial di halaman bio hanya merender URL `http(s)` dan `mailto:`; skema lain (mis. `javascript:`) diabaikan.
+
+### Catatan
+- Crawler pelatihan AI (GPTBot, ClaudeBot, Google-Extended, CCBot, dll.) diblokir oleh pengaturan robots.txt terkelola di level zona 1stnear.com. Mesin jawab AI tetap diizinkan.
+
 ## [0.4.0] - 2026-10-27
 
 Identitas 1stnear.com dan edit blok tanpa hapus-pasang.

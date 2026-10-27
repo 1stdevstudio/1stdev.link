@@ -1,0 +1,16 @@
+{
+  "name": "EdgeLink by 1stnear.com",
+  "short_name": "EdgeLink",
+  "description": "Link bio dan link pendek gratis 100%, tanpa iklan, tanpa daftar.",
+  "lang": "id",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e1f1b",
+  "theme_color": "#0e1f1b",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

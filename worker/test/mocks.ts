@@ -136,6 +136,19 @@ export class MockD1 {
   }
 
   private executeSelect(query: string, params: any[]) {
+    // Sitemap: indexable public profiles (non-guest, not default guest handle, has a real bio link)
+    if (query.includes('FROM bio_profiles p JOIN users u ON u.id = p.user_id')) {
+      const results = this.tables.bio_profiles
+        .filter((p) => {
+          const u = this.tables.users.find((x) => x.id === p.user_id);
+          if (!u || u.is_guest) return false;
+          if (/^edge_/.test(p.handle)) return false;
+          return this.tables.links.some((l) => l.user_id === p.user_id && l.is_bio_entry === 1 && l.is_active === 1 && l.destination_url !== '#');
+        })
+        .sort((a, b) => b.updated_at - a.updated_at)
+        .map((p) => ({ handle: p.handle, updated_at: p.updated_at }));
+      return { results };
+    }
     // Select user
     if (query.includes('FROM users WHERE id = ? OR api_key = ?')) {
       const [token1, token2] = params;
