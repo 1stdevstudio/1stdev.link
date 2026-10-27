@@ -151,6 +151,46 @@ details.adv .body{padding:0 12px 12px;display:flex;flex-direction:column;gap:12p
 #app.on{display:block}
 @media (min-width:1024px){#app.on{display:grid}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+[hidden]{display:none!important}
+.kpi-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kpi{background:var(--s1);border-radius:var(--r3);padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.kpi span{font-size:12px;color:var(--tx3)}.kpi b{font-size:20px;font-weight:700;line-height:1.3}
+em.up,em.dn{font-style:normal;font-size:12px;font-weight:600;color:var(--ok)}em.dn{color:#fb7185}
+.chips{display:flex;gap:6px;align-items:center;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}
+.chips button{flex:none;min-height:36px;padding:0 12px;border-radius:var(--r2);background:var(--s1);font-size:13px;font-weight:500;color:var(--tx2)}
+.chips button i{font-style:normal;color:var(--tx3);margin-left:4px}
+.chips button[aria-pressed=true]{background:rgba(124,140,255,.16);color:var(--tx)}
+.lcard{background:var(--s1);border-radius:var(--r3);padding:12px;margin-bottom:8px}
+.lcard.off{opacity:.6}
+.fav{width:40px;height:40px;flex:none;border-radius:var(--r2);display:grid;place-items:center;font-weight:700;background:#3b2a6b;color:#ddd6fe}
+.lmeta{display:flex;gap:8px;align-items:center;margin:8px 0 0 52px;font-size:13px;color:var(--tx2);min-width:0}.lmeta .dest{flex:1;min-width:0}
+.lfoot{margin-top:10px;padding-top:8px;box-shadow:0 -1px 0 rgba(255,255,255,.05);gap:6px}
+.mini{display:flex;align-items:flex-end;gap:2px;height:24px;width:52px;flex:none}.mini i{flex:1;background:var(--ac);border-radius:1px;opacity:.75}
+.switch{position:relative;width:40px;height:24px;flex:none;cursor:pointer}.switch input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.switch i{position:absolute;inset:0;border-radius:var(--r1);background:var(--s2);transition:.15s}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:3px;background:var(--tx3);transition:.15s}
+.switch input:checked+i{background:var(--ac)}.switch input:checked+i::after{left:19px;background:var(--ink)}
+.switch input:focus-visible+i{box-shadow:0 0 0 3px rgba(124,140,255,.55)}
+.empty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:32px 16px;text-align:center;color:var(--tx2)}
+.stat em{display:block;margin-top:2px}
+.chart{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:12px}
+.chart button{flex:1;min-width:0;height:var(--h);background:linear-gradient(var(--ac),rgba(124,140,255,.35));border-radius:2px 2px 0 0;position:relative;padding:0}
+.chart button[aria-pressed=true]{background:var(--tx)}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3);margin-top:6px}
+.stats-2{display:grid;gap:8px;margin-top:8px}
+.rank{display:flex;gap:10px;align-items:center}.rank>span{width:22px;height:22px;border-radius:var(--r1);background:var(--s2);display:grid;place-items:center;font-size:12px;font-weight:600}
+.split{display:flex;height:10px;border-radius:var(--r1);overflow:hidden;gap:2px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.free-card{border-radius:var(--r3);padding:12px 14px;background:rgba(74,222,128,.1);color:#bbf7d0;font-size:13px;display:flex;flex-direction:column;gap:2px}.free-card b{color:var(--ok);font-size:14px}
+.todo{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.todo>*{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:4px 8px;border-radius:var(--r1);background:var(--s2);color:var(--tx2)}
+.todo .done{color:var(--ok);background:rgba(74,222,128,.08)}.todo .ic{width:14px;height:14px}.todo button{color:#c7cdff;background:rgba(124,140,255,.14)}
+.design-cta{display:flex;align-items:center;gap:12px;margin-top:12px;padding:12px;border-radius:var(--r3);background:var(--s1);color:inherit;text-decoration:none}
+.design-cta:hover{background:var(--s2)}.design-cta .grow{display:flex;flex-direction:column}
+.dc-art{width:52px;height:52px;flex:none;border-radius:var(--r2);background:radial-gradient(circle at 30% 30%,#ffd6a5,#ff7b9c 45%,#5b2a86)}
+a.menu-item{color:inherit;text-decoration:none}
+@media (min-width:640px){.stats-2{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -250,6 +290,7 @@ details.adv .body{padding:0 12px 12px;display:flex;flex-direction:column;gap:12p
         <button class="btn btn-g grow" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg>Salin link</button>
       </div>
 
+      <a class="design-cta" href="bio-editor-v3.html"><span class="dc-art"></span><span class="grow"><b>Desain halaman</b><span class="small muted">Foto sampul, latar foto, gaya tombol, efek. Gratis semua.</span></span><svg class="ic muted"><use href="#i-chev"/></svg></a>
       <div class="section-label">Isi halaman</div>
       <div class="stack" style="gap:8px">
         <div class="block"><svg class="ic grip"><use href="#i-grip"/></svg><span class="bi"><svg class="ic"><use href="#i-star"/></svg></span><div class="grow"><h3 class="ellipsis">Belanja di toko saya</h3><div class="small muted">Sorotan</div></div><span class="tag">Tampil</span></div>
@@ -277,42 +318,100 @@ details.adv .body{padding:0 12px 12px;display:flex;flex-direction:column;gap:12p
     <!-- LINKS -->
     <section class="screen" id="s-links" aria-label="Link">
       <div class="row" style="justify-content:space-between;margin-bottom:12px"><h1>Link</h1><button class="btn btn-p btn-sm" data-open="addLink" style="display:none" id="addLinkInline"><svg class="ic"><use href="#i-plus"/></svg>Tambah link</button></div>
-      <div style="position:relative;margin-bottom:8px"><svg class="ic muted" style="position:absolute;left:12px;top:12px"><use href="#i-search"/></svg><input placeholder="Cari link" style="padding-left:40px" aria-label="Cari link"></div>
-      <div>
-        <div class="list-item"><div class="grow"><h3 class="ellipsis">Promo Ramadan</h3><div class="mono muted ellipsis">edgelink.id/promo</div></div><div style="text-align:right"><div style="font-weight:600">1.284</div><div class="small muted">klik</div></div><button class="iconbtn" aria-label="Salin" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg></button></div>
-        <div class="list-item"><div class="grow"><h3 class="ellipsis">Download aplikasi</h3><div class="mono muted ellipsis">edgelink.id/app</div><div class="small muted" style="margin-top:2px">Otomatis ke App Store / Play Store</div></div><div style="text-align:right"><div style="font-weight:600">532</div><div class="small muted">klik</div></div><button class="iconbtn" aria-label="Salin" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg></button></div>
-        <div class="list-item"><div class="grow"><h3 class="ellipsis">Katalog lama</h3><div class="mono muted ellipsis">edgelink.id/k8Pq</div></div><span class="tag off">Nonaktif</span><button class="iconbtn" aria-label="Salin"><svg class="ic"><use href="#i-copy"/></svg></button></div>
+      <div class="kpi-row">
+        <div class="kpi"><span>Total link</span><b>3</b></div>
+        <div class="kpi"><span>Klik 7 hari</span><b>1.816</b><em class="up">+18%</em></div>
+        <div class="kpi"><span>Terbaik</span><b class="ellipsis" style="font-size:15px">Promo Ramadan</b></div>
+      </div>
+      <div style="position:relative;margin:12px 0 8px"><svg class="ic muted" style="position:absolute;left:12px;top:12px"><use href="#i-search"/></svg><input id="lq" placeholder="Cari judul atau link" style="padding-left:40px" aria-label="Cari link"></div>
+      <div class="chips" role="group" aria-label="Filter" id="lf">
+        <button aria-pressed="true" data-f="all">Semua <i>3</i></button><button aria-pressed="false" data-f="on">Aktif <i>2</i></button><button aria-pressed="false" data-f="off">Nonaktif <i>1</i></button><button aria-pressed="false" data-f="bio">Di profil <i>1</i></button>
+        <span class="grow"></span>
+        <select aria-label="Urutkan" style="width:auto;min-height:36px;padding:0 10px;font-size:13px"><option>Terbaru</option><option>Klik terbanyak</option><option>A–Z</option></select>
+      </div>
+      <div id="llist">
+        <article class="lcard" data-st="on bio" data-q="promo ramadan edgelink.id/promo">
+          <div class="row"><span class="fav">P</span><div class="grow"><h3 class="ellipsis">Promo Ramadan</h3><div class="mono muted ellipsis">edgelink.id/promo</div></div>
+            <label class="switch" title="Aktif"><input type="checkbox" checked aria-label="Aktifkan Promo Ramadan"><i></i></label></div>
+          <div class="lmeta"><span class="dest ellipsis">→ tokoku.com/ramadan-sale-2026</span><span class="tag">Di profil</span></div>
+          <div class="row lfoot"><div class="mini"><i style="height:30%"></i><i style="height:42%"></i><i style="height:38%"></i><i style="height:55%"></i><i style="height:61%"></i><i style="height:80%"></i><i style="height:100%"></i></div>
+            <div class="grow"><b>1.284</b> <span class="small muted">klik · 7 hari</span></div>
+            <button class="iconbtn" aria-label="Salin" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg></button><button class="iconbtn" aria-label="QR" data-open="share"><svg class="ic"><use href="#i-qr"/></svg></button><button class="iconbtn" aria-label="Statistik" data-nav="stats"><svg class="ic"><use href="#i-chart"/></svg></button></div>
+        </article>
+        <article class="lcard" data-st="on" data-q="download aplikasi edgelink.id/app">
+          <div class="row"><span class="fav" style="background:#14532d;color:#bbf7d0">D</span><div class="grow"><h3 class="ellipsis">Download aplikasi</h3><div class="mono muted ellipsis">edgelink.id/app</div></div>
+            <label class="switch"><input type="checkbox" checked aria-label="Aktifkan Download aplikasi"><i></i></label></div>
+          <div class="lmeta"><span class="dest ellipsis">→ App Store / Play Store otomatis</span><span class="tag" style="background:rgba(124,140,255,.14);color:#c7cdff">Arah HP</span></div>
+          <div class="row lfoot"><div class="mini"><i style="height:50%"></i><i style="height:44%"></i><i style="height:60%"></i><i style="height:52%"></i><i style="height:48%"></i><i style="height:66%"></i><i style="height:58%"></i></div>
+            <div class="grow"><b>532</b> <span class="small muted">klik · 7 hari</span></div>
+            <button class="iconbtn" aria-label="Salin" onclick="toast('Link disalin')"><svg class="ic"><use href="#i-copy"/></svg></button><button class="iconbtn" aria-label="QR" data-open="share"><svg class="ic"><use href="#i-qr"/></svg></button><button class="iconbtn" aria-label="Statistik" data-nav="stats"><svg class="ic"><use href="#i-chart"/></svg></button></div>
+        </article>
+        <article class="lcard off" data-st="off" data-q="katalog lama edgelink.id/k8pq">
+          <div class="row"><span class="fav" style="background:var(--s2);color:var(--tx3)">K</span><div class="grow"><h3 class="ellipsis">Katalog lama</h3><div class="mono muted ellipsis">edgelink.id/k8Pq</div></div>
+            <label class="switch"><input type="checkbox" aria-label="Aktifkan Katalog lama"><i></i></label></div>
+          <div class="lmeta"><span class="dest ellipsis">Nonaktif: pengunjung melihat halaman "link tidak tersedia"</span></div>
+        </article>
+        <div class="empty" id="lempty" hidden><svg class="ic" style="width:28px;height:28px"><use href="#i-search"/></svg><b>Tidak ada link yang cocok</b><span class="small muted">Coba kata lain atau hapus filter.</span></div>
       </div>
     </section>
 
     <!-- STATS -->
     <section class="screen" id="s-stats" aria-label="Statistik">
-      <div class="row" style="justify-content:space-between;margin-bottom:16px;flex-wrap:wrap"><h1>Statistik</h1>
-        <div class="seg" role="group" style="width:200px"><button aria-pressed="true">7 hari</button><button aria-pressed="false">30 hari</button></div></div>
+      <div class="row" style="justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><h1>Statistik</h1>
+        <div class="seg" role="group" id="range" style="width:240px"><button aria-pressed="true" data-r="7">7 hari</button><button aria-pressed="false" data-r="30">30 hari</button><button aria-pressed="false" data-r="90">90 hari</button></div></div>
       <div class="stat-grid">
-        <div class="card stat"><div class="small muted">Total klik</div><div class="v">1.816</div></div>
-        <div class="card stat"><div class="small muted">Kunjungan profil</div><div class="v">642</div></div>
-        <div class="card stat"><div class="small muted">Link aktif</div><div class="v">2</div></div>
-        <div class="card stat"><div class="small muted">Negara</div><div class="v">7</div></div>
+        <div class="card stat"><div class="small muted">Total klik</div><div class="v" id="k1">1.816</div><em class="up">+18% dari periode lalu</em></div>
+        <div class="card stat"><div class="small muted">Kunjungan profil</div><div class="v" id="k2">642</div><em class="up">+9%</em></div>
+        <div class="card stat"><div class="small muted">Rasio klik</div><div class="v">2,8×</div><em class="muted" style="font-style:normal;font-size:12px">klik per kunjungan</em></div>
+        <div class="card stat"><div class="small muted">Negara</div><div class="v">7</div><em class="dn">−1</em></div>
       </div>
-      <div class="card" style="margin-top:8px"><h3>Klik per hari</h3><div class="spark"><i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i><i style="height:60%"></i><i style="height:52%"></i><i style="height:74%"></i><i style="height:92%"></i></div></div>
-      <div class="card stack" style="margin-top:8px"><h3>Negara teratas</h3>
-        <div><div class="row small" style="justify-content:space-between"><span>Indonesia</span><span class="muted">78%</span></div><div class="bar"><i style="width:78%"></i></div></div>
-        <div><div class="row small" style="justify-content:space-between"><span>Malaysia</span><span class="muted">12%</span></div><div class="bar"><i style="width:12%"></i></div></div>
-        <div><div class="row small" style="justify-content:space-between"><span>Singapura</span><span class="muted">6%</span></div><div class="bar"><i style="width:6%"></i></div></div>
+      <div class="card" style="margin-top:8px"><div class="row" style="justify-content:space-between"><h3>Klik per hari</h3><span class="small muted" id="chint">Ketuk batang untuk detail</span></div>
+        <div class="chart" id="chart"></div><div class="axis" id="axis"></div></div>
+      <div class="stats-2">
+        <div class="card stack"><h3>Link teratas</h3>
+          <div class="rank"><span>1</span><div class="grow"><div class="row small" style="justify-content:space-between"><b class="ellipsis">Promo Ramadan</b><span class="muted">1.284</span></div><div class="bar"><i style="width:100%"></i></div></div></div>
+          <div class="rank"><span>2</span><div class="grow"><div class="row small" style="justify-content:space-between"><b class="ellipsis">Download aplikasi</b><span class="muted">532</span></div><div class="bar"><i style="width:41%"></i></div></div></div>
+        </div>
+        <div class="card stack"><h3>Negara teratas</h3>
+          <div><div class="row small" style="justify-content:space-between"><span>Indonesia</span><span class="muted">78%</span></div><div class="bar"><i style="width:78%"></i></div></div>
+          <div><div class="row small" style="justify-content:space-between"><span>Malaysia</span><span class="muted">12%</span></div><div class="bar"><i style="width:12%"></i></div></div>
+          <div><div class="row small" style="justify-content:space-between"><span>Singapura</span><span class="muted">6%</span></div><div class="bar"><i style="width:6%"></i></div></div>
+        </div>
+        <div class="card stack"><h3>Perangkat</h3>
+          <div class="split"><i style="flex:82;background:var(--ac)"></i><i style="flex:15;background:#a78bfa"></i><i style="flex:3;background:var(--tx3)"></i></div>
+          <div class="row small" style="gap:14px;flex-wrap:wrap"><span><b class="dot" style="background:var(--ac)"></b>HP 82%</span><span><b class="dot" style="background:#a78bfa"></b>Desktop 15%</span><span><b class="dot" style="background:var(--tx3)"></b>Tablet 3%</span></div>
+        </div>
+        <div class="card stack"><h3>Datang dari</h3>
+          <div class="row small" style="justify-content:space-between"><span>Instagram</span><span class="muted">54%</span></div>
+          <div class="row small" style="justify-content:space-between"><span>TikTok</span><span class="muted">27%</span></div>
+          <div class="row small" style="justify-content:space-between"><span>WhatsApp</span><span class="muted">11%</span></div>
+          <div class="row small" style="justify-content:space-between"><span>Langsung / lainnya</span><span class="muted">8%</span></div>
+        </div>
       </div>
-      <p class="small muted" style="margin-top:12px">Tanpa cookie dan tanpa pelacak. Kami hanya menghitung jumlah klik per negara.</p>
+      <p class="small muted" style="margin-top:12px">Tanpa cookie dan tanpa pelacak. Kami hanya menghitung klik per negara, perangkat, dan sumber.</p>
     </section>
 
     <!-- ACCOUNT -->
     <section class="screen" id="s-account" aria-label="Akun">
       <h1 style="margin-bottom:16px">Akun</h1>
-      <div class="card row" style="margin-bottom:16px"><div class="grow"><h3>Belum disimpan</h3><div class="small muted">Simpan dengan email agar bisa dibuka di perangkat lain.</div></div><button class="btn btn-p btn-sm" data-open="save">Simpan</button></div>
+      <div class="free-card"><b>100% gratis, selamanya.</b><span>Semua fitur tanpa biaya. Tanpa paket berbayar, tanpa kartu kredit, tanpa iklan.</span></div>
+      <div class="card" style="margin:12px 0 16px">
+        <div class="row"><div class="avatar" style="width:48px;height:48px;font-size:18px">C</div><div class="grow"><h3 class="ellipsis">Creator 4rv5se</h3><div class="mono muted ellipsis">@edge_4rv5se</div></div><span class="tag" style="background:rgba(251,191,36,.14);color:var(--warn)">Belum disimpan</span></div>
+        <div style="margin-top:14px"><div class="row small" style="justify-content:space-between"><span>Kelengkapan profil</span><span class="muted">3 dari 5</span></div><div class="bar"><i style="width:60%"></i></div></div>
+        <div class="todo"><span class="done"><svg class="ic"><use href="#i-check"/></svg>Nama &amp; foto</span><span class="done"><svg class="ic"><use href="#i-check"/></svg>Link pertama</span><span class="done"><svg class="ic"><use href="#i-check"/></svg>Tema</span><button data-open="save">Simpan dengan email</button><button data-open="share">Bagikan halaman</button></div>
+        <button class="btn btn-p btn-w" style="margin-top:12px" data-open="save">Simpan akun</button>
+      </div>
+      <div class="section-label">Perangkat &amp; keamanan</div>
       <button class="menu-item" data-open="device"><svg class="ic"><use href="#i-phone"/></svg><span class="grow"><h3>Pindah perangkat</h3><span class="small muted">Scan QR atau pakai kode</span></span><svg class="ic muted"><use href="#i-chev"/></svg></button>
-      <button class="menu-item" data-nav="profile"><svg class="ic"><use href="#i-palette"/></svg><span class="grow"><h3>Tampilan profil</h3><span class="small muted">Tema dan bentuk foto</span></span><svg class="ic muted"><use href="#i-chev"/></svg></button>
+      <div class="menu-item" style="cursor:default"><svg class="ic"><use href="#i-mail"/></svg><span class="grow"><h3>Email</h3><span class="small muted">Belum ada. Dipakai untuk masuk tanpa kata sandi.</span></span></div>
+      <div class="section-label">Preferensi</div>
+      <a class="menu-item" href="bio-editor-v3.html"><svg class="ic"><use href="#i-palette"/></svg><span class="grow"><h3>Desain halaman</h3><span class="small muted">Foto, latar, tombol, efek</span></span><svg class="ic muted"><use href="#i-chev"/></svg></a>
+      <div class="menu-item" style="cursor:default"><svg class="ic"><use href="#i-type"/></svg><span class="grow"><h3>Bahasa</h3><span class="small muted">Bahasa tampilan dashboard</span></span><div class="seg" role="group" style="width:120px"><button aria-pressed="true">ID</button><button aria-pressed="false">EN</button></div></div>
+      <div class="section-label">Lainnya</div>
       <details class="adv" style="background:none"><summary class="menu-item" style="padding:14px 12px"><span class="row grow" style="gap:14px"><svg class="ic muted"><use href="#i-code"/></svg><span><h3>Developer</h3><span class="small muted">API key untuk integrasi</span></span></span><svg class="ic muted"><use href="#i-chev"/></svg></summary>
         <div class="body" style="padding:0 12px 12px 46px"><div class="row"><input class="mono" value="el_live_••••••••••••3f9a" readonly aria-label="API key"><button class="iconbtn" aria-label="Salin API key" onclick="toast('API key disalin')"><svg class="ic"><use href="#i-copy"/></svg></button></div><span class="small muted">Gunakan sebagai header <span class="mono">Authorization: Bearer</span>.</span></div></details>
       <button class="menu-item"><svg class="ic"><use href="#i-doc"/></svg><span class="grow"><h3>Ketentuan &amp; Privasi</h3></span><svg class="ic muted"><use href="#i-chev"/></svg></button>
+      <button class="menu-item" style="color:#fca5a5" onclick="toast('Keluar (prototipe)')"><svg class="ic"><use href="#i-back"/></svg><span class="grow"><h3>Keluar</h3><span class="small muted">Akun guest yang belum disimpan akan hilang</span></span></button>
     </section>
   </main>
 
@@ -469,6 +568,20 @@ let tt;function toast(m){const t=$('#toast');t.querySelector('span').textContent
 ['#qr','#qr2'].forEach(id=>{const q=$(id);for(let i=0;i<81;i++){const r=i/9|0,c=i%9,corner=(r<3&&c<3)||(r<3&&c>5)||(r>5&&c<3);const el=document.createElement('i');if(!corner&&((r*7+c*13+i)%3===0))el.className='w';if(corner&&r%2===1&&c%2===1&&!(r===1&&c===1)&&!(r===1&&c===7)&&!(r===7&&c===1))el.className='w';q.appendChild(el)}});
 // deep-link for review: #app=profile|links|stats|account  #sheet=addLink...
 const h=new URLSearchParams(location.hash.slice(1));if(h.get('app'))enterApp(h.get('app'));if(h.get('sheet'))open(h.get('sheet'));
+
+/* links: search + filter */
+(function(){const q=$('#lq'),f=$('#lf');let cur='all';
+ function apply(){const t=q.value.trim().toLowerCase();let n=0;document.querySelectorAll('.lcard').forEach(c=>{const ok=(cur==='all'||c.dataset.st.split(' ').includes(cur))&&c.dataset.q.includes(t);c.hidden=!ok;n+=ok});$('#lempty').hidden=n>0}
+ q.addEventListener('input',apply);f.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;f.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));cur=b.dataset.f;apply()});
+ document.querySelectorAll('.switch input').forEach(i=>i.addEventListener('change',()=>{const c=i.closest('.lcard');c.classList.toggle('off',!i.checked);toast(i.checked?'Link diaktifkan':'Link dinonaktifkan')}));})();
+/* stats: range + interactive chart */
+(function(){const D={7:[180,240,210,300,270,350,266],30:Array.from({length:30},(_,i)=>120+Math.round(90*Math.sin(i/3)+i*6)),90:Array.from({length:45},(_,i)=>100+Math.round(70*Math.sin(i/5)+i*4))};
+ const fmt=n=>n.toLocaleString('id-ID');
+ function draw(r){const d=D[r],m=Math.max(...d);$('#chart').innerHTML=d.map((v,i)=>`<button style="--h:${Math.max(4,v/m*100)}%" aria-label="Hari ${i+1}: ${v} klik" data-v="${v}" aria-pressed="false"></button>`).join('');
+  $('#axis').innerHTML=r==7?['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(x=>`<span>${x}</span>`).join(''):`<span>${r} hari lalu</span><span>Hari ini</span>`;
+  const tot=d.reduce((a,b)=>a+b,0);$('#k1').textContent=fmt(r==90?tot*2:tot);$('#k2').textContent=fmt(Math.round((r==90?tot*2:tot)/2.8));$('#chint').textContent='Ketuk batang untuk detail'}
+ $('#chart').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#chart').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));$('#chint').textContent=b.getAttribute('aria-label')});
+ $('#range').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('#range').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));draw(+b.dataset.r)});draw(7)})();
 </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Search, Copy, Plus, Trash2, Check, ExternalLink } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Search, Copy, Plus, Trash2, Check, ExternalLink, Link2 } from 'lucide-react';
 import { LinkItem } from '../../types';
+import { useI18n } from '../../i18n/context';
 
 interface LinksScreenProps {
   links: LinkItem[];
@@ -10,173 +11,166 @@ interface LinksScreenProps {
   onToast: (msg: string) => void;
 }
 
+type Filter = 'all' | 'on' | 'off' | 'bio';
+type Sort = 'new' | 'clicks' | 'az';
+
+const TX = {
+  id: {
+    title: 'Link', add: 'Tambah link', search: 'Cari link…', total: 'Total link', clicks: 'Total klik',
+    best: 'Terbaik', all: 'Semua', on: 'Aktif', off: 'Nonaktif', bio: 'Di profil', sNew: 'Terbaru',
+    sClicks: 'Klik terbanyak', sAz: 'A–Z', copied: 'Link disalin', del: 'Hapus link ini?', open: 'Buka',
+    copy: 'Salin', remove: 'Hapus', app: 'Arah HP', click: 'klik', emptyT: 'Belum ada link',
+    emptyD: 'Tempel link panjang, kami buatkan versi pendek yang mudah dibagikan.', noRes: 'Tidak ada link yang cocok.',
+  },
+  en: {
+    title: 'Links', add: 'Add link', search: 'Search links…', total: 'Total links', clicks: 'Total clicks',
+    best: 'Top link', all: 'All', on: 'Active', off: 'Inactive', bio: 'On profile', sNew: 'Newest',
+    sClicks: 'Most clicks', sAz: 'A–Z', copied: 'Link copied', del: 'Delete this link?', open: 'Open',
+    copy: 'Copy', remove: 'Delete', app: 'App routing', click: 'clicks', emptyT: 'No links yet',
+    emptyD: 'Paste a long link and we will make a short one that is easy to share.', noRes: 'No matching links.',
+  },
+};
+
+const host = (u: string) => {
+  try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; }
+};
+
 export const LinksScreen: React.FC<LinksScreenProps> = ({
-  links,
-  onOpenAddLink,
-  onToggleActive,
-  onDeleteLink,
-  onToast,
+  links, onOpenAddLink, onToggleActive, onDeleteLink, onToast,
 }) => {
+  const { lang } = useI18n();
+  const s = TX[lang === 'en' ? 'en' : 'id'];
   const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<Filter>('all');
+  const [sort, setSort] = useState<Sort>('new');
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+  const shortHost = host(baseUrl);
 
-  const filtered = links.filter((l) => {
+  const counts = {
+    all: links.length,
+    on: links.filter((l) => l.is_active).length,
+    off: links.filter((l) => !l.is_active).length,
+    bio: links.filter((l) => l.is_bio_entry).length,
+  };
+  const totalClicks = links.reduce((n, l) => n + (l.clicks || 0), 0);
+  const best = links.reduce<LinkItem | null>((b, l) => (!b || l.clicks > b.clicks ? l : b), null);
+
+  const shown = useMemo(() => {
     const q = query.toLowerCase();
-    return (
-      (l.title && l.title.toLowerCase().includes(q)) ||
-      (l.slug && l.slug.toLowerCase().includes(q)) ||
-      (l.destination_url && l.destination_url.toLowerCase().includes(q))
-    );
-  });
+    const list = links.filter((l) => {
+      if (filter === 'on' && !l.is_active) return false;
+      if (filter === 'off' && l.is_active) return false;
+      if (filter === 'bio' && !l.is_bio_entry) return false;
+      return !q || [l.title, l.slug, l.destination_url].some((v) => v?.toLowerCase().includes(q));
+    });
+    if (sort === 'clicks') list.sort((a, b) => b.clicks - a.clicks);
+    else if (sort === 'az') list.sort((a, b) => (a.title || a.slug).localeCompare(b.title || b.slug));
+    else list.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+    return list;
+  }, [links, query, filter, sort]);
 
   const handleCopy = (slug: string, id: string) => {
-    const shortUrl = `${baseUrl}/${slug}`;
-    navigator.clipboard.writeText(shortUrl);
+    navigator.clipboard.writeText(`${baseUrl}/${slug}`);
     setCopiedId(id);
-    onToast('Link disalin');
+    onToast(s.copied);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  if (links.length === 0) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
+        <div className="card empty">
+          <Link2 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
+          <h3 className="text-[16px] font-semibold">{s.emptyT}</h3>
+          <p className="small muted">{s.emptyD}</p>
+          <button className="btn btn-p" onClick={onOpenAddLink}><Plus size={18} /> {s.add}</button>
+        </div>
+      </div>
+    );
+  }
+
+  const chips: Filter[] = ['all', 'on', 'off', 'bio'];
+
   return (
     <div className="flex flex-col gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-[20px] font-semibold text-[var(--tx)]">Link</h2>
-        <button
-          type="button"
-          className="btn btn-p btn-sm"
-          onClick={onOpenAddLink}
-        >
-          <Plus size={16} strokeWidth={2} />
-          <span>Tambah link</span>
-        </button>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
+        <span className="hidden lg:block">
+          <button className="btn btn-p btn-sm" onClick={onOpenAddLink}>
+            <Plus size={16} /> {s.add}
+          </button>
+        </span>
       </div>
 
-      {/* Search Input */}
-      <div className="relative flex items-center">
-        <Search
-          size={18}
-          strokeWidth={1.75}
-          className="absolute left-3.5 text-[var(--tx3)] pointer-events-none"
-        />
-        <input
-          type="search"
-          placeholder="Cari link..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="pl-10 h-11"
-        />
+      <div className="kpis">
+        <div className="kpi"><span>{s.total}</span><b>{links.length}</b></div>
+        <div className="kpi"><span>{s.clicks}</span><b>{totalClicks.toLocaleString()}</b></div>
+        <div className="kpi"><span>{s.best}</span><b className="truncate">{best && best.clicks > 0 ? best.title || `/${best.slug}` : '–'}</b></div>
       </div>
 
-      {/* Link List */}
-      <div className="flex flex-col gap-2">
-        {filtered.length === 0 ? (
-          <div className="card p-8 text-center flex flex-col items-center gap-2">
-            <p className="text-[14px] text-[var(--tx2)]">
-              {query ? 'Tidak ada link yang cocok dengan pencarian.' : 'Belum ada link yang dibuat.'}
-            </p>
-            {!query && (
-              <button
-                type="button"
-                className="btn btn-g btn-sm mt-1"
-                onClick={onOpenAddLink}
-              >
-                Buat link pertama
-              </button>
-            )}
-          </div>
-        ) : (
-          filtered.map((link) => {
-            const hasSmartRouting = Boolean(link.ios_url || link.android_url);
-            const isCopied = copiedId === link.id;
+      <div className="relative">
+        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--tx3)]" />
+        <input className="input pl-10" placeholder={s.search} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={s.search} />
+      </div>
 
-            return (
-              <div
-                key={link.id}
-                className="card flex items-center gap-3 p-3.5 transition hover:bg-[var(--s2)]"
-              >
-                <div className="grow min-w-0">
-                  <h4 className="text-[14px] font-semibold text-[var(--tx)] truncate flex items-center gap-2">
-                    <span>{link.title || link.slug}</span>
-                    <a
-                      href={`${baseUrl}/${link.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[var(--tx3)] hover:text-[var(--tx)] inline"
-                      aria-label="Buka link"
-                    >
-                      <ExternalLink size={13} strokeWidth={1.75} />
-                    </a>
-                  </h4>
-                  <div className="mono text-[13px] text-[var(--tx2)] truncate">
-                    edgelink.id/{link.slug}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+        {chips.map((c) => (
+          <button key={c} className={`chip ${filter === c ? 'on' : ''}`} onClick={() => setFilter(c)} aria-pressed={filter === c}>
+            {s[c]} <span>{counts[c]}</span>
+          </button>
+        ))}
+        <select className="chip-select ml-auto" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Sort">
+          <option value="new">{s.sNew}</option>
+          <option value="clicks">{s.sClicks}</option>
+          <option value="az">{s.sAz}</option>
+        </select>
+      </div>
+
+      {shown.length === 0 ? (
+        <p className="small muted text-center py-6">{s.noRes}</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {shown.map((l) => (
+            <li key={l.id} className={`card lcard ${l.is_active ? '' : 'dim'}`}>
+              <div className="flex items-start gap-3">
+                <div className="fav" aria-hidden>{host(l.destination_url).charAt(0).toUpperCase()}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate text-[15px] font-semibold">{l.title || host(l.destination_url)}</h3>
                   </div>
-                  {hasSmartRouting && (
-                    <div className="small text-[var(--ac)] mt-0.5">
-                      Otomatis ke App Store / Play Store
-                    </div>
-                  )}
+                  <p className="mono small text-[var(--ac)] truncate">{shortHost}/{l.slug}</p>
+                  <p className="small muted truncate">{l.destination_url}</p>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  {/* Clicks badge */}
-                  <span className="tag off font-medium">
-                    {(link.clicks ?? 0).toLocaleString()} klik
-                  </span>
-
-                  {/* Active / Inactive Tag */}
-                  {link.is_active === 0 ? (
-                    <span className="tag off text-rose-400">Nonaktif</span>
-                  ) : null}
-
-                  {/* Copy button */}
-                  <button
-                    type="button"
-                    className="iconbtn"
-                    onClick={() => handleCopy(link.slug, link.id)}
-                    aria-label="Salin link"
-                  >
-                    {isCopied ? (
-                      <Check size={18} strokeWidth={2} className="text-[var(--ok)]" />
-                    ) : (
-                      <Copy size={18} strokeWidth={1.75} />
-                    )}
+                <button
+                  className={`switch ${l.is_active ? 'on' : ''}`}
+                  role="switch"
+                  aria-checked={!!l.is_active}
+                  aria-label={l.is_active ? s.on : s.off}
+                  onClick={() => onToggleActive(l.id, !!l.is_active)}
+                ><i /></button>
+              </div>
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                {!!l.is_bio_entry && <span className="tag off">{s.bio}</span>}
+                {(l.ios_url || l.android_url) && <span className="tag off">{s.app}</span>}
+                <span className="small muted">{l.clicks.toLocaleString()} {s.click}</span>
+                <div className="ml-auto flex gap-1">
+                  <button className="iconbtn" onClick={() => handleCopy(l.slug, l.id)} aria-label={s.copy}>
+                    {copiedId === l.id ? <Check size={18} className="text-[var(--ok)]" /> : <Copy size={18} />}
                   </button>
-
-                  {/* Toggle status */}
-                  <button
-                    type="button"
-                    className={`text-[12px] font-medium px-2 py-1 rounded-[var(--r1)] transition ${
-                      link.is_active === 0
-                        ? 'bg-[var(--s2)] text-[var(--tx2)]'
-                        : 'bg-emerald-500/10 text-[var(--ok)]'
-                    }`}
-                    onClick={() => onToggleActive(link.id, link.is_active !== 0)}
-                  >
-                    {link.is_active === 0 ? 'Aktifkan' : 'Aktif'}
-                  </button>
-
-                  {/* Delete button */}
-                  <button
-                    type="button"
-                    className="iconbtn text-[var(--tx3)] hover:text-rose-400"
-                    onClick={() => {
-                      if (confirm(`Hapus link "${link.title || link.slug}"?`)) {
-                        onDeleteLink(link.id);
-                      }
-                    }}
-                    aria-label="Hapus link"
-                  >
-                    <Trash2 size={16} strokeWidth={1.75} />
+                  <a className="iconbtn" href={`${baseUrl}/${l.slug}`} target="_blank" rel="noopener noreferrer" aria-label={s.open}>
+                    <ExternalLink size={18} />
+                  </a>
+                  <button className="iconbtn" onClick={() => window.confirm(s.del) && onDeleteLink(l.id)} aria-label={s.remove}>
+                    <Trash2 size={18} />
                   </button>
                 </div>
               </div>
-            );
-          })
-        )}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

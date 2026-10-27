@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../i18n/context';
 import {
   AlertTriangle,
   Share2,
@@ -53,6 +54,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onDeleteLink,
   onToast,
 }) => {
+  const { t } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const publicUrl = `${baseUrl}/@${profile.handle}`;
 
@@ -106,6 +108,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </span>
         </button>
       )}
+
+      <p className="free-strip">
+        <b>{t('heroFreeHeadline')}</b> {t('heroFreeSub')}
+      </p>
 
       {/* Profile Head */}
       <div className="card flex items-center justify-between gap-4">
