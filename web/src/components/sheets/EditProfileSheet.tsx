@@ -15,6 +15,8 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   profile,
   onUpdateProfile,
 }) => {
+  const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+  const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const [displayName, setDisplayName] = useState(profile.display_name || '');
   const [handle, setHandle] = useState(profile.handle || '');
   const [bio, setBio] = useState(profile.bio || '');
@@ -104,7 +106,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
           <label htmlFor="p-handle">Alamat halaman</label>
           <div className="flex items-center gap-0">
             <span className="mono muted bg-[var(--in)] min-h-[44px] flex items-center pl-3 rounded-l-[var(--r2)] select-none">
-              edgelink.id/@
+              {shortHost}/@
             </span>
             <input
               id="p-handle"

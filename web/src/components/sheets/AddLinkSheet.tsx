@@ -24,6 +24,8 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
   onCreateLink,
   defaultBlockType = 'link',
 }) => {
+  const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+  const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const [destinationUrl, setDestinationUrl] = useState('');
   const [title, setTitle] = useState('');
   const [showInBio, setShowInBio] = useState(true);
@@ -122,7 +124,7 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
               <label htmlFor="f-slug">Nama link sendiri</label>
               <div className="flex items-center gap-0">
                 <span className="mono muted bg-[var(--in)] min-h-[44px] flex items-center pl-3 rounded-l-[var(--r2)] select-none">
-                  edgelink.id/
+                  {shortHost}/
                 </span>
                 <input
                   id="f-slug"

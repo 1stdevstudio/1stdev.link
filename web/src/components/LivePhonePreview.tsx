@@ -72,7 +72,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
   const publicUrl = `${baseUrl}/@${profile.handle}`;
   const theme = THEME_STYLES[profile.theme || 'obsidian'] || THEME_STYLES.obsidian;
 
-  const bioLinks = links.filter((l) => l.is_bio_entry !== false);
+  const bioLinks = links.filter((l) => Boolean(l.is_bio_entry));
 
   const getShapeRadius = (shape?: string) => {
     if (shape === 'circle') return '9999px';

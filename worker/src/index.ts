@@ -240,6 +240,9 @@ app.get('/:slug', async (c) => {
   // 4. Smart Device Routing: Detect User-Agent at edge
   const ua = c.req.header('user-agent') || '';
   let finalTarget = destinationUrl;
+  if (finalTarget === '#' || !finalTarget) {
+    return c.text('Content block (not a redirect link)', 200);
+  }
   if (/iPhone|iPad|iPod/i.test(ua) && iosUrl) {
     finalTarget = iosUrl;
   } else if (/Android/i.test(ua) && androidUrl) {
@@ -677,8 +680,23 @@ app.post('/api/auth/login', async (c) => {
 
 // -------------------------------------------------------------
 // Management REST API Endpoints (/api/links, /api/bio-profile)
-// -------------------------------------------------------------
+// Helper: invalidate bio KV cache for user
+async function invalidateUserBioCache(c: any, userId: string) {
+  if (!c.env.KV || !c.env.DB) return;
+  try {
+    const profile = (await c.env.DB
+      .prepare('SELECT handle FROM bio_profiles WHERE user_id = ?')
+      .bind(userId)
+      .first()) as { handle?: string } | null;
+    if (profile?.handle) {
+      safeWaitUntil(c, c.env.KV.delete(`bio:${profile.handle}`).catch(() => {}));
+    }
+  } catch (err) {
+    console.error('Failed to invalidate bio cache:', err);
+  }
+}
 
+// -------------------------------------------------------------
 // POST /api/links - Create shortlink or bio card with Smart Device Routing & Anti-Bot
 app.post('/api/links', apiAuthMiddleware, async (c) => {
   const user = c.get('user') as User;
@@ -702,14 +720,28 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
   const { destination_url, title, is_bio_entry, sort_order, ios_url, android_url } = body;
   let slug = (body.slug || '').trim();
 
-  if (!destination_url) {
-    return c.json({ status: 'error', message: 'destination_url is required' }, 400);
+  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider'];
+  const blockType = (body.block_type || 'link').toLowerCase();
+  if (!validBlockTypes.includes(blockType)) {
+    return c.json({ status: 'error', message: 'Invalid block_type' }, 400);
   }
 
-  // Validate Destination URL
-  const validation = validateDestinationUrl(destination_url);
-  if (!validation.valid) {
-    return c.json({ status: 'error', message: validation.error }, 422);
+  const isContentOnly = ['header', 'text', 'divider'].includes(blockType);
+  let targetUrl = (destination_url || '').trim();
+  if (!targetUrl) {
+    if (isContentOnly) {
+      targetUrl = '#';
+    } else {
+      return c.json({ status: 'error', message: 'destination_url is required' }, 400);
+    }
+  }
+
+  // Validate Destination URL (allow '#' for content-only blocks like header/text/divider)
+  if (!isContentOnly || targetUrl !== '#') {
+    const validation = validateDestinationUrl(targetUrl);
+    if (!validation.valid) {
+      return c.json({ status: 'error', message: validation.error }, 422);
+    }
   }
 
   // Validate Smart Device URLs if provided
@@ -753,14 +785,8 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
 
   const id = `lnk_${crypto.randomUUID().replace(/-/g, '')}`;
   const now = Math.floor(Date.now() / 1000);
-  const bioEntryFlag = is_bio_entry ? 1 : 0;
+  const bioEntryFlag = is_bio_entry !== undefined ? (is_bio_entry ? 1 : 0) : (blockType !== 'link' ? 1 : 0);
   const sort = typeof sort_order === 'number' ? sort_order : 0;
-
-  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider'];
-  const blockType = (body.block_type || 'link').toLowerCase();
-  if (!validBlockTypes.includes(blockType)) {
-    return c.json({ status: 'error', message: 'Invalid block_type' }, 400);
-  }
 
   try {
     await c.env.DB
@@ -768,7 +794,7 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
         `INSERT INTO links (id, user_id, slug, destination_url, ios_url, android_url, title, is_bio_entry, sort_order, is_active, block_type, created_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`
       )
-      .bind(id, user.id, slug, destination_url, ios_url || null, android_url || null, title || null, bioEntryFlag, sort, blockType, now)
+      .bind(id, user.id, slug, targetUrl, ios_url || null, android_url || null, title || null, bioEntryFlag, sort, blockType, now)
       .run();
   } catch (err: any) {
     if (err.message && err.message.includes('UNIQUE constraint failed: links.slug')) {
@@ -779,11 +805,14 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
 
   // Populate KV cache with smart device targets
   if (c.env.KV) {
-    const dataToCache: CachedSlug = { id, url: destination_url, ios_url: ios_url || undefined, android_url: android_url || undefined };
+    const dataToCache: CachedSlug = { id, url: targetUrl, ios_url: ios_url || undefined, android_url: android_url || undefined };
     safeWaitUntil(c, c.env.KV.put(`slug:${slug}`, JSON.stringify(dataToCache), { expirationTtl: 86400 }));
     // Invalidate 404 cache if previously hit
     safeWaitUntil(c, c.env.KV.delete(`slug:nf:${slug}`).catch(() => {}));
   }
+
+  // Invalidate bio cache in KV
+  invalidateUserBioCache(c, user.id);
 
   const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
   return c.json(
@@ -793,7 +822,7 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
         id,
         slug,
         short_url: `${baseUrl}/${slug}`,
-        destination_url,
+        destination_url: targetUrl,
         ios_url: ios_url || null,
         android_url: android_url || null,
         title,
@@ -1004,6 +1033,8 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
       .run();
   }
 
+  invalidateUserBioCache(c, user.id);
+
   return c.json({ status: 'success', message: 'Link updated' });
 });
 
@@ -1031,6 +1062,8 @@ app.put('/api/links/reorder', apiAuthMiddleware, async (c) => {
     await c.env.DB.batch(statements);
   }
 
+  invalidateUserBioCache(c, user.id);
+
   return c.json({ status: 'success', message: 'Links reordered' });
 });
 
@@ -1056,6 +1089,8 @@ app.delete('/api/links/:id', apiAuthMiddleware, async (c) => {
   if (c.env.KV) {
     safeWaitUntil(c, c.env.KV.delete(`slug:${link.slug}`).catch(() => {}));
   }
+
+  invalidateUserBioCache(c, user.id);
 
   return c.json({ status: 'success', message: 'Link deleted' });
 });

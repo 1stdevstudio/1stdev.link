@@ -18,7 +18,7 @@ export const ShareSheet: React.FC<ShareSheetProps> = ({
   const [copied, setCopied] = useState(false);
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const shareUrl = `${baseUrl}/@${handle}`;
-  const displayUrl = `edgelink.id/@${handle}`;
+  const displayUrl = `${baseUrl.replace(/^https?:\/\//, '')}/@${handle}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
     shareUrl
   )}`;

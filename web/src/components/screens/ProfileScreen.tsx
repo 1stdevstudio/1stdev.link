@@ -59,6 +59,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 }) => {
   const { t } = useI18n();
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+  const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${baseUrl}/@${profile.handle}`;
 
   const handleCopyLink = () => {
@@ -66,7 +67,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     onToast('Link disalin');
   };
 
-  const bioLinks = links.filter((l) => l.is_bio_entry !== false);
+  const bioLinks = links.filter((l) => Boolean(l.is_bio_entry));
 
   const moveLink = (index: number, direction: 'up' | 'down') => {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -144,7 +145,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               ) : null}
             </h2>
             <div className="mono text-[13px] text-[var(--tx2)] truncate">
-              edgelink.id/@{profile.handle}
+              {shortHost}/@{profile.handle}
             </div>
           </div>
         </div>
