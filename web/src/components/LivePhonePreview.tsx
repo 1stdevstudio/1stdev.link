@@ -130,14 +130,11 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         )}
 
         {/* Cover Banner */}
-        {coverUrl ? (
+        {coverUrl && (
           <div className="w-full h-24 shrink-0 overflow-hidden relative z-10 -mt-6 mb-2">
             <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
           </div>
-        ) : (
-          /* Notch / Speaker bar */
-          <div className="w-16 h-1 rounded-full bg-white/20 mb-2 shrink-0 relative z-10" />
         )}
 
         {/* Profile Avatar */}
