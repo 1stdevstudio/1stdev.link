@@ -107,12 +107,6 @@ export const Welcome: React.FC<WelcomeProps> = ({
           >
             {tx('Sudah punya akun? Masuk', 'Already have an account? Log in')}
           </button>
-          <a
-            href="/landing"
-            className="text-center text-[12px] text-[var(--tx2)] hover:text-[var(--ac)] transition py-1"
-          >
-            {tx('Lihat Landing Page & Fitur Lengkap →', 'View Full Landing Page & Features →')}
-          </a>
         </div>
 
         {/* Footer legal note */}

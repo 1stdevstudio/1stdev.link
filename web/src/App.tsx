@@ -47,7 +47,20 @@ const getInitialTab = (): TabType => {
 const getCachedSession = (): AuthSession | null => {
   try {
     const raw = localStorage.getItem('edgelink_cached_session');
-    return raw ? JSON.parse(raw) : null;
+    if (raw) return JSON.parse(raw);
+    const token = localStorage.getItem('edgelink_token');
+    if (token) {
+      // Standby session agar Welcome screen tidak pernah berkedip saat verifikasi token di background
+      return {
+        id: 'usr_standby',
+        handle: 'creator',
+        display_name: 'Creator',
+        email: '',
+        is_guest: true,
+        api_key: token,
+      };
+    }
+    return null;
   } catch {
     return null;
   }
@@ -81,12 +94,7 @@ export const App: React.FC = () => {
   const { tx } = useI18n();
   // Session State - Hydrate synchronous dari cache untuk mencegah flicker saat refresh
   const [session, setSession] = useState<AuthSession | null>(getCachedSession);
-  const [loadingSession, setLoadingSession] = useState<boolean>(() => {
-    const token = localStorage.getItem('edgelink_token');
-    const cached = getCachedSession();
-    // Hanya tampilkan loading layar penuh jika ada token tapi cache lokal belum siap sama sekali
-    return Boolean(token && !cached);
-  });
+  const [loadingSession, setLoadingSession] = useState<boolean>(false);
   const [startingGuest, setStartingGuest] = useState(false);
 
   // App Navigation Tab

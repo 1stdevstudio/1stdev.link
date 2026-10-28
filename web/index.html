@@ -104,13 +104,15 @@
     }
     </script>
   </head>
-  <body class="antialiased selection:bg-[#e9be54] selection:text-[#182822]">
+  <body class="antialiased selection:bg-[#e9be54] selection:text-[#182822]" style="background-color: #070e0c;">
+    <!-- React Root Mount -->
+    <div id="root"></div>
+
     <!--
-      Konten statis untuk crawler tanpa JavaScript (mesin jawab AI, pratinjau link).
-      React (createRoot) mengganti seluruh isi #root saat aplikasi dimuat. Bagian atas sengaja
-      identik dengan layar Welcome agar tidak ada lompatan tampilan; sisanya berada di bawah layar.
+      Konten statis untuk crawler / browser tanpa JavaScript (mesin jawab AI, pratinjau link).
+      Diletakkan di dalam <noscript> agar browser pengguna normal tidak me-render layar ini sebelum React termuat.
     -->
-    <div id="root">
+    <noscript>
       <main>
         <section class="min-h-screen flex items-center justify-center p-6 sm:p-8">
           <div class="w-full max-w-[440px] flex flex-col gap-6">
@@ -179,7 +181,7 @@
           <p class="text-[13px]">1stdev.link dibuat oleh <a class="text-[var(--ac)]" href="https://1stdev.space">1stdev.space</a>. <a class="text-[var(--ac)]" href="/llms.txt">Ringkasan untuk AI</a>.</p>
         </section>
       </main>
-    </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
