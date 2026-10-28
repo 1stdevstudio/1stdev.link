@@ -29,11 +29,10 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
     }
   }
 
-  const bg = style.bg || 'dark';
-  // Preset tema dari dashboard (profile.theme). style.bg/accent (editor v3) tetap menang bila diisi.
-  // Tema kosong/lama (mis. 'minimal-dark') memakai tema bawaan 1stdev.
-  const preset = style.bg ? undefined : THEME_PRESETS[profile.theme || ''] || THEME_PRESETS['1stnear'];
-  const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset?.accent || '#e9be54';
+  // Preset tema dari dashboard (profile.theme). Selalu gunakan preset untuk palet warna dasar.
+  const preset = THEME_PRESETS[profile.theme || ''] || THEME_PRESETS['1stnear'];
+  const bg = style.bg_image ? 'image' : (style.bg || preset.bg);
+  const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset.accent;
   const font = style.font || 'modern';
   const btn = style.btn || 'soft';
   const radius = typeof style.radius === 'number' ? Math.max(0, Math.min(32, style.radius)) : 8;
@@ -160,12 +159,13 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; scrollbar-width: none !important; -ms-overflow-style: none !important; }
+    ::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
     
     :root {
-      --bg: ${preset ? preset.bg : bg === 'light' ? '#f8fafc' : bg === 'gradient' ? 'linear-gradient(135deg, #0e1f1b 0%, #123f36 100%)' : '#07080c'};
-      --text: ${preset ? preset.text : bg === 'light' ? '#0f172a' : '#f2f3f7'};
-      --text-muted: ${preset ? preset.muted : bg === 'light' ? '#64748b' : '#b4b8c5'};
+      --bg: ${bgImage ? '#060a08' : preset.bg};
+      --text: ${bgImage ? '#f8fafc' : preset.text};
+      --text-muted: ${bgImage ? 'rgba(255, 255, 255, 0.7)' : preset.muted};
       --accent: ${accent};
       --radius: ${radius}px;
       --gap: ${gap}px;

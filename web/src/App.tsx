@@ -11,7 +11,7 @@ import { LinksScreen } from './components/screens/LinksScreen';
 import { HomeScreen } from './components/screens/HomeScreen';
 import { StatsScreen } from './components/screens/StatsScreen';
 import { AccountScreen } from './components/screens/AccountScreen';
-import { LivePhonePreview } from './components/LivePhonePreview';
+import { LivePhonePreview, THEME_STYLES } from './components/LivePhonePreview';
 import { Toast } from './components/Toast';
 import { LegalModal } from './components/LegalModal';
 
@@ -246,7 +246,18 @@ export const App: React.FC = () => {
   }, [links]);
 
   const handleUpdateTheme = (theme: string) => {
-    handleUpdateProfile({ theme });
+    const s = THEME_STYLES[theme] || THEME_STYLES['1stnear'];
+    const currentStyle = profile.style || {};
+    // Switch to chosen theme: clear custom wallpaper so the full theme palette takes effect
+    handleUpdateProfile({
+      theme,
+      style: {
+        ...currentStyle,
+        bg: theme === 'clean-paper' ? 'light' : 'dark',
+        bg_image: '',
+        accent: s.featBg,
+      },
+    });
   };
 
   const handleUpdateAvatarShape = (shape: 'circle' | 'squircle' | 'rounded') => {

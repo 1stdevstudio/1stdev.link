@@ -67,20 +67,15 @@
   }
 }
 
-/* Custom scrollbars */
+/* Hide all scrollbars globally while preserving full scrolling capabilities */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--r1);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Prototype-v2 component utility layer */
@@ -480,6 +475,13 @@ details.adv .body {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.phone::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .phone .avatar {

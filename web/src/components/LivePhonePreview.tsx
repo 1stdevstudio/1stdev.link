@@ -107,7 +107,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         className="phone relative overflow-hidden"
         style={{
           backgroundColor: theme.bg,
-          color: theme.text,
+          color: bgImage ? '#ffffff' : theme.text,
         }}
       >
         {/* Background Image Layer */}
@@ -240,8 +240,8 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
                   key={block.id}
                   className="pv-link flex items-center justify-center gap-1.5 text-[13px]"
                   style={{
-                    backgroundColor: theme.cardBg,
-                    color: theme.cardText,
+                    backgroundColor: bgImage ? 'rgba(255, 255, 255, 0.12)' : theme.cardBg,
+                    color: bgImage ? '#ffffff' : theme.cardText,
                   }}
                 >
                   <Link2 size={14} strokeWidth={1.75} className="opacity-60" />
