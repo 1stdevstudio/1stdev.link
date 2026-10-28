@@ -108,7 +108,31 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 }) => {
   const { tx, lang } = useI18n();
   const L = (pair: [string, string]) => (lang === 'en' ? pair[1] : pair[0]);
-  const [tab, setTab] = useState<BuilderTab>('content');
+  const [tab, setTab] = useState<BuilderTab>(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'content' || hash === 'design' || hash === 'preview') {
+      return hash as BuilderTab;
+    }
+    return (localStorage.getItem('edgelink_profile_tab') as BuilderTab) || 'content';
+  });
+
+  const handleSubTabChange = (newTab: BuilderTab) => {
+    setTab(newTab);
+    localStorage.setItem('edgelink_profile_tab', newTab);
+    window.location.hash = newTab;
+  };
+
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash.replace('#', '');
+      if (h === 'content' || h === 'design' || h === 'preview') {
+        setTab(h as BuilderTab);
+      }
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
   const [copied, setCopied] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingBg, setUploadingBg] = useState(false);
@@ -249,7 +273,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             aria-selected={tab === id}
             aria-controls={`panel-${id}`}
             className={mobileOnly ? 'tab-mobile' : ''}
-            onClick={() => setTab(id)}
+            onClick={() => handleSubTabChange(id)}
           >
             <Icon size={16} strokeWidth={1.9} />
             <span>{label}</span>

@@ -36,28 +36,65 @@ type SheetType =
   | 'device_transfer'
   | null;
 
-export const App: React.FC = () => {
-  const { tx } = useI18n();
-  // Session State
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [loadingSession, setLoadingSession] = useState(true);
-  const [startingGuest, setStartingGuest] = useState(false);
+// Persistensi Cache & Tab Navigation Helper
+const getInitialTab = (): TabType => {
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'design' || hash === 'preview' || hash === 'content' || hash === 'profile') return 'profile';
+  if (hash === 'home' || hash === 'links' || hash === 'stats' || hash === 'account') return hash as TabType;
+  return (localStorage.getItem('edgelink_tab') as TabType) || 'home';
+};
 
-  // App Navigation Tab
-  const [currentTab, setCurrentTab] = useState<TabType>(() => {
-    return (localStorage.getItem('edgelink_tab') as TabType) || 'home';
-  });
+const getCachedSession = (): AuthSession | null => {
+  try {
+    const raw = localStorage.getItem('edgelink_cached_session');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
 
-  // App Data
-  const [profile, setProfile] = useState<BioProfile>({
+const getCachedProfile = (): BioProfile => {
+  try {
+    const raw = localStorage.getItem('edgelink_cached_profile');
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {
     handle: 'creator',
     display_name: 'Edge Creator',
     bio: '',
     theme: '1stnear',
     avatar_shape: 'circle',
     verified_badge: false,
+  };
+};
+
+const getCachedLinks = (): LinkItem[] => {
+  try {
+    const raw = localStorage.getItem('edgelink_cached_links');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const App: React.FC = () => {
+  const { tx } = useI18n();
+  // Session State - Hydrate synchronous dari cache untuk mencegah flicker saat refresh
+  const [session, setSession] = useState<AuthSession | null>(getCachedSession);
+  const [loadingSession, setLoadingSession] = useState<boolean>(() => {
+    const token = localStorage.getItem('edgelink_token');
+    const cached = getCachedSession();
+    // Hanya tampilkan loading layar penuh jika ada token tapi cache lokal belum siap sama sekali
+    return Boolean(token && !cached);
   });
-  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [startingGuest, setStartingGuest] = useState(false);
+
+  // App Navigation Tab
+  const [currentTab, setCurrentTab] = useState<TabType>(getInitialTab);
+
+  // App Data - Hydrate synchronous dari cache
+  const [profile, setProfile] = useState<BioProfile>(getCachedProfile);
+  const [links, setLinks] = useState<LinkItem[]>(getCachedLinks);
 
   // Sheet Controls
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
@@ -74,21 +111,46 @@ export const App: React.FC = () => {
     }, 2500);
   };
 
-  // Change tab and persist
+  // Change tab and persist URL hash & localStorage
   const handleTabChange = (tab: TabType) => {
     setCurrentTab(tab);
     localStorage.setItem('edgelink_tab', tab);
+    if (tab !== 'profile') {
+      window.location.hash = tab;
+    } else {
+      const pTab = localStorage.getItem('edgelink_profile_tab') || 'content';
+      window.location.hash = pTab;
+    }
   };
 
-  // Load Session on Mount
+  // Sync hash changes (e.g. back/forward button)
+  useEffect(() => {
+    const onHash = () => {
+      const resolved = getInitialTab();
+      setCurrentTab(resolved);
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+
+  // Load / Revalidate Session on Mount (Background SWR)
   useEffect(() => {
     const checkSession = async () => {
-      setLoadingSession(true);
+      const token = localStorage.getItem('edgelink_token');
+      if (!token) {
+        setLoadingSession(false);
+        setSession(null);
+        return;
+      }
       try {
         const existing = await api.getExistingSession();
         if (existing) {
           setSession(existing);
+          localStorage.setItem('edgelink_cached_session', JSON.stringify(existing));
           await loadUserData();
+        } else {
+          setSession(null);
+          localStorage.removeItem('edgelink_cached_session');
         }
       } catch (err) {
         console.error('Failed to restore session:', err);
@@ -108,6 +170,8 @@ export const App: React.FC = () => {
       ]);
       setLinks(fetchedLinks);
       setProfile(fetchedProfile);
+      localStorage.setItem('edgelink_cached_links', JSON.stringify(fetchedLinks));
+      localStorage.setItem('edgelink_cached_profile', JSON.stringify(fetchedProfile));
     } catch (err) {
       console.error('Failed to load user data:', err);
     }
@@ -119,6 +183,7 @@ export const App: React.FC = () => {
     try {
       const newSession = await api.initSession();
       setSession(newSession);
+      localStorage.setItem('edgelink_cached_session', JSON.stringify(newSession));
       handleTabChange(goal);
       await loadUserData();
       showToast(tx('Sesi dimulai', 'Session started'));
@@ -133,6 +198,7 @@ export const App: React.FC = () => {
   // Auth / Session Transitions
   const handleLoginSuccess = async (newSession: AuthSession) => {
     setSession(newSession);
+    localStorage.setItem('edgelink_cached_session', JSON.stringify(newSession));
     await loadUserData();
     setActiveSheet(null);
   };
@@ -143,17 +209,33 @@ export const App: React.FC = () => {
     setLinks([]);
     setCurrentTab('profile');
     localStorage.removeItem('edgelink_tab');
+    localStorage.removeItem('edgelink_profile_tab');
+    localStorage.removeItem('edgelink_cached_session');
+    localStorage.removeItem('edgelink_cached_profile');
+    localStorage.removeItem('edgelink_cached_links');
+    window.location.hash = '';
     showToast(tx('Telah keluar dari akun', 'Logged out'));
   };
 
   // Profile Mutations
   const handleUpdateProfile = async (updated: Partial<BioProfile>) => {
     // Optimistic UI update
-    setProfile((prev) => ({ ...prev, ...updated }));
+    setProfile((prev) => {
+      const next = { ...prev, ...updated };
+      localStorage.setItem('edgelink_cached_profile', JSON.stringify(next));
+      return next;
+    });
     const saved = await api.updateBioProfile(updated);
     setProfile(saved);
+    localStorage.setItem('edgelink_cached_profile', JSON.stringify(saved));
     showToast(tx('Profil disimpan', 'Profile saved'));
   };
+
+  useEffect(() => {
+    if (links.length > 0) {
+      localStorage.setItem('edgelink_cached_links', JSON.stringify(links));
+    }
+  }, [links]);
 
   const handleUpdateTheme = (theme: string) => {
     handleUpdateProfile({ theme });
