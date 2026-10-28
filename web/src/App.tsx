@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from './api';
-import { AuthSession, BioProfile, LinkItem, BioBlockType } from './types';
+import { AuthSession, BioProfile, LinkItem, BioBlockType, BioProfileStyle } from './types';
 
 // Components
 import { Welcome } from './components/Welcome';
@@ -163,6 +163,12 @@ export const App: React.FC = () => {
     handleUpdateProfile({ avatar_shape: shape });
   };
 
+  const handleUpdateStyle = (stylePatch: Partial<BioProfileStyle>) => {
+    const currentStyle = profile.style || {};
+    const newStyle = { ...currentStyle, ...stylePatch };
+    handleUpdateProfile({ style: newStyle });
+  };
+
   // Link Mutations
   const handleCreateLink = async (payload: {
     destination_url: string;
@@ -319,6 +325,7 @@ export const App: React.FC = () => {
             onOpenSaveAccount={() => setActiveSheet('save_account')}
             onUpdateTheme={handleUpdateTheme}
             onUpdateAvatarShape={handleUpdateAvatarShape}
+            onUpdateStyle={handleUpdateStyle}
             onReorderLinks={handleReorderLinks}
             onDeleteLink={handleDeleteLink}
             onEditLink={setEditingLink}

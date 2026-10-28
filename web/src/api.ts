@@ -127,8 +127,8 @@ export class ApiClient {
     return res.json();
   }
 
-  /** Upload foto profil (byte gambar mentah, sudah di-resize di browser). Mengembalikan URL publik. */
-  async uploadAvatar(image: Blob): Promise<string> {
+  /** Upload media (avatar, cover, background) dalam byte gambar teroptimasi. */
+  async uploadMedia(image: Blob, type: 'avatar' | 'cover' | 'background' = 'avatar'): Promise<string> {
     if (this.useMock) {
       return await new Promise<string>((resolve, reject) => {
         const r = new FileReader();
@@ -137,12 +137,17 @@ export class ApiClient {
         r.readAsDataURL(image);
       });
     }
-    const res = await this.request<{ data: { url: string } }>('/api/media/avatar', {
+    const res = await this.request<{ data: { url: string } }>(`/api/media/${type}`, {
       method: 'POST',
       body: image,
       headers: { 'Content-Type': image.type || 'application/octet-stream' },
     });
     return res.data.url;
+  }
+
+  /** Upload foto profil (kompatibilitas mundur). */
+  async uploadAvatar(image: Blob): Promise<string> {
+    return this.uploadMedia(image, 'avatar');
   }
 
   // Session & Guest Onboarding

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../i18n/context';
 import {
   AlertTriangle,
@@ -21,9 +21,15 @@ import {
   LayoutList,
   Palette,
   Smartphone,
+  Image as ImageIcon,
+  Upload,
+  Sparkles,
+  Sliders,
 } from 'lucide-react';
-import { BioProfile, LinkItem } from '../../types';
+import { BioProfile, LinkItem, BioProfileStyle } from '../../types';
 import { THEME_STYLES, orderedBioLinks } from '../LivePhonePreview';
+import { api } from '../../api';
+import { prepareCover, prepareBackground } from '../../avatarImage';
 
 interface ProfileScreenProps {
   isGuest: boolean;
@@ -37,6 +43,7 @@ interface ProfileScreenProps {
   onOpenSaveAccount: () => void;
   onUpdateTheme: (theme: string) => void;
   onUpdateAvatarShape: (shape: 'circle' | 'squircle' | 'rounded') => void;
+  onUpdateStyle?: (style: Partial<BioProfileStyle>) => void;
   onReorderLinks: (links: LinkItem[]) => void;
   onDeleteLink: (id: string) => void;
   onEditLink: (link: LinkItem) => void;
@@ -93,6 +100,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onOpenSaveAccount,
   onUpdateTheme,
   onUpdateAvatarShape,
+  onUpdateStyle,
   onReorderLinks,
   onDeleteLink,
   onEditLink,
@@ -102,12 +110,81 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const L = (pair: [string, string]) => (lang === 'en' ? pair[1] : pair[0]);
   const [tab, setTab] = useState<BuilderTab>('content');
   const [copied, setCopied] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingBg, setUploadingBg] = useState(false);
+  const coverFileRef = useRef<HTMLInputElement>(null);
+  const bgFileRef = useRef<HTMLInputElement>(null);
 
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const shortHost = baseUrl.replace(/^https?:\/\//, '');
   const publicUrl = `${baseUrl}/@${profile.handle}`;
   const bioLinks = orderedBioLinks(links);
   const currentTheme = THEMES.some((x) => x.id === profile.theme) ? profile.theme : '1stnear';
+
+  const coverUrl = profile.style?.cover_url || (profile as any).cover_url || '';
+  const bgImage = profile.style?.bg_image || '';
+  const bgBlur = profile.style?.bg_blur ?? 0;
+  const bgDim = profile.style?.bg_dim ?? 0;
+  const activeBgFx = Array.isArray(profile.style?.bgfx) ? profile.style!.bgfx : [];
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (isGuest) {
+      onOpenSaveAccount();
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const blob = await prepareCover(file);
+      const url = await api.uploadMedia(blob, 'cover');
+      onUpdateStyle?.({ cover_url: url });
+      onToast(tx('Banner cover berhasil dipasang', 'Cover banner updated'));
+    } catch (err: any) {
+      onToast(err?.message || tx('Gagal mengunggah cover', 'Failed to upload cover'));
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const handleRemoveCover = () => {
+    onUpdateStyle?.({ cover_url: '' });
+    onToast(tx('Banner cover dihapus', 'Cover banner removed'));
+  };
+
+  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (isGuest) {
+      onOpenSaveAccount();
+      return;
+    }
+    setUploadingBg(true);
+    try {
+      const blob = await prepareBackground(file);
+      const url = await api.uploadMedia(blob, 'background');
+      onUpdateStyle?.({ bg_image: url, bg: 'image', bg_dim: bgDim || 40 });
+      onToast(tx('Gambar latar berhasil dipasang', 'Background image updated'));
+    } catch (err: any) {
+      onToast(err?.message || tx('Gagal mengunggah latar', 'Failed to upload background'));
+    } finally {
+      setUploadingBg(false);
+    }
+  };
+
+  const handleRemoveBg = () => {
+    onUpdateStyle?.({ bg_image: '', bg: 'dark' });
+    onToast(tx('Gambar latar dihapus', 'Background image removed'));
+  };
+
+  const handleToggleBgFx = (fxName: string) => {
+    const next = activeBgFx.includes(fxName)
+      ? activeBgFx.filter((x) => x !== fxName)
+      : [...activeBgFx, fxName];
+    onUpdateStyle?.({ bgfx: next });
+  };
 
   // Tab Pratinjau hanya ada di layar kecil; saat melebar, kembali ke Isi.
   useEffect(() => {
@@ -322,11 +399,211 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       )}
 
       {tab === 'design' && (
-        <section id="panel-design" role="tabpanel" aria-labelledby="tab-design" className="flex flex-col gap-5">
+        <section id="panel-design" role="tabpanel" aria-labelledby="tab-design" className="flex flex-col gap-6">
+          {/* Input file tersembunyi untuk cover & background */}
+          <input
+            ref={coverFileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleCoverUpload}
+          />
+          <input
+            ref={bgFileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleBgUpload}
+          />
+
           <button type="button" className="block-add" onClick={onOpenEditProfile}>
             <Pencil size={16} strokeWidth={1.9} />
             <span>{tx('Ubah nama, foto, bio, dan handle', 'Edit name, photo, bio, and handle')}</span>
           </button>
+
+          {/* 1. Banner Cover Header */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="sec-label">{tx('Banner Header (Cover)', 'Header Cover Banner')}</h3>
+              {coverUrl && (
+                <button
+                  type="button"
+                  onClick={handleRemoveCover}
+                  className="text-[12px] text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                >
+                  <Trash2 size={13} />
+                  <span>{tx('Hapus cover', 'Remove cover')}</span>
+                </button>
+              )}
+            </div>
+
+            {coverUrl ? (
+              <div className="relative rounded-[var(--r2)] overflow-hidden border border-white/10 group h-28 bg-[var(--s1)]">
+                <img src={coverUrl} alt="Cover Preview" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    type="button"
+                    disabled={uploadingCover}
+                    onClick={() => coverFileRef.current?.click()}
+                    className="px-3 py-1.5 rounded-full bg-white text-black font-semibold text-[12px] flex items-center gap-1.5 shadow"
+                  >
+                    <Upload size={13} />
+                    <span>{uploadingCover ? tx('Mengunggah...', 'Uploading...') : tx('Ganti cover', 'Change cover')}</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={uploadingCover}
+                onClick={() => coverFileRef.current?.click()}
+                className="flex items-center justify-center gap-2 p-4 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)] text-[13px] font-medium transition-colors border border-dashed border-white/15"
+              >
+                <Upload size={16} className="text-[var(--ac)]" />
+                <span>{uploadingCover ? tx('Mengunggah cover...', 'Uploading cover...') : tx('Upload Banner Cover Header (Rasio 3:1)', 'Upload Header Cover (3:1 ratio)')}</span>
+              </button>
+            )}
+          </div>
+
+          {/* 2. Wallpaper Latar Belakang (Custom Background) */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="sec-label">{tx('Gambar Latar (Wallpaper Belakang)', 'Background Image Wallpaper')}</h3>
+              {bgImage && (
+                <button
+                  type="button"
+                  onClick={handleRemoveBg}
+                  className="text-[12px] text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                >
+                  <Trash2 size={13} />
+                  <span>{tx('Hapus latar', 'Remove background')}</span>
+                </button>
+              )}
+            </div>
+
+            {bgImage ? (
+              <div className="flex flex-col gap-3 p-3.5 rounded-[var(--r2)] bg-[var(--s1)] border border-white/10">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <img src={bgImage} alt="Background Preview" className="w-12 h-12 rounded object-cover border border-white/10" />
+                    <div>
+                      <div className="text-[13px] font-medium text-[var(--tx)]">{tx('Gambar Latar Aktif', 'Active Background')}</div>
+                      <div className="text-[11px] text-[var(--tx3)]">{tx('Tersimpan di Cloudflare R2', 'Stored on Cloudflare R2')}</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={uploadingBg}
+                    onClick={() => bgFileRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded-[var(--r1)] bg-[var(--s2)] hover:bg-white/10 text-[12px] font-medium text-[var(--tx)] flex items-center gap-1 transition-colors"
+                  >
+                    <Upload size={12} />
+                    <span>{uploadingBg ? tx('Mengunggah...', 'Uploading...') : tx('Ganti foto', 'Change')}</span>
+                  </button>
+                </div>
+
+                {/* Kontrol Blur */}
+                <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
+                  <span className="text-[11px] font-semibold text-[var(--tx2)] uppercase tracking-wider">{tx('Efek Buram (Blur)', 'Blur Effect')}</span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { val: 0, label: tx('0px (Asli)', '0px') },
+                      { val: 4, label: tx('4px', '4px') },
+                      { val: 8, label: tx('8px', '8px') },
+                      { val: 16, label: tx('16px (Kabur)', '16px') },
+                    ].map((b) => (
+                      <button
+                        key={b.val}
+                        type="button"
+                        onClick={() => onUpdateStyle?.({ bg_blur: b.val })}
+                        className={`py-1 text-[11px] rounded-[var(--r1)] transition-colors ${
+                          bgBlur === b.val ? 'bg-[var(--ac)] text-[var(--ink)] font-bold' : 'bg-[var(--s2)] text-[var(--tx2)] hover:text-white'
+                        }`}
+                      >
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Kontrol Dim / Kegelapan */}
+                <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
+                  <span className="text-[11px] font-semibold text-[var(--tx2)] uppercase tracking-wider">{tx('Lapisan Gelap (Kontras Teks)', 'Dim Darkness')}</span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { val: 0, label: tx('0% (Terang)', '0%') },
+                      { val: 30, label: tx('30%', '30%') },
+                      { val: 60, label: tx('60%', '60%') },
+                      { val: 80, label: tx('80% (Pekat)', '80%') },
+                    ].map((d) => (
+                      <button
+                        key={d.val}
+                        type="button"
+                        onClick={() => onUpdateStyle?.({ bg_dim: d.val })}
+                        className={`py-1 text-[11px] rounded-[var(--r1)] transition-colors ${
+                          bgDim === d.val ? 'bg-[var(--ac)] text-[var(--ink)] font-bold' : 'bg-[var(--s2)] text-[var(--tx2)] hover:text-white'
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                disabled={uploadingBg}
+                onClick={() => bgFileRef.current?.click()}
+                className="flex items-center justify-center gap-2 p-4 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)] text-[13px] font-medium transition-colors border border-dashed border-white/15"
+              >
+                <ImageIcon size={16} className="text-[var(--ac)]" />
+                <span>{uploadingBg ? tx('Mengunggah latar...', 'Uploading background...') : tx('Upload Wallpaper Latar Belakang Layar Penuh', 'Upload Fullscreen Wallpaper Background')}</span>
+              </button>
+            )}
+          </div>
+
+          {/* 3. Efek Visual Tambahan (Aurora & Grain) */}
+          <div className="flex flex-col gap-2.5">
+            <h3 className="sec-label">{tx('Efek Atmosfer Latar', 'Background Atmosphere FX')}</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleToggleBgFx('aurora')}
+                className={`flex items-center justify-between p-3 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] transition-colors border ${
+                  activeBgFx.includes('aurora') ? 'border-[var(--ac)]' : 'border-transparent'
+                }`}
+              >
+                <div className="flex items-center gap-2 text-left">
+                  <Sparkles size={16} className="text-[var(--ac)]" />
+                  <div>
+                    <div className="text-[13px] font-medium text-[var(--tx)]">{tx('Aurora Wave', 'Aurora Wave')}</div>
+                    <div className="text-[11px] text-[var(--tx3)]">{tx('Ombak cahaya dinamis', 'Dynamic ambient glow')}</div>
+                  </div>
+                </div>
+                {activeBgFx.includes('aurora') && <Check size={14} className="text-[var(--ac)] shrink-0" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleToggleBgFx('grain')}
+                className={`flex items-center justify-between p-3 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] transition-colors border ${
+                  activeBgFx.includes('grain') ? 'border-[var(--ac)]' : 'border-transparent'
+                }`}
+              >
+                <div className="flex items-center gap-2 text-left">
+                  <Sliders size={16} className="text-[var(--ac)]" />
+                  <div>
+                    <div className="text-[13px] font-medium text-[var(--tx)]">{tx('Film Grain', 'Film Grain')}</div>
+                    <div className="text-[11px] text-[var(--tx3)]">{tx('Tekstur analog halus', 'Subtle analog texture')}</div>
+                  </div>
+                </div>
+                {activeBgFx.includes('grain') && <Check size={14} className="text-[var(--ac)] shrink-0" />}
+              </button>
+            </div>
+          </div>
+
+          {/* 4. Bentuk Foto */}
           <div className="flex flex-col gap-2.5">
             <h3 className="sec-label">{tx('Bentuk foto', 'Photo shape')}</h3>
             <div className="grid grid-cols-3 gap-2">
@@ -350,6 +627,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
           </div>
 
+          {/* 5. Preset Tema */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="sec-label">{tx('Tema', 'Theme')}</h3>

@@ -3,7 +3,7 @@ import { cors } from 'hono/cors';
 import type { Env, User, BioProfile, Link, CachedSlug, CachedBioProfile, OtpRecord } from './types.js';
 import { isReservedSlug, validateDestinationUrl, checkRateLimit, generateSecureOtp, sendOtpEmail } from './security.js';
 import { renderBioPage } from './bio.js';
-import { AVATAR_MAX_BYTES, sniffImage, contentHash, avatarPrefix, isValidMediaKey, mediaKeyFromUrl, pruneAvatars } from './media.js';
+import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, avatarPrefix, mediaPrefix, isValidMediaKey, mediaKeyFromUrl, pruneAvatars } from './media.js';
 import { renderDocsHtml } from './docs.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
@@ -142,22 +142,34 @@ app.get('/health', (c) => c.json({ status: 'ok', service: 'edgelink-worker' }));
 
 const MEDIA_CACHE = 'public, max-age=31536000, immutable';
 
-// Upload foto profil. Body = byte gambar mentah (browser sudah resize ke WebP 400x400).
-app.post('/api/media/avatar', apiAuthMiddleware, async (c) => {
+// Upload media (foto profil, cover banner, background).
+app.post('/api/media/:type', apiAuthMiddleware, async (c) => {
   const user = c.get('user') as User;
+  const rawType = c.req.param('type');
+  const typeMap: Record<string, { folder: string; maxBytes: number }> = {
+    avatar: { folder: 'avatars', maxBytes: AVATAR_MAX_BYTES },
+    cover: { folder: 'covers', maxBytes: MEDIA_MAX_BYTES },
+    background: { folder: 'backgrounds', maxBytes: MEDIA_MAX_BYTES },
+  };
+
+  const target = typeMap[rawType];
+  if (!target) {
+    return c.json({ status: 'error', message: 'Invalid media type. Allowed: avatar, cover, background' }, 400);
+  }
+
   if (!c.env.MEDIA) {
     return c.json({ status: 'error', message: 'Media storage is not available' }, 503);
   }
   if (user.is_guest) {
-    return c.json({ status: 'error', message: 'Save your account first to upload a photo' }, 403);
+    return c.json({ status: 'error', message: 'Save your account first to upload images' }, 403);
   }
 
   const declared = Number(c.req.header('Content-Length') || 0);
-  if (declared > AVATAR_MAX_BYTES) {
-    return c.json({ status: 'error', message: 'Image too large (max 512 KB)' }, 413);
+  if (declared > target.maxBytes) {
+    return c.json({ status: 'error', message: `Image too large (max ${Math.round(target.maxBytes / 1024)} KB)` }, 413);
   }
 
-  const rate = await checkRateLimit(c.env.KV, `rate:media:${user.id}`, 10, 3600);
+  const rate = await checkRateLimit(c.env.KV, `rate:media:${user.id}`, 20, 3600);
   if (!rate.allowed) {
     return c.json({ status: 'error', message: 'Too many uploads. Try again later.' }, 429);
   }
@@ -166,8 +178,8 @@ app.post('/api/media/avatar', apiAuthMiddleware, async (c) => {
   if (buf.byteLength === 0) {
     return c.json({ status: 'error', message: 'Empty body' }, 400);
   }
-  if (buf.byteLength > AVATAR_MAX_BYTES) {
-    return c.json({ status: 'error', message: 'Image too large (max 512 KB)' }, 413);
+  if (buf.byteLength > target.maxBytes) {
+    return c.json({ status: 'error', message: `Image too large (max ${Math.round(target.maxBytes / 1024)} KB)` }, 413);
   }
 
   const kind = sniffImage(new Uint8Array(buf, 0, Math.min(16, buf.byteLength)));
@@ -175,16 +187,16 @@ app.post('/api/media/avatar', apiAuthMiddleware, async (c) => {
     return c.json({ status: 'error', message: 'Only WebP, JPEG, or PNG images are allowed' }, 415);
   }
 
-  const key = `${avatarPrefix(user.id)}${await contentHash(buf)}.${kind.ext}`;
+  const key = `${mediaPrefix(target.folder, user.id)}${await contentHash(buf)}.${kind.ext}`;
   await c.env.MEDIA.put(key, buf, { httpMetadata: { contentType: kind.mime, cacheControl: MEDIA_CACHE } });
 
   const base = (c.env.BASE_URL || new URL(c.req.url).origin).replace(/\/$/, '');
   return c.json({ status: 'success', data: { url: `${base}/m/${key}` } });
 });
 
-// Sajikan media publik. Nama file = hash isi, jadi aman di-cache selamanya.
-app.get('/m/avatars/:uid/:file', async (c) => {
-  const key = `avatars/${c.req.param('uid')}/${c.req.param('file')}`;
+// Sajikan media publik (avatars, covers, backgrounds). Nama file = hash isi, jadi aman di-cache selamanya.
+app.get('/m/:folder/:uid/:file', async (c) => {
+  const key = `${c.req.param('folder')}/${c.req.param('uid')}/${c.req.param('file')}`;
   if (!c.env.MEDIA || !isValidMediaKey(key)) return c.text('Not found', 404);
 
   const obj = await c.env.MEDIA.get(key);

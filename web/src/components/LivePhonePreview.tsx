@@ -88,6 +88,10 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
   const theme = THEME_STYLES[profile.theme || ''] || THEME_STYLES['1stnear'];
 
   const bioLinks = orderedBioLinks(links);
+  const coverUrl = profile.style?.cover_url || (profile as any).cover_url;
+  const bgImage = profile.style?.bg_image;
+  const bgBlur = profile.style?.bg_blur ?? 0;
+  const bgDim = (profile.style?.bg_dim ?? 0) / 100;
 
   const getShapeRadius = (shape?: string) => {
     // Sama dengan default server (bio.ts): bentuk kosong = bulat.
@@ -100,22 +104,51 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
     <div className="flex flex-col items-center gap-3">
       {/* Smartphone frame */}
       <div
-        className="phone"
+        className="phone relative overflow-hidden"
         style={{
           backgroundColor: theme.bg,
           color: theme.text,
         }}
       >
-        {/* Notch / Speaker bar */}
-        <div className="w-16 h-1 rounded-full bg-white/20 mb-2 shrink-0" />
+        {/* Background Image Layer */}
+        {bgImage && (
+          <div
+            className="absolute inset-0 pointer-events-none z-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${bgImage})`,
+              filter: bgBlur > 0 ? `blur(${bgBlur}px)` : 'none',
+              transform: bgBlur > 0 ? 'scale(1.08)' : 'none',
+            }}
+          />
+        )}
+        {/* Background Dim / Overlay */}
+        {bgImage && bgDim > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{ backgroundColor: `rgba(0, 0, 0, ${bgDim})` }}
+          />
+        )}
+
+        {/* Cover Banner */}
+        {coverUrl ? (
+          <div className="w-full h-24 shrink-0 overflow-hidden relative z-10 -mt-6 mb-2">
+            <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
+          </div>
+        ) : (
+          /* Notch / Speaker bar */
+          <div className="w-16 h-1 rounded-full bg-white/20 mb-2 shrink-0 relative z-10" />
+        )}
 
         {/* Profile Avatar */}
         <div
-          className="w-16 h-16 shrink-0 grid place-items-center font-bold text-xl overflow-hidden shadow-md"
+          className="w-16 h-16 shrink-0 grid place-items-center font-bold text-xl overflow-hidden shadow-md relative z-10"
           style={{
             borderRadius: getShapeRadius(profile.avatar_shape),
             backgroundColor: theme.featBg,
             color: theme.featText,
+            marginTop: coverUrl ? '-2rem' : '0',
+            border: coverUrl ? '3px solid rgba(0,0,0,0.4)' : 'none',
           }}
         >
           {profile.avatar_url ? (
@@ -130,7 +163,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         </div>
 
         {/* Name & Handle */}
-        <div className="flex flex-col items-center text-center mt-1 w-full px-2">
+        <div className="flex flex-col items-center text-center mt-1 w-full px-2 relative z-10">
           <div className="flex items-center gap-1 font-semibold text-[15px] truncate max-w-full">
             <span className="truncate">{profile.display_name || 'Edge Creator'}</span>
             {profile.verified_badge ? (
@@ -148,7 +181,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         </div>
 
         {/* Blocks list */}
-        <div className="flex flex-col gap-2 w-full mt-3">
+        <div className="flex flex-col gap-2 w-full mt-3 relative z-10">
           {bioLinks.length === 0 ? (
             <div className="p-4 text-center text-[12px] opacity-40">
               {tx('Belum ada link yang ditampilkan', 'No links to show yet')}

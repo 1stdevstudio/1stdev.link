@@ -3,6 +3,7 @@
 // agar tetap di bawah batas CPU paket gratis.
 
 export const AVATAR_MAX_BYTES = 512 * 1024;
+export const MEDIA_MAX_BYTES = 1024 * 1024; // 1 MB untuk cover dan background
 
 export type ImageKind = { mime: 'image/webp' | 'image/jpeg' | 'image/png'; ext: 'webp' | 'jpg' | 'png' };
 
@@ -35,10 +36,11 @@ export async function contentHash(buf: ArrayBuffer): Promise<string> {
 }
 
 export const avatarPrefix = (userId: string) => `avatars/${userId}/`;
+export const mediaPrefix = (folder: string, userId: string) => `${folder}/${userId}/`;
 
 /** Kunci R2 yang sah untuk dibaca publik; mencegah path traversal dan akses kunci lain. */
 export function isValidMediaKey(key: string): boolean {
-  return /^avatars\/[A-Za-z0-9_-]{1,64}\/[a-f0-9]{16}\.(webp|jpg|png)$/.test(key);
+  return /^(avatars|covers|backgrounds)\/[A-Za-z0-9_-]{1,64}\/[a-f0-9]{16}\.(webp|jpg|png)$/.test(key);
 }
 
 /** Ambil kunci R2 dari URL media milik kita, atau null bila URL bukan media kita. */
