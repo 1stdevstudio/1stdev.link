@@ -59,7 +59,7 @@ const THEMES: { id: string; name: [string, string] }[] = [
   { id: 'aurora-emerald', name: ['Hutan', 'Forest'] },
   { id: 'midnight-neon', name: ['Senja', 'Dusk'] },
   { id: 'cyber-matrix', name: ['Samudra', 'Ocean'] },
-  { id: 'rose-gold', name: ['Pasir', 'Sand'] },
+  { id: 'rose-gold', name: ['Mawar', 'Rose Gold'] },
 ];
 
 const SHAPES: { id: 'circle' | 'squircle' | 'rounded'; label: [string, string]; radius: string }[] = [

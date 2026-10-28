@@ -1,15 +1,15 @@
 import type { BioProfile, Link } from './types.js';
 import { escapeHtml, renderBioSeoHead } from './seo.js';
 
-/** Sama dengan THEMES di web/src/components/screens/ProfileScreen.tsx. */
+/** Sama dengan THEMES di web/src/components/screens/ProfileScreen.tsx dan LivePhonePreview.tsx. */
 const THEME_PRESETS: Record<string, { bg: string; text: string; muted: string; accent: string }> = {
   '1stnear': { bg: '#0e1f1b', text: '#e8efea', muted: '#a9b8b0', accent: '#e9be54' },
-  obsidian: { bg: '#0b0c12', text: '#f2f3f7', muted: '#b4b8c5', accent: '#7c8cff' },
+  obsidian: { bg: '#07080c', text: '#f2f3f7', muted: '#8b90a0', accent: '#7c8cff' },
   'clean-paper': { bg: '#f4f4f2', text: '#111111', muted: '#5f6368', accent: '#111111' },
-  'aurora-emerald': { bg: '#0f1f1a', text: '#bff3d8', muted: '#86b8a0', accent: '#34d399' },
-  'midnight-neon': { bg: '#1a1024', text: '#e9d5ff', muted: '#b39cc9', accent: '#c084fc' },
-  'cyber-matrix': { bg: '#101826', text: '#bfdbfe', muted: '#8ea6c4', accent: '#60a5fa' },
-  'rose-gold': { bg: '#1f1a12', text: '#fde68a', muted: '#c2ad7a', accent: '#fbbf24' },
+  'aurora-emerald': { bg: '#06140f', text: '#e6f7f0', muted: '#6ee7b7', accent: '#10b981' },
+  'midnight-neon': { bg: '#0b0f19', text: '#f1f5f9', muted: '#94a3b8', accent: '#a855f7' },
+  'cyber-matrix': { bg: '#0a121e', text: '#f0f6fc', muted: '#93c5fd', accent: '#38bdf8' },
+  'rose-gold': { bg: '#14090d', text: '#fdf2f8', muted: '#f472b6', accent: '#f472b6' },
 };
 
 export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: string = '', acceptLanguage: string = ''): string {
