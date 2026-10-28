@@ -174,7 +174,6 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
   // Zoom dengan scroll mouse / trackpad
   const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
     const delta = e.deltaY < 0 ? 0.08 : -0.08;
     handleZoomChange(zoom + delta);
   };

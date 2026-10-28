@@ -42,6 +42,10 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    if (isGuest && onSaveAccount) {
+      onSaveAccount();
+      return;
+    }
     setError(null);
     setCropFile(file);
   };
