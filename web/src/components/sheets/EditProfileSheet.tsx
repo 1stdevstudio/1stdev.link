@@ -4,7 +4,7 @@ import { Sheet } from '../Sheet';
 import { BioProfile } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { api } from '../../api';
-import { prepareAvatar } from '../../avatarImage';
+import { ImageCropperModal } from '../ImageCropperModal';
 
 interface EditProfileSheetProps {
   isOpen: boolean;
@@ -35,17 +35,24 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
     setError(null);
+    setCropFile(file);
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setCropFile(null);
     setUploading(true);
+    setError(null);
     try {
-      const blob = await prepareAvatar(file);
-      setAvatarUrl(await api.uploadAvatar(blob));
+      const url = await api.uploadMedia(croppedBlob, 'avatar');
+      setAvatarUrl(url);
       setShowAvatarInput(false);
     } catch (err: any) {
       const msg = err?.message;
@@ -218,12 +225,20 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
 
         <button
           type="submit"
-          disabled={loading || uploading}
+          disabled={loading || uploading || !displayName.trim() || !handle.trim()}
           className="btn btn-p btn-w mt-2 disabled:opacity-50"
         >
           {loading ? tx('Menyimpan...', 'Saving...') : tx('Simpan', 'Save')}
         </button>
       </form>
+
+      <ImageCropperModal
+        isOpen={Boolean(cropFile)}
+        imageFile={cropFile}
+        cropType="avatar"
+        onCropComplete={handleCropComplete}
+        onCancel={() => setCropFile(null)}
+      />
     </Sheet>
   );
 };

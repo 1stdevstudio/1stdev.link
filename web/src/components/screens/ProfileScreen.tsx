@@ -29,7 +29,7 @@ import {
 import { BioProfile, LinkItem, BioProfileStyle } from '../../types';
 import { THEME_STYLES, orderedBioLinks } from '../LivePhonePreview';
 import { api } from '../../api';
-import { prepareCover, prepareBackground } from '../../avatarImage';
+import { ImageCropperModal } from '../ImageCropperModal';
 
 interface ProfileScreenProps {
   isGuest: boolean;
@@ -112,6 +112,12 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const [copied, setCopied] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingBg, setUploadingBg] = useState(false);
+  const [cropState, setCropState] = useState<{
+    isOpen: boolean;
+    file: File | null;
+    type: 'cover' | 'background';
+  }>({ isOpen: false, file: null, type: 'cover' });
+
   const coverFileRef = useRef<HTMLInputElement>(null);
   const bgFileRef = useRef<HTMLInputElement>(null);
 
@@ -127,7 +133,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   const bgDim = profile.style?.bg_dim ?? 0;
   const activeBgFx = Array.isArray(profile.style?.bgfx) ? profile.style!.bgfx : [];
 
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
@@ -135,43 +141,52 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       onOpenSaveAccount();
       return;
     }
-    setUploadingCover(true);
-    try {
-      const blob = await prepareCover(file);
-      const url = await api.uploadMedia(blob, 'cover');
-      onUpdateStyle?.({ cover_url: url });
-      onToast(tx('Banner cover berhasil dipasang', 'Cover banner updated'));
-    } catch (err: any) {
-      onToast(err?.message || tx('Gagal mengunggah cover', 'Failed to upload cover'));
-    } finally {
-      setUploadingCover(false);
+    setCropState({ isOpen: true, file, type: 'cover' });
+  };
+
+  const handleBgSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (isGuest) {
+      onOpenSaveAccount();
+      return;
+    }
+    setCropState({ isOpen: true, file, type: 'background' });
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    const currentType = cropState.type;
+    setCropState({ isOpen: false, file: null, type: 'cover' });
+
+    if (currentType === 'cover') {
+      setUploadingCover(true);
+      try {
+        const url = await api.uploadMedia(croppedBlob, 'cover');
+        onUpdateStyle?.({ cover_url: url });
+        onToast(tx('Banner cover berhasil dipasang', 'Cover banner updated'));
+      } catch (err: any) {
+        onToast(err?.message || tx('Gagal mengunggah cover', 'Failed to upload cover'));
+      } finally {
+        setUploadingCover(false);
+      }
+    } else {
+      setUploadingBg(true);
+      try {
+        const url = await api.uploadMedia(croppedBlob, 'background');
+        onUpdateStyle?.({ bg_image: url, bg: 'image', bg_dim: bgDim || 40 });
+        onToast(tx('Gambar latar berhasil dipasang', 'Background image updated'));
+      } catch (err: any) {
+        onToast(err?.message || tx('Gagal mengunggah latar', 'Failed to upload background'));
+      } finally {
+        setUploadingBg(false);
+      }
     }
   };
 
   const handleRemoveCover = () => {
     onUpdateStyle?.({ cover_url: '' });
     onToast(tx('Banner cover dihapus', 'Cover banner removed'));
-  };
-
-  const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    if (isGuest) {
-      onOpenSaveAccount();
-      return;
-    }
-    setUploadingBg(true);
-    try {
-      const blob = await prepareBackground(file);
-      const url = await api.uploadMedia(blob, 'background');
-      onUpdateStyle?.({ bg_image: url, bg: 'image', bg_dim: bgDim || 40 });
-      onToast(tx('Gambar latar berhasil dipasang', 'Background image updated'));
-    } catch (err: any) {
-      onToast(err?.message || tx('Gagal mengunggah latar', 'Failed to upload background'));
-    } finally {
-      setUploadingBg(false);
-    }
   };
 
   const handleRemoveBg = () => {
@@ -406,14 +421,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             type="file"
             accept="image/jpeg,image/png,image/webp"
             className="hidden"
-            onChange={handleCoverUpload}
+            onChange={handleCoverSelect}
           />
           <input
             ref={bgFileRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
             className="hidden"
-            onChange={handleBgUpload}
+            onChange={handleBgSelect}
           />
 
           <button type="button" className="block-add" onClick={onOpenEditProfile}>
@@ -669,6 +684,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           {preview}
         </section>
       )}
+
+      {/* Modal Pemotong Gambar Interaktif (Crop sesuai ukuran sebelum upload & simpan) */}
+      <ImageCropperModal
+        isOpen={cropState.isOpen}
+        imageFile={cropState.file}
+        cropType={cropState.type}
+        onCropComplete={handleCropComplete}
+        onCancel={() => setCropState({ isOpen: false, file: null, type: 'cover' })}
+      />
     </div>
   );
 };
