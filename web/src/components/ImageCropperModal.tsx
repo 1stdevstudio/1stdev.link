@@ -290,11 +290,11 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
       }}
     >
       <div
-        className="w-full max-w-lg rounded-[var(--r3)] bg-[#10221c] border border-white/10 shadow-2xl flex flex-col overflow-hidden animate-scale-up"
+        className="w-full max-w-lg rounded-[var(--r3)] bg-[#10221c] flex flex-col overflow-hidden animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modal */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#0d1a16]">
+        <div className="flex items-center justify-between px-5 py-4 bg-[#0d1a16]">
           <div>
             <h2 className="text-[16px] font-semibold text-white tracking-tight">{L(config.title)}</h2>
             <p className="text-[12px] text-[var(--tx3)] mt-0.5">{L(config.desc)}</p>
@@ -370,7 +370,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         </div>
 
         {/* Zoom & Reset Controls */}
-        <div className="px-5 py-3.5 bg-[#0e1f1a] border-t border-white/5 flex items-center justify-between gap-4">
+        <div className="px-5 py-3.5 bg-[#0e1f1a] flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 flex-1 max-w-[280px]">
             <button
               type="button"
@@ -413,7 +413,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-2.5 px-5 py-3.5 bg-[#0d1a16] border-t border-white/10">
+        <div className="flex items-center justify-end gap-2.5 px-5 py-3.5 bg-[#0d1a16]">
           <button
             type="button"
             disabled={isProcessing}
@@ -426,7 +426,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
             type="button"
             disabled={isProcessing}
             onClick={handleConfirmCrop}
-            className="px-5 py-2 rounded-[var(--r2)] text-[13px] font-bold bg-[var(--ac)] text-[var(--ink)] hover:brightness-105 transition-all shadow-md flex items-center gap-1.5"
+            className="px-5 py-2 rounded-[var(--r2)] text-[13px] font-bold bg-[var(--ac)] text-[var(--ink)] hover:brightness-105 transition-all flex items-center gap-1.5"
           >
             <Check size={16} strokeWidth={2.5} />
             <span>{isProcessing ? tx('Memotong...', 'Cropping...') : tx('Gunakan Potongan', 'Set Photo')}</span>

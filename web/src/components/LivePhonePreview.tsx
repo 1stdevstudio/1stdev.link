@@ -142,13 +142,12 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
 
         {/* Profile Avatar */}
         <div
-          className="w-16 h-16 shrink-0 grid place-items-center font-bold text-xl overflow-hidden shadow-md relative z-10"
+          className="w-16 h-16 shrink-0 grid place-items-center font-bold text-xl overflow-hidden relative z-10"
           style={{
             borderRadius: getShapeRadius(profile.avatar_shape),
             backgroundColor: theme.featBg,
             color: theme.featText,
             marginTop: coverUrl ? '-2rem' : '0',
-            border: coverUrl ? '3px solid rgba(0,0,0,0.4)' : 'none',
           }}
         >
           {profile.avatar_url ? (

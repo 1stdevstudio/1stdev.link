@@ -99,7 +99,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         )}
 
         <div className="flex items-center gap-3">
-          <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden grid place-items-center bg-[var(--ac)] text-[var(--ink)] text-xl font-bold shadow-lg shadow-black/30">
+          <div className="w-16 h-16 shrink-0 rounded-full overflow-hidden grid place-items-center bg-[var(--ac)] text-[var(--ink)] text-xl font-bold">
             {avatarUrl ? (
               <img
                 src={avatarUrl}

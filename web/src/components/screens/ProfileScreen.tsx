@@ -453,14 +453,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
 
             {coverUrl ? (
-              <div className="relative rounded-[var(--r2)] overflow-hidden border border-white/10 group h-28 bg-[var(--s1)]">
+              <div className="relative rounded-[var(--r2)] overflow-hidden group h-28 bg-[var(--s1)]">
                 <img src={coverUrl} alt="Cover Preview" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"
                     disabled={uploadingCover}
                     onClick={() => coverFileRef.current?.click()}
-                    className="px-3 py-1.5 rounded-full bg-white text-black font-semibold text-[12px] flex items-center gap-1.5 shadow"
+                    className="px-3.5 py-1.5 rounded-full bg-white text-black font-semibold text-[12px] flex items-center gap-1.5"
                   >
                     <Upload size={13} />
                     <span>{uploadingCover ? tx('Mengunggah...', 'Uploading...') : tx('Ganti cover', 'Change cover')}</span>
@@ -472,7 +472,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 type="button"
                 disabled={uploadingCover}
                 onClick={() => coverFileRef.current?.click()}
-                className="flex items-center justify-center gap-2 p-4 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)] text-[13px] font-medium transition-colors border border-dashed border-white/15"
+                className="flex items-center justify-center gap-2 p-4 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)] text-[13px] font-medium transition-colors"
               >
                 <Upload size={16} className="text-[var(--ac)]" />
                 <span>{uploadingCover ? tx('Mengunggah cover...', 'Uploading cover...') : tx('Upload Banner Cover Header (Rasio 3:1)', 'Upload Header Cover (3:1 ratio)')}</span>
@@ -497,10 +497,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
 
             {bgImage ? (
-              <div className="flex flex-col gap-3 p-3.5 rounded-[var(--r2)] bg-[var(--s1)] border border-white/10">
+              <div className="flex flex-col gap-3.5 p-4 rounded-[var(--r2)] bg-[var(--s1)]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <img src={bgImage} alt="Background Preview" className="w-12 h-12 rounded object-cover border border-white/10" />
+                    <img src={bgImage} alt="Background Preview" className="w-12 h-12 rounded object-cover" />
                     <div>
                       <div className="text-[13px] font-medium text-[var(--tx)]">{tx('Gambar Latar Aktif', 'Active Background')}</div>
                       <div className="text-[11px] text-[var(--tx3)]">{tx('Tersimpan di Cloudflare R2', 'Stored on Cloudflare R2')}</div>
@@ -510,7 +510,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                     type="button"
                     disabled={uploadingBg}
                     onClick={() => bgFileRef.current?.click()}
-                    className="px-2.5 py-1.5 rounded-[var(--r1)] bg-[var(--s2)] hover:bg-white/10 text-[12px] font-medium text-[var(--tx)] flex items-center gap-1 transition-colors"
+                    className="px-3 py-1.5 rounded-[var(--r1)] bg-[var(--s2)] hover:bg-[#1a382e] text-[12px] font-medium text-[var(--tx)] flex items-center gap-1.5 transition-colors"
                   >
                     <Upload size={12} />
                     <span>{uploadingBg ? tx('Mengunggah...', 'Uploading...') : tx('Ganti foto', 'Change')}</span>
@@ -518,7 +518,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 </div>
 
                 {/* Kontrol Blur */}
-                <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
+                <div className="flex flex-col gap-1.5 pt-1">
                   <span className="text-[11px] font-semibold text-[var(--tx2)] uppercase tracking-wider">{tx('Efek Buram (Blur)', 'Blur Effect')}</span>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
@@ -542,7 +542,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 </div>
 
                 {/* Kontrol Dim / Kegelapan */}
-                <div className="flex flex-col gap-1.5 pt-2 border-t border-white/5">
+                <div className="flex flex-col gap-1.5 pt-1">
                   <span className="text-[11px] font-semibold text-[var(--tx2)] uppercase tracking-wider">{tx('Lapisan Gelap (Kontras Teks)', 'Dim Darkness')}</span>
                   <div className="grid grid-cols-4 gap-1.5">
                     {[
@@ -570,7 +570,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 type="button"
                 disabled={uploadingBg}
                 onClick={() => bgFileRef.current?.click()}
-                className="flex items-center justify-center gap-2 p-4 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)] text-[13px] font-medium transition-colors border border-dashed border-white/15"
+                className="flex items-center justify-center gap-2 p-4 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)] text-[13px] font-medium transition-colors"
               >
                 <ImageIcon size={16} className="text-[var(--ac)]" />
                 <span>{uploadingBg ? tx('Mengunggah latar...', 'Uploading background...') : tx('Upload Wallpaper Latar Belakang Layar Penuh', 'Upload Fullscreen Wallpaper Background')}</span>
@@ -585,11 +585,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               <button
                 type="button"
                 onClick={() => handleToggleBgFx('aurora')}
-                className={`flex items-center justify-between p-3 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] transition-colors border ${
-                  activeBgFx.includes('aurora') ? 'border-[var(--ac)]' : 'border-transparent'
-                }`}
+                className={`flex items-center justify-between p-3.5 rounded-[var(--r2)] ${
+                  activeBgFx.includes('aurora') ? 'bg-[#18332a]' : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
+                } transition-colors`}
               >
-                <div className="flex items-center gap-2 text-left">
+                <div className="flex items-center gap-2.5 text-left">
                   <Sparkles size={16} className="text-[var(--ac)]" />
                   <div>
                     <div className="text-[13px] font-medium text-[var(--tx)]">{tx('Aurora Wave', 'Aurora Wave')}</div>
@@ -602,11 +602,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               <button
                 type="button"
                 onClick={() => handleToggleBgFx('grain')}
-                className={`flex items-center justify-between p-3 rounded-[var(--r2)] bg-[var(--s1)] hover:bg-[var(--s2)] transition-colors border ${
-                  activeBgFx.includes('grain') ? 'border-[var(--ac)]' : 'border-transparent'
-                }`}
+                className={`flex items-center justify-between p-3.5 rounded-[var(--r2)] ${
+                  activeBgFx.includes('grain') ? 'bg-[#18332a]' : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
+                } transition-colors`}
               >
-                <div className="flex items-center gap-2 text-left">
+                <div className="flex items-center gap-2.5 text-left">
                   <Sliders size={16} className="text-[var(--ac)]" />
                   <div>
                     <div className="text-[13px] font-medium text-[var(--tx)]">{tx('Film Grain', 'Film Grain')}</div>
