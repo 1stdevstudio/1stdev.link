@@ -101,7 +101,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
   const getCropBoxDimensions = useCallback(() => {
     if (!containerRef.current) return { width: 300, height: 300 };
     const rect = containerRef.current.getBoundingClientRect();
-    const pad = 32;
+    const pad = 36;
     const maxW = Math.max(100, rect.width - pad);
     const maxH = Math.max(100, rect.height - pad);
 
@@ -116,7 +116,35 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     return { width: Math.round(w), height: Math.round(h) };
   }, [config.aspectRatio]);
 
-  // Event handler drag (pointer)
+  // Kunci batas pan agar gambar tidak pernah keluar atau bocor dari area crop (snap boundary lock)
+  const clampPan = useCallback(
+    (targetX: number, targetY: number, targetZoom: number) => {
+      if (!naturalSize.w || !naturalSize.h) return { x: 0, y: 0 };
+      const cropBox = getCropBoxDimensions();
+
+      const baseScale = Math.max(cropBox.width / naturalSize.w, cropBox.height / naturalSize.h);
+      const displayW = naturalSize.w * baseScale * targetZoom;
+      const displayH = naturalSize.h * baseScale * targetZoom;
+
+      const maxPanX = Math.max(0, (displayW - cropBox.width) / 2);
+      const maxPanY = Math.max(0, (displayH - cropBox.height) / 2);
+
+      return {
+        x: Math.min(maxPanX, Math.max(-maxPanX, targetX)),
+        y: Math.min(maxPanY, Math.max(-maxPanY, targetY)),
+      };
+    },
+    [naturalSize, getCropBoxDimensions]
+  );
+
+  // Ubah zoom dengan penyesuaian clamp pan seketika
+  const handleZoomChange = (newZoom: number) => {
+    const clampedZoom = Math.min(3, Math.max(1, +newZoom.toFixed(2)));
+    setZoom(clampedZoom);
+    setPan((curr) => clampPan(curr.x, curr.y, clampedZoom));
+  };
+
+  // Event handler drag (pointer) dengan batas terkunci
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -129,10 +157,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     if (!isDragging) return;
     const dx = e.clientX - dragStartRef.current.x;
     const dy = e.clientY - dragStartRef.current.y;
-    setPan({
-      x: initialPanRef.current.x + dx,
-      y: initialPanRef.current.y + dy,
-    });
+    const nextX = initialPanRef.current.x + dx;
+    const nextY = initialPanRef.current.y + dy;
+
+    setPan(clampPan(nextX, nextY, zoom));
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -144,7 +172,14 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
     }
   };
 
-  // Reset posisi & zoom
+  // Zoom dengan scroll mouse / trackpad
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.08 : -0.08;
+    handleZoomChange(zoom + delta);
+  };
+
+  // Reset posisi & zoom ke tengah sempurna
   const handleReset = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
@@ -162,34 +197,25 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
       const cropBox = getCropBoxDimensions();
 
-      // Hitung skala tampilan gambar di container
-      // Gambar ditampilkan dengan CSS object-contain atau skala base
+      // Hitung skala tampilan gambar dalam kotak crop
       const baseScale = Math.max(cropBox.width / naturalSize.w, cropBox.height / naturalSize.h);
       const totalScale = baseScale * zoom;
 
-      // Pusat crop box berada di tengah container
-      // Koordinat crop box relatif terhadap titik pusat gambar:
-      // dx, dy gambar dari pan:
       const displayW = naturalSize.w * totalScale;
       const displayH = naturalSize.h * totalScale;
 
-      // Titik tengah gambar di layar:
-      const imgCenterX = displayW / 2 + pan.x;
-      const imgCenterY = displayH / 2 + pan.y;
+      // Jarak dari tepi kiri gambar ke tepi kiri kotak potong (dalam display px)
+      const cropOffsetDisplayX = (displayW - cropBox.width) / 2 - pan.x;
+      const cropOffsetDisplayY = (displayH - cropBox.height) / 2 - pan.y;
 
-      // Titik tengah crop box di layar:
-      const boxCenterX = cropBox.width / 2;
-      const boxCenterY = cropBox.height / 2;
+      // Konversi ke koordinat gambar asli dengan batas presisi
+      const maxSourceW = cropBox.width / totalScale;
+      const maxSourceH = cropBox.height / totalScale;
 
-      // Offset crop relatif ke gambar (dalam koordinat display)
-      const cropDisplayX = imgCenterX - boxCenterX;
-      const cropDisplayY = imgCenterY - boxCenterY;
-
-      // Konversi ke koordinat gambar asli
-      const sourceX = cropDisplayX / totalScale;
-      const sourceY = cropDisplayY / totalScale;
-      const sourceW = cropBox.width / totalScale;
-      const sourceH = cropBox.height / totalScale;
+      const sourceX = Math.max(0, Math.min(naturalSize.w - maxSourceW, cropOffsetDisplayX / totalScale));
+      const sourceY = Math.max(0, Math.min(naturalSize.h - maxSourceH, cropOffsetDisplayY / totalScale));
+      const sourceW = Math.min(naturalSize.w - sourceX, maxSourceW);
+      const sourceH = Math.min(naturalSize.h - sourceY, maxSourceH);
 
       const canvas = document.createElement('canvas');
       canvas.width = config.outWidth;
@@ -219,7 +245,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
       let resultBlob: Blob | null = null;
       for (const [type, q] of [
-        ['image/webp', 0.85],
+        ['image/webp', 0.86],
         ['image/webp', 0.75],
         ['image/jpeg', 0.82],
         ['image/jpeg', 0.7],
@@ -283,9 +309,10 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           </button>
         </div>
 
-        {/* Viewport Interaktif Pemotongan */}
+        {/* Viewport Interaktif Pemotongan dengan Boundary Lock */}
         <div
           ref={containerRef}
+          onWheel={handleWheel}
           className="relative w-full h-[320px] sm:h-[360px] bg-[#070e0c] flex items-center justify-center overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -338,7 +365,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
           {/* Hint Overlay */}
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-black/60 backdrop-blur-sm text-[11px] font-medium text-white/80 pointer-events-none">
-            {tx('Tahan & geser untuk atur posisi', 'Drag to reposition')}
+            {tx('Snap aktif: gambar terkunci di dalam area potong', 'Snap active: image locked inside crop boundary')}
           </div>
         </div>
 
@@ -347,7 +374,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
           <div className="flex items-center gap-2.5 flex-1 max-w-[280px]">
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.max(1, +(z - 0.1).toFixed(2)))}
+              onClick={() => handleZoomChange(zoom - 0.1)}
               className="p-1 rounded text-white/70 hover:text-white hover:bg-white/10"
               title={tx('Perkecil', 'Zoom out')}
             >
@@ -357,14 +384,14 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
               type="range"
               min="1"
               max="3"
-              step="0.05"
+              step="0.02"
               value={zoom}
-              onChange={(e) => setZoom(parseFloat(e.target.value))}
+              onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
               className="w-full accent-[var(--ac)] cursor-pointer h-1.5 bg-white/20 rounded-lg"
             />
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.min(3, +(z + 0.1).toFixed(2)))}
+              onClick={() => handleZoomChange(zoom + 0.1)}
               className="p-1 rounded text-white/70 hover:text-white hover:bg-white/10"
               title={tx('Perbesar', 'Zoom in')}
             >
