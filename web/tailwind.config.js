@@ -25,6 +25,8 @@ export default {
       fontFamily: {
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        dmsans: ['DM Sans', 'Inter', 'system-ui', 'sans-serif'],
+        serif: ['Instrument Serif', 'Georgia', 'serif'],
       },
       boxShadow: {
         ring: '0 0 0 3px rgba(124, 140, 255, 0.55)',

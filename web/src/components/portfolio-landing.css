@@ -1,0 +1,1078 @@
+/* 1stdev.link — Styling Exact Replica from 1stdev.space Portfolio */
+:root {
+  --ink: #123f36;
+  --muted: #5a7169;
+  --line: #d6e2dc;
+  --accent: #b9edda;
+  --canvas: #f7faf7;
+}
+
+.portfolio-landing {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--ink);
+  background: var(--canvas);
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Container Wrap persis portfolio: max-width 1400px, width: calc(100% - 112px) */
+.portfolio-landing .wrap {
+  max-width: 1400px;
+  width: calc(100% - 112px);
+  margin-inline: auto;
+}
+
+/* Header persis portfolio: height 102px */
+.portfolio-landing .header {
+  height: 102px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.portfolio-landing .logo {
+  display: flex;
+  align-items: baseline;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.portfolio-landing .brand-name {
+  font-size: 29px;
+  font-weight: 500;
+  letter-spacing: -1.6px;
+  white-space: nowrap;
+  line-height: .95;
+}
+
+.portfolio-landing .domain-suffix {
+  font-size: inherit;
+  font-weight: 400;
+  color: #6b9382;
+  letter-spacing: inherit;
+}
+
+.portfolio-landing .brand-spark {
+  font-size: 26px;
+  color: #229881;
+  margin-left: 4px;
+}
+
+.portfolio-landing nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  font-size: 13px;
+}
+
+.portfolio-landing nav > a {
+  padding: 12px 0;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.portfolio-landing nav > a:hover {
+  color: #229881;
+}
+
+.portfolio-landing .nav-contact {
+  border: 1px solid #c8d7cd;
+  border-radius: 30px;
+  padding: 12px 19px;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  font-size: 13px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.portfolio-landing .nav-contact:hover {
+  background: var(--ink);
+  color: #f7faf7;
+  border-color: var(--ink);
+}
+
+/* Hero Section persis portfolio: grid 1.1fr 1fr; gap 44px; padding 42px 0 0 */
+.portfolio-landing .hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 44px;
+  padding: 42px 0 0;
+  align-items: stretch;
+}
+
+.portfolio-landing .hero-copy {
+  position: relative;
+  padding: 15px 0 38px;
+  min-width: 0;
+}
+
+.portfolio-landing .eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.9px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.portfolio-landing .status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #469573;
+  box-shadow: 0 0 0 4px #46957310;
+  display: inline-block;
+}
+
+.portfolio-landing h1 {
+  font-size: clamp(62px, 7.3vw, 108px);
+  line-height: .98;
+  letter-spacing: -5.5px;
+  margin: 35px 0 27px;
+  position: relative;
+  font-weight: 450;
+  color: var(--ink);
+}
+
+.portfolio-landing h1 em {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.1em;
+  color: #378267;
+  line-height: 1.05;
+}
+
+.portfolio-landing .headline-star {
+  position: absolute;
+  font-size: 42px;
+  color: #74a58b;
+  top: 7px;
+  margin-left: 19px;
+  transform: rotate(12deg);
+}
+
+.portfolio-landing .intro {
+  font-size: 14px;
+  line-height: 1.85;
+  max-width: 340px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.portfolio-landing .hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-top: 29px;
+  flex-wrap: wrap;
+}
+
+.portfolio-landing .button {
+  margin: 0;
+  border-radius: 5px;
+  padding: 18px 22px;
+  gap: 35px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.portfolio-landing .button.primary {
+  background: var(--ink);
+  color: #f7faf7;
+}
+
+.portfolio-landing .button.primary:hover {
+  background: #24654d;
+}
+
+.portfolio-landing .hero-secondary {
+  font-size: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border-bottom: 1px solid #b8cabb;
+  padding: 10px 0;
+  color: var(--ink);
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+}
+
+.portfolio-landing .hero-secondary:hover {
+  border-bottom-color: var(--ink);
+}
+
+.portfolio-landing .hero-note {
+  margin-top: 27px;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  color: #799787;
+  text-transform: uppercase;
+}
+
+.portfolio-landing .hero-caption {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 23px 0 28px;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: #5a7169;
+  margin-top: 0;
+  text-transform: uppercase;
+}
+
+/* ========================================================
+   HERO ART: .space-art (Orbital Sculpture persis di Portfolio)
+   ======================================================== */
+.portfolio-landing .space-art {
+  background: #143f34;
+  border-radius: 9px;
+  position: relative;
+  min-height: 590px;
+  isolation: isolate;
+  overflow: hidden;
+  color: #d7eee0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 28px 27px;
+}
+
+.portfolio-landing .space-grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(#a0d7b909 1px, transparent 1px), linear-gradient(90deg, #a0d7b909 1px, transparent 1px);
+  background-size: 52px 52px;
+  z-index: -1;
+  mask-image: linear-gradient(black, transparent 93%);
+}
+
+.portfolio-landing .space-art-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  position: relative;
+  z-index: 2;
+  color: #a8c9b9;
+  text-transform: uppercase;
+}
+
+.portfolio-landing .orbital-system {
+  position: absolute;
+  width: 88%;
+  aspect-ratio: 1;
+  left: 6%;
+  top: 13%;
+  perspective: 700px;
+  transform: rotate(-22deg);
+}
+
+.portfolio-landing .orbit {
+  position: absolute;
+  inset: 12%;
+  border: 26px solid #74bea0;
+  border-radius: 50%;
+  box-shadow: inset 3px 3px 7px #07291d66, 4px 8px 12px #071f1b44;
+}
+
+.portfolio-landing .orbit-one {
+  transform: rotateX(57deg) rotateY(-12deg);
+  border-color: #9edcc0;
+  animation: orbit-drift 16s ease-in-out infinite alternate;
+}
+
+.portfolio-landing .orbit-two {
+  transform: rotateY(62deg) rotateZ(43deg);
+  border-color: #4b9b7c;
+}
+
+.portfolio-landing .orbit-three {
+  inset: 17%;
+  transform: rotateX(-47deg) rotateY(48deg);
+  border-width: 19px;
+  border-color: #c4edce;
+}
+
+.portfolio-landing .planet {
+  position: absolute;
+  inset: 32%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 31% 25%, #eef8ca 0, #a7dba7 40%, #428d6e 78%, #29664f 100%);
+  box-shadow: 9px 25px 40px #061e1840, inset -10px -12px 22px #13523933;
+}
+
+.portfolio-landing .satellite {
+  position: absolute;
+  border-radius: 50%;
+  background: #d7e8b1;
+  box-shadow: 2px 4px 10px #082a2240;
+  width: 18px;
+  height: 18px;
+}
+
+.portfolio-landing .satellite-one {
+  top: 12%;
+  right: 22%;
+}
+
+.portfolio-landing .satellite-two {
+  bottom: 16%;
+  left: 16%;
+  width: 9px;
+  height: 9px;
+  background: #7ad0ad;
+}
+
+.portfolio-landing .space-cross {
+  position: absolute;
+  font-size: 20px;
+  font-weight: 400;
+  color: #a0bca4;
+  transform: rotate(22deg);
+}
+
+.portfolio-landing .cross-one {
+  top: 19%;
+  left: 6%;
+}
+
+.portfolio-landing .cross-two {
+  right: 4%;
+  bottom: 24%;
+}
+
+.portfolio-landing .floating-label {
+  position: absolute;
+  left: 50%;
+  top: 67%;
+  transform: translateX(-50%) rotate(-5deg);
+  padding: 12px 16px;
+  background: #e3edc5;
+  color: #234e3c;
+  border: 1px solid #e7f4d6;
+  border-radius: 4px;
+  font-size: 9px;
+  white-space: nowrap;
+  box-shadow: 0 7px 24px #071f1b22;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 2;
+  letter-spacing: 0.5px;
+}
+
+.portfolio-landing .label-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #498b63;
+}
+
+.portfolio-landing .space-art-bottom {
+  position: absolute;
+  bottom: 38px;
+  left: 28px;
+  right: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 2;
+}
+
+.portfolio-landing .space-art-bottom > span:first-child {
+  font-size: 9px;
+  line-height: 1.7;
+  letter-spacing: 2px;
+  font-weight: 400;
+  color: #d7eee0;
+  text-transform: uppercase;
+}
+
+.portfolio-landing .space-art-bottom strong {
+  color: #dcebb6;
+  font-weight: 500;
+}
+
+.portfolio-landing .space-seal {
+  font-size: 52px;
+  line-height: 1;
+  color: #cee5ae;
+}
+
+.portfolio-landing .space-word {
+  position: absolute;
+  bottom: -27px;
+  left: 18px;
+  font-size: clamp(90px, 12vw, 180px);
+  letter-spacing: -10px;
+  color: #ffffff05;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+}
+
+@keyframes orbit-drift {
+  from {
+    transform: rotateX(57deg) rotateY(-12deg);
+  }
+  to {
+    transform: rotateX(66deg) rotateY(12deg);
+  }
+}
+
+/* ========================================================
+   DISCIPLINE STRIP persis portfolio: height 80px, bg #e5eee0
+   ======================================================== */
+.portfolio-landing .discipline-strip {
+  background: #e5eee0;
+  border-block: 1px solid #d9e4d2;
+}
+
+.portfolio-landing .discipline-strip > .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 80px;
+}
+
+.portfolio-landing .discipline-strip span {
+  font-size: 11px;
+  letter-spacing: 2.3px;
+  font-weight: 500;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.portfolio-landing .discipline-strip span.strip-star {
+  font-size: 28px;
+  color: #599174;
+  letter-spacing: 0;
+}
+
+/* ========================================================
+   SECTION PILIHAN KARYA & LINK PREVIEW
+   ======================================================== */
+.portfolio-landing .section {
+  padding-top: 90px;
+  padding-bottom: 90px;
+}
+
+.portfolio-landing .work-heading {
+  margin-bottom: 42px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 30px;
+}
+
+.portfolio-landing .work-heading h2 {
+  font-size: clamp(38px, 4.1vw, 60px);
+  letter-spacing: -2px;
+  font-weight: 450;
+  line-height: 1.08;
+  margin: 16px 0 0;
+}
+
+.portfolio-landing .work-heading h2 em {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: 1.1em;
+  color: #46846a;
+}
+
+.portfolio-landing .work-heading > p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 0;
+}
+
+.portfolio-landing .projects {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 42px;
+}
+
+.portfolio-landing .project-art {
+  height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 65px;
+  gap: 35px;
+  border-radius: 7px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: transform .35s, box-shadow .35s;
+}
+
+.portfolio-landing .project:hover .project-art {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px #153d3010;
+}
+
+.portfolio-landing .link-preview {
+  background: #193e35;
+  color: #dceedd;
+}
+
+.portfolio-landing .project-label {
+  position: absolute;
+  left: 24px;
+  top: 23px;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  z-index: 2;
+  color: #a1c1af;
+  text-transform: uppercase;
+}
+
+.portfolio-landing .product-story {
+  position: relative;
+  z-index: 2;
+  flex: 0 1 39%;
+  min-width: 0;
+}
+
+.portfolio-landing .product-brand {
+  font-size: 37px;
+  letter-spacing: -1.8px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.portfolio-landing .link-brand-suffix {
+  font-size: inherit !important;
+  vertical-align: baseline !important;
+  top: 0 !important;
+  font-weight: 400;
+  color: #acd0b7;
+  margin: 0 !important;
+  letter-spacing: inherit !important;
+}
+
+.portfolio-landing .product-story p {
+  font-size: 32px;
+  line-height: 1.08;
+  letter-spacing: -1.2px;
+  margin: 18px 0 15px;
+  color: #dceedd;
+}
+
+.portfolio-landing .product-story em {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-size: 1.1em;
+  color: #b9ddae;
+}
+
+.portfolio-landing .product-tag {
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: #adc8b4;
+  text-transform: uppercase;
+  display: block;
+}
+
+.portfolio-landing .bio-composition {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 52%;
+  height: 360px;
+}
+
+.portfolio-landing .bio-orbit {
+  position: absolute;
+  border: 1px solid #7ab18c40;
+  border-radius: 50%;
+  width: 360px;
+  height: 220px;
+  transform: rotate(-40deg);
+}
+
+.portfolio-landing .bio-orbit.orbit-b {
+  width: 280px;
+  height: 180px;
+  transform: rotate(40deg);
+  border-color: #7ab18c25;
+}
+
+.portfolio-landing .bio-phone {
+  position: relative;
+  z-index: 1;
+  background: #e6efd9;
+  color: #244133;
+  width: 178px;
+  border-radius: 20px;
+  border: 5px solid #0d2821;
+  box-shadow: 0 16px 36px #07231940;
+  padding: 16px 12px 14px;
+  transform: rotate(8deg);
+  font-size: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.portfolio-landing .phone-camera {
+  width: 28px;
+  height: 4px;
+  background: #0d2821;
+  border-radius: 3px;
+  margin-bottom: 9px;
+}
+
+.portfolio-landing .bio-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #244133;
+  color: #e6efd9;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  margin-bottom: 7px;
+}
+
+.portfolio-landing .bio-phone strong {
+  font-size: 10px;
+  letter-spacing: -0.2px;
+  line-height: 1.1;
+  display: block;
+}
+
+.portfolio-landing .bio-handle {
+  font-size: 7px;
+  color: #557564;
+  margin-top: 1px;
+  display: block;
+}
+
+.portfolio-landing .bio-phone p {
+  font-size: 7px;
+  line-height: 1.35;
+  color: #436251;
+  margin: 5px 0 9px;
+}
+
+.portfolio-landing .bio-link {
+  width: 100%;
+  background: #edf5e3;
+  border: 1px solid #d5dfc7;
+  border-radius: 4px;
+  padding: 5px 7px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 7px;
+  color: #244133;
+  font-weight: 500;
+}
+
+.portfolio-landing .bio-signature {
+  font-size: 6px;
+  letter-spacing: 1px;
+  color: #557564;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.portfolio-landing .bio-float {
+  position: absolute;
+  z-index: 2;
+  background: #cde7ac;
+  color: #214432;
+  box-shadow: 0 7px 17px #08261e33;
+  padding: 12px 17px;
+  font-size: 9px;
+  bottom: 10px;
+  left: 0;
+  transform: rotate(-8deg);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.portfolio-landing .preview-disclaimer {
+  position: absolute;
+  left: 25px;
+  bottom: 23px;
+  color: #8bad95;
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.portfolio-landing .view-project {
+  position: absolute;
+  right: 25px;
+  bottom: 23px;
+  color: #8bad95;
+  font-size: 16px;
+}
+
+.portfolio-landing .project-info {
+  padding: 0 3px;
+  margin-top: 21px;
+}
+
+.portfolio-landing .project-info h3 {
+  font-size: 21px;
+  letter-spacing: -.5px;
+  margin: 0 0 9px;
+  font-weight: 500;
+}
+
+.portfolio-landing .project-info p {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.portfolio-landing .project-description {
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--muted);
+  max-width: 680px;
+  margin: 14px 0 20px;
+}
+
+.portfolio-landing .project-website {
+  font-size: 13px;
+  color: var(--ink);
+  border-bottom: 1px solid #b8cabb;
+  padding-bottom: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.portfolio-landing .project-website:hover {
+  border-bottom-color: var(--ink);
+}
+
+/* ========================================================
+   CARA KAMI BEKERJA (Process)
+   ======================================================== */
+.portfolio-landing .process-heading {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-bottom: 45px;
+}
+
+.portfolio-landing .process-heading .eyebrow {
+  margin: 0 0 29px;
+  grid-column: 1 / -1;
+}
+
+.portfolio-landing .process-heading h2 {
+  font-size: 45px;
+  line-height: 1.08;
+  letter-spacing: -1.8px;
+  margin: 0;
+  font-weight: 450;
+}
+
+.portfolio-landing .process-heading h2 em {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  color: #46846a;
+}
+
+.portfolio-landing .process-heading > p:last-child {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 0;
+  align-self: flex-end;
+}
+
+.portfolio-landing .process-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+  padding-top: 5px;
+}
+
+.portfolio-landing .step-number {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 43px;
+  color: #80aa90;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 27px;
+}
+
+.portfolio-landing .step-number span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.portfolio-landing .process-steps h3 {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  margin: 27px 0 12px;
+}
+
+.portfolio-landing .process-steps p {
+  font-size: 12px;
+  line-height: 1.85;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ========================================================
+   CONTACT / CALL TO ACTION
+   ======================================================== */
+.portfolio-landing .contact {
+  background: #dcebd8;
+  padding: 65px 0 55px;
+  position: relative;
+  overflow: hidden;
+}
+
+.portfolio-landing .contact-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-landing .contact .eyebrow {
+  margin-bottom: 35px;
+}
+
+.portfolio-landing .contact-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.portfolio-landing .contact h2 {
+  font-size: clamp(50px, 6.6vw, 92px);
+  line-height: 1.02;
+  letter-spacing: -3px;
+  margin: 0;
+  font-weight: 450;
+}
+
+.portfolio-landing .contact h2 em {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  color: #3b765d;
+}
+
+.portfolio-landing .contact-arrow {
+  font-size: clamp(50px, 7.5vw, 95px);
+  color: #3b765d;
+  background: transparent;
+  border: none;
+  line-height: .9;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 0;
+}
+
+.portfolio-landing .contact-arrow:hover {
+  transform: translate(6px, -6px);
+}
+
+.portfolio-landing .contact-bottom {
+  border-top: 1px solid #bdd1b6;
+  padding-top: 24px;
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.portfolio-landing .contact-bottom p {
+  font-size: 13px;
+  color: #546e50;
+  margin: 0;
+}
+
+.portfolio-landing .contact-bottom > button {
+  font-size: 17px;
+  border-bottom: 1px solid #93ac87;
+  color: var(--ink);
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+/* ========================================================
+   FOOTER WORDMARK & FOOTER
+   ======================================================== */
+.portfolio-landing .footer-wordmark {
+  display: flex;
+  align-items: center;
+  padding-top: 45px;
+  padding-bottom: 30px;
+  font-size: clamp(60px, 12vw, 178px);
+  font-weight: 500;
+  letter-spacing: -0.075em;
+  line-height: 1.1;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.portfolio-landing .footer-wordmark > span:first-child {
+  color: #b1c6b6;
+  font-weight: 400;
+}
+
+.portfolio-landing .footer-star {
+  font-size: .58em;
+  color: #4b896b;
+  margin-left: auto;
+  letter-spacing: 0;
+}
+
+.portfolio-landing .footer {
+  min-height: 115px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 25px 0 45px;
+}
+
+.portfolio-landing .footer-links {
+  display: flex;
+  gap: 20px;
+}
+
+.portfolio-landing .footer-links a,
+.portfolio-landing .footer-links button {
+  color: var(--muted);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.portfolio-landing .footer-links a:hover,
+.portfolio-landing .footer-links button:hover {
+  color: var(--ink);
+}
+
+/* ========================================================
+   RESPONSIVE MEDIA QUERIES (Exact from Portfolio)
+   ======================================================== */
+@media (max-width: 1100px) {
+  .portfolio-landing .wrap {
+    width: calc(100% - 72px);
+  }
+  .portfolio-landing .hero {
+    gap: 28px;
+  }
+  .portfolio-landing h1 {
+    font-size: 78px;
+    letter-spacing: -4px;
+  }
+  .portfolio-landing .space-art {
+    min-height: 555px;
+  }
+  .portfolio-landing .real-projects .project-art {
+    padding: 58px 40px;
+    height: 420px;
+  }
+  .portfolio-landing .product-brand {
+    font-size: 32px;
+  }
+  .portfolio-landing .product-story > p {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 800px) {
+  .portfolio-landing .wrap {
+    width: calc(100% - 48px);
+  }
+  .portfolio-landing .header {
+    height: 88px;
+  }
+  .portfolio-landing .header nav {
+    gap: 20px;
+    font-size: 11px;
+  }
+  .portfolio-landing .logo .brand-name {
+    font-size: 25px;
+  }
+  .portfolio-landing .logo .brand-spark {
+    font-size: 23px;
+  }
+  .portfolio-landing .hero {
+    padding-top: 25px;
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+  .portfolio-landing h1 {
+    font-size: 62px;
+    letter-spacing: -3.5px;
+  }
+  .portfolio-landing .process-heading {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-landing .process-steps {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .portfolio-landing .discipline-strip span {
+    font-size: 8px;
+  }
+  .portfolio-landing .real-projects .project-art {
+    height: 380px;
+    padding: 55px 25px;
+    gap: 20px;
+  }
+  .portfolio-landing .product-brand {
+    font-size: 27px;
+  }
+  .portfolio-landing .product-story > p {
+    font-size: 23px;
+  }
+}

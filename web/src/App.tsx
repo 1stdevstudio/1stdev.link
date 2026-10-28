@@ -4,6 +4,7 @@ import { AuthSession, BioProfile, LinkItem, BioBlockType } from './types';
 
 // Components
 import { Welcome } from './components/Welcome';
+import { LandingPage } from './components/LandingPage';
 import { AppShell, TabType } from './components/AppShell';
 import { ProfileScreen } from './components/screens/ProfileScreen';
 import { LinksScreen } from './components/screens/LinksScreen';
@@ -234,14 +235,24 @@ export const App: React.FC = () => {
 
   // Welcome Screen (No Active Session)
   if (!session) {
+    const isLandingPreview = window.location.pathname === '/landing' || window.location.search.includes('view=landing');
     return (
       <>
-        <Welcome
-          onStart={handleStartGuest}
-          onOpenLogin={() => setActiveSheet('login')}
-          onOpenLegal={(tab) => setShowLegal(tab)}
-          loading={startingGuest}
-        />
+        {isLandingPreview ? (
+          <LandingPage
+            onStart={handleStartGuest}
+            onOpenLogin={() => setActiveSheet('login')}
+            onOpenLegal={(tab) => setShowLegal(tab)}
+            loading={startingGuest}
+          />
+        ) : (
+          <Welcome
+            onStart={handleStartGuest}
+            onOpenLogin={() => setActiveSheet('login')}
+            onOpenLegal={(tab) => setShowLegal(tab)}
+            loading={startingGuest}
+          />
+        )}
 
         <LoginSheet
           isOpen={activeSheet === 'login'}
