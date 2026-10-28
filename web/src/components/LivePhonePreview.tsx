@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Star, MessageCircle, Link2, Check } from 'lucide-react';
+import { ArrowUpRight, MessageCircle, ExternalLink } from 'lucide-react';
 import { BioProfile, LinkItem } from '../types';
 import { useI18n } from '../i18n/context';
 
@@ -77,7 +77,7 @@ export const THEME_STYLES: Record<
   },
 };
 
-/** Urutan blok sama dengan halaman publik (ORDER BY sort_order); sort stabil menjaga urutan awal bila nilainya sama. */
+/** Urutan blok sama persis dengan backend SSR bio.ts (ORDER BY sort_order) */
 export const orderedBioLinks = (links: LinkItem[]) =>
   links.filter((l) => Boolean(l.is_bio_entry)).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
@@ -86,6 +86,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
   const publicUrl = `${baseUrl}/@${profile.handle}`;
   const theme = THEME_STYLES[profile.theme || ''] || THEME_STYLES['1stnear'];
+  const accentColor = profile.style?.accent || theme.featBg;
 
   const bioLinks = orderedBioLinks(links);
   const coverUrl = profile.style?.cover_url || (profile as any).cover_url;
@@ -93,11 +94,28 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
   const bgBlur = profile.style?.bg_blur ?? 0;
   const bgDim = (profile.style?.bg_dim ?? 0) / 100;
 
+  // Social links parser (identik dengan bio.ts)
+  let socialMap: Record<string, string> = {};
+  if (profile.social_links) {
+    if (typeof profile.social_links === 'string') {
+      try {
+        socialMap = JSON.parse(profile.social_links);
+      } catch {
+        socialMap = {};
+      }
+    } else if (typeof profile.social_links === 'object') {
+      socialMap = profile.social_links;
+    }
+  }
+
+  const socialEntries = Object.entries(socialMap).filter(
+    ([_, url]) => typeof url === 'string' && /^(https?:\/\/|mailto:)/i.test(url.trim())
+  );
+
   const getShapeRadius = (shape?: string) => {
-    // Sama dengan default server (bio.ts): bentuk kosong = bulat.
-    if (shape === 'squircle') return '18px';
-    if (shape === 'rounded') return '8px';
-    return '9999px';
+    if (shape === 'squircle') return '28%';
+    if (shape === 'rounded') return '12px';
+    return '50%';
   };
 
   return (
@@ -131,7 +149,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
 
         {/* Cover Banner */}
         {coverUrl && (
-          <div className="w-full h-24 shrink-0 overflow-hidden relative z-10 -mt-6 mb-2">
+          <div className="w-full h-24 shrink-0 overflow-hidden relative z-10 -mt-8 mb-2 rounded-b-xl">
             <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
           </div>
@@ -139,12 +157,12 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
 
         {/* Profile Avatar */}
         <div
-          className="w-16 h-16 shrink-0 grid place-items-center font-bold text-xl overflow-hidden relative z-10"
+          className="w-20 h-20 shrink-0 grid place-items-center font-bold text-2xl overflow-hidden relative z-10 shadow-lg"
           style={{
             borderRadius: getShapeRadius(profile.avatar_shape),
-            backgroundColor: theme.featBg,
-            color: theme.featText,
-            marginTop: coverUrl ? '-2rem' : '0',
+            backgroundColor: accentColor,
+            color: '#000000',
+            marginTop: coverUrl ? '-2.5rem' : '0.5rem',
           }}
         >
           {profile.avatar_url ? (
@@ -159,25 +177,43 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         </div>
 
         {/* Name & Handle */}
-        <div className="flex flex-col items-center text-center mt-1 w-full px-2 relative z-10">
-          <div className="flex items-center gap-1 font-semibold text-[15px] truncate max-w-full">
+        <div className="flex flex-col items-center text-center mt-2 w-full px-2 relative z-10">
+          <div className="flex items-center justify-center gap-1 font-bold text-[17px] tracking-tight max-w-full">
             <span className="truncate">{profile.display_name || 'Edge Creator'}</span>
             {profile.verified_badge ? (
-              <span className="w-3.5 h-3.5 rounded-full bg-[var(--ac)] text-[var(--ink)] inline-grid place-items-center shrink-0">
-                <Check size={9} strokeWidth={2.5} />
-              </span>
+              <svg className="shrink-0 ml-0.5" width="16" height="16" viewBox="0 0 24 24" fill={accentColor}>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z"/>
+              </svg>
             ) : null}
           </div>
-          <span className="text-[12px] opacity-70 font-mono">@{profile.handle}</span>
+          <span className="text-[12px] opacity-70 font-mono mt-0.5">@{profile.handle}</span>
           {profile.bio && (
-            <p className="text-[12px] opacity-80 mt-1.5 leading-snug line-clamp-3">
+            <p className="text-[12px] opacity-80 mt-2 leading-relaxed max-w-[92%]">
               {profile.bio}
             </p>
           )}
         </div>
 
-        {/* Blocks list */}
-        <div className="flex flex-col gap-2 w-full mt-3 relative z-10">
+        {/* Social Links Pills (persis bio.ts) */}
+        {socialEntries.length > 0 && (
+          <div className="flex gap-1.5 mt-3 mb-2 flex-wrap justify-center relative z-10 px-2">
+            {socialEntries.map(([platform]) => (
+              <span
+                key={platform}
+                className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full transition-opacity opacity-80"
+                style={{
+                  background: 'color-mix(in srgb, currentColor 8%, transparent)',
+                  color: bgImage ? '#ffffff' : theme.text,
+                }}
+              >
+                {platform}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Blocks list (persis bio.ts) */}
+        <div className="flex flex-col gap-2.5 w-full mt-2 relative z-10 px-1">
           {bioLinks.length === 0 ? (
             <div className="p-4 text-center text-[12px] opacity-40">
               {tx('Belum ada link yang ditampilkan', 'No links to show yet')}
@@ -188,7 +224,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
                 return (
                   <div
                     key={block.id}
-                    className="text-[12px] font-semibold uppercase tracking-wider text-center py-1 opacity-70"
+                    className="text-[11px] font-bold uppercase tracking-wider text-left pt-2 pb-0.5 opacity-60 px-1"
                   >
                     {block.title}
                   </div>
@@ -196,12 +232,12 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
               }
 
               if (block.block_type === 'divider') {
-                return <hr key={block.id} className="border-0 h-px my-1 opacity-20" style={{ background: 'currentColor' }} />;
+                return <hr key={block.id} className="border-0 h-px my-1 opacity-15" style={{ background: 'currentColor' }} />;
               }
 
               if (block.block_type === 'text') {
                 return (
-                  <p key={block.id} className="text-[12px] text-center opacity-80 whitespace-pre-line px-1">
+                  <p key={block.id} className="text-[12px] text-left opacity-80 whitespace-pre-line px-1 leading-relaxed">
                     {block.title}
                   </p>
                 );
@@ -211,10 +247,17 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
                 return (
                   <div
                     key={block.id}
-                    className="pv-link wa flex items-center justify-center gap-1.5 font-medium text-[13px]"
+                    className="w-full rounded-[var(--r2)] px-4 py-3 flex items-center justify-between text-[13px] font-medium"
+                    style={{
+                      backgroundColor: 'rgba(34, 197, 94, 0.12)',
+                      color: '#4ade80',
+                    }}
                   >
-                    <MessageCircle size={15} strokeWidth={2} />
-                    <span className="truncate">{block.title || 'Chat WhatsApp'}</span>
+                    <div className="flex items-center gap-2 truncate pr-2">
+                      <MessageCircle size={16} strokeWidth={2} />
+                      <span className="truncate">{block.title || 'WhatsApp'}</span>
+                    </div>
+                    <ArrowUpRight size={16} className="shrink-0 opacity-70" />
                   </div>
                 );
               }
@@ -223,14 +266,24 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
                 return (
                   <div
                     key={block.id}
-                    className="pv-link feat flex items-center justify-center gap-1.5 font-semibold text-[13px]"
+                    className="relative w-full rounded-[var(--r2)] px-4 py-3 flex items-center justify-between text-[13px] font-medium transition-transform"
                     style={{
-                      backgroundColor: theme.featBg,
-                      color: theme.featText,
+                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04))',
+                      border: `1px solid ${accentColor}55`,
+                      color: bgImage ? '#ffffff' : theme.text,
                     }}
                   >
-                    <Star size={14} strokeWidth={2} />
-                    <span className="truncate">{block.title || block.slug}</span>
+                    <div
+                      className="absolute -top-2.5 right-3 text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shadow-sm"
+                      style={{
+                        backgroundColor: accentColor,
+                        color: '#000000',
+                      }}
+                    >
+                      ★ {tx('PILIHAN', 'FEATURED')}
+                    </div>
+                    <span className="truncate pr-2">{block.title || block.slug}</span>
+                    <ArrowUpRight size={16} className="shrink-0 opacity-80" />
                   </div>
                 );
               }
@@ -238,14 +291,14 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
               return (
                 <div
                   key={block.id}
-                  className="pv-link flex items-center justify-center gap-1.5 text-[13px]"
+                  className="w-full rounded-[var(--r2)] px-4 py-3 flex items-center justify-between text-[13px] font-medium transition-colors"
                   style={{
-                    backgroundColor: bgImage ? 'rgba(255, 255, 255, 0.12)' : theme.cardBg,
+                    backgroundColor: bgImage ? 'rgba(255, 255, 255, 0.07)' : theme.cardBg,
                     color: bgImage ? '#ffffff' : theme.cardText,
                   }}
                 >
-                  <Link2 size={14} strokeWidth={1.75} className="opacity-60" />
-                  <span className="truncate">{block.title || block.slug}</span>
+                  <span className="truncate pr-2">{block.title || block.slug}</span>
+                  <ArrowUpRight size={16} className="shrink-0 opacity-50" />
                 </div>
               );
             })
@@ -253,7 +306,7 @@ export const LivePhonePreview: React.FC<LivePhonePreviewProps> = ({ profile, lin
         </div>
 
         {/* Badge footer */}
-        <div className="mt-auto pt-6 pb-2 text-[10px] tracking-wider uppercase opacity-40">
+        <div className="mt-auto pt-8 pb-3 text-[10px] tracking-wider uppercase opacity-40 text-center">
           {tx('Dibuat dengan', 'Made with')} 1stdev.link by 1stdev.space
         </div>
       </div>
