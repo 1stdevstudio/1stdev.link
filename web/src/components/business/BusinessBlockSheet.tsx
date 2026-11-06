@@ -371,14 +371,14 @@ export function BusinessBlockSheet({
                       </div>
                       <button
                         type="button"
-                        className="btn btn-g btn-sm text-red-400"
+                        className="btn btn-g btn-sm text-red-700"
                         onClick={() => itemUpdate(activeItem.id, { image_url: '' })}
                       >
                         Hapus
                       </button>
                     </div>
                   ) : (
-                    <label className="flex items-center justify-center gap-2 p-3.5 rounded-[var(--r2)] bg-[var(--s2)] hover:bg-[#1a382e] text-[var(--tx)] text-[13px] font-medium cursor-pointer transition-colors">
+                    <label className="flex items-center justify-center gap-2 p-3.5 rounded-[var(--r2)] bg-[var(--s2)] hover:bg-[#deebe2] text-[var(--tx)] text-[13px] font-medium cursor-pointer transition-colors">
                       <Upload size={16} strokeWidth={1.75} className="text-[var(--ac)]" />
                       <span>
                         {uploading === activeItem.id
@@ -437,7 +437,7 @@ export function BusinessBlockSheet({
                 <div className="flex items-center justify-between pt-3">
                   <button
                     type="button"
-                    className="btn btn-g btn-sm text-red-400 gap-1.5"
+                    className="btn btn-g btn-sm text-red-700 gap-1.5"
                     onClick={() => {
                       update({
                         items: catalogData.items.filter((i) => i.id !== activeItem.id),
