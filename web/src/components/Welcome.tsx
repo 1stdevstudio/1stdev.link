@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link2, Sparkles, Store, ShoppingBag, Scissors } from 'lucide-react';
+import { Link2, Sparkles, Store, ShoppingBag, Scissors, Check, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useI18n } from '../i18n/context';
 
 type WelcomeChoice = 'creator' | 'business' | 'affiliate' | 'links';
@@ -64,143 +64,124 @@ export const Welcome: React.FC<WelcomeProps> = ({
   ];
 
   return (
-    <section
-      id="welcome"
-      aria-label={tx('Sambutan', 'Welcome')}
-      className="min-h-screen flex items-center justify-center p-5 sm:p-8"
-    >
-      <div className="w-full max-w-[460px] flex flex-col gap-6">
-        {/* Brand Header */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 font-bold text-base text-[var(--tx)] min-w-0">
-            <span className="w-8 h-8 rounded-[var(--r2)] bg-[var(--ac)] text-[var(--ink)] grid place-items-center shrink-0">
-              <Link2 size={18} strokeWidth={2} />
+    <section id="welcome" aria-label={tx('Mulai menggunakan 1stdev.link', 'Get started with 1stdev.link')} className="welcome-screen">
+      <div className="welcome-shell">
+        <header className="welcome-topbar">
+          <a href="/" className="welcome-brand" aria-label="1stdev.link">
+            <span className="welcome-brand-mark"><Link2 size={20} strokeWidth={2} /></span>
+            <span className="welcome-brand-text">
+              <strong>1stdev.link</strong>
+              <small>by 1stdev.space</small>
             </span>
-            <span className="truncate">
-              1stdev.link <span className="font-normal text-[var(--tx2)]">by 1stdev.space</span>
+          </a>
+          <button type="button" className="welcome-top-login" onClick={onOpenLogin}>
+            {tx('Masuk', 'Log in')} <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        </header>
+
+        <main className="welcome-layout">
+          <div className="welcome-story">
+            <span className="welcome-eyebrow">
+              <span className="welcome-pulse" aria-hidden="true" />
+              {tx('SEMUA KEBUTUHAN DIGITAL DALAM SATU LINK', 'YOUR DIGITAL SPACE IN ONE LINK')}
             </span>
+            <h1 className="welcome-headline">
+              {tx('Satu link untuk', 'One link for')}
+              <span>{tx('semua yang penting.', 'everything that matters.')}</span>
+            </h1>
+            <p className="welcome-lead">
+              {tx(
+                'Buat halaman yang mencerminkan dirimu atau bisnismu. Kumpulkan karya, produk, dan tautan penting dalam satu tempat yang mudah dibagikan.',
+                'Create a page for yourself or your business. Bring your work, products, and important links together in one place that is easy to share.'
+              )}
+            </p>
+
+            <div className="welcome-highlights">
+              <span><Check size={16} aria-hidden="true" /> {tx('Gratis & tanpa iklan', 'Free & ad-free')}</span>
+              <span><Check size={16} aria-hidden="true" /> {tx('Siap dalam hitungan menit', 'Ready in minutes')}</span>
+            </div>
+
+            <div className="welcome-story-card" aria-hidden="true">
+              <div className="welcome-story-card-top">
+                <span className="welcome-story-avatar"><Sparkles size={19} strokeWidth={1.9} /></span>
+                <div><strong>{tx('Studio Kreatif', 'Creative Studio')}</strong><small>1stdev.link/@studio</small></div>
+                <span className="welcome-story-online"><span /> LIVE</span>
+              </div>
+              <div className="welcome-story-card-links">
+                <span><ArrowUpRight size={16} /> {tx('Karya pilihan', 'Featured work')} <ArrowRight size={15} /></span>
+                <span><Store size={16} /> {tx('Produk & layanan', 'Products & services')} <ArrowRight size={15} /></span>
+                <span><Link2 size={16} /> {tx('Semua tautan', 'All links')} <ArrowRight size={15} /></span>
+              </div>
+              <p>{tx('Contoh tampilan halaman publik', 'Example public page preview')}</p>
+            </div>
           </div>
-        </div>
 
-        {/* Headline & Subtitle */}
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-2xl sm:text-[26px] font-bold leading-tight tracking-tight text-[var(--tx)]">
-            {tx('Satu halaman untuk semua yang kamu bagikan.', 'One page for everything you share.')}
-          </h1>
-          <p className="text-[14px] text-[var(--tx2)] leading-relaxed">
-            {tx(
-              'Gratis, tanpa iklan. Pilih tujuan utama halaman kamu — semua fitur tetap dapat disesuaikan nanti.',
-              'Free, no ads. Choose your primary goal — every feature can be customized anytime.'
-            )}
-          </p>
-        </div>
+          <div className="welcome-chooser" aria-labelledby="welcome-chooser-title">
+            <div className="welcome-chooser-heading">
+              <span className="welcome-step-label">{tx('LANGKAH 01 / 02', 'STEP 01 / 02')}</span>
+              <h2 id="welcome-chooser-title">{tx('Kamu ingin membuat apa?', 'What would you like to create?')}</h2>
+              <p>{tx('Pilih tujuan utamamu. Semua fitur bisa diubah dan ditambah nanti.', 'Choose your main goal. You can customize everything later.')}</p>
+            </div>
 
-        {/* Purpose Goal Cards (3 primary goals) */}
-        <div className="flex flex-col gap-2.5" role="group" aria-label={tx('Pilih tujuan halaman', 'Choose page goal')}>
-          {options.map((opt) => {
-            const Icon = opt.icon;
-            const selected = choice === opt.id;
-            return (
+            <div className="welcome-choice-list" role="group" aria-label={tx('Pilih tujuan halaman', 'Choose page goal')}>
+              {options.map((opt) => {
+                const Icon = opt.icon;
+                const selected = choice === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={'welcome-choice' + (selected ? ' is-selected' : '')}
+                    aria-pressed={selected}
+                    onClick={() => setChoice(opt.id)}
+                  >
+                    <span className="welcome-choice-icon"><Icon size={21} strokeWidth={1.8} aria-hidden="true" /></span>
+                    <span className="welcome-choice-copy">
+                      <strong>{opt.title}</strong>
+                      <small>{opt.desc}</small>
+                    </span>
+                    <span className="welcome-choice-indicator" aria-hidden="true">{selected && <Check size={14} strokeWidth={2.6} />}</span>
+                  </button>
+                );
+              })}
+
               <button
-                key={opt.id}
                 type="button"
-                className={`flex items-start gap-3.5 w-full p-4 rounded-[var(--r3)] text-left transition ${
-                  selected
-                    ? 'bg-[var(--s2)] text-[var(--tx)]'
-                    : 'bg-[var(--s1)] hover:bg-[var(--s2)] text-[var(--tx)]'
-                }`}
-                aria-pressed={selected}
-                onClick={() => setChoice(opt.id)}
+                className={'welcome-choice welcome-choice-short' + (choice === 'links' ? ' is-selected' : '')}
+                aria-pressed={choice === 'links'}
+                onClick={() => setChoice('links')}
               >
-                <span
-                  className={`w-10 h-10 rounded-[var(--r2)] grid place-items-center shrink-0 transition ${
-                    selected
-                      ? 'bg-[var(--ac)] text-[var(--ink)]'
-                      : 'bg-[var(--s2)] text-[var(--tx2)]'
-                  }`}
-                >
-                  <Icon size={20} strokeWidth={1.75} />
+                <span className="welcome-choice-icon"><Scissors size={20} strokeWidth={1.8} aria-hidden="true" /></span>
+                <span className="welcome-choice-copy">
+                  <strong>{tx('Pendekkan link saja', 'Shorten links only')}</strong>
+                  <small>{tx('URL ringkas dengan statistik klik, tanpa halaman bio.', 'Short URLs with click stats, without a bio page.')}</small>
                 </span>
-                <span className="flex-1 min-w-0">
-                  <h2 className="text-[15px] font-semibold text-[var(--tx)]">{opt.title}</h2>
-                  <p className="text-[13px] text-[var(--tx2)] mt-0.5 leading-snug">
-                    {opt.desc}
-                  </p>
-                </span>
+                <span className="welcome-choice-indicator" aria-hidden="true">{choice === 'links' && <Check size={14} strokeWidth={2.6} />}</span>
               </button>
-            );
-          })}
+            </div>
 
-          {/* Small Shortlink Option */}
-          <button
-            type="button"
-            className={`flex items-center gap-3 w-full p-3 px-4 rounded-[var(--r2)] text-left transition mt-1 ${
-              choice === 'links'
-                ? 'bg-[var(--s2)] text-[var(--tx)]'
-                : 'bg-[var(--s1)]/60 hover:bg-[var(--s1)] text-[var(--tx2)]'
-            }`}
-            aria-pressed={choice === 'links'}
-            onClick={() => setChoice('links')}
-          >
-            <span
-              className={`w-8 h-8 rounded-[var(--r1)] grid place-items-center shrink-0 ${
-                choice === 'links'
-                  ? 'bg-[var(--ac)] text-[var(--ink)]'
-                  : 'bg-[var(--s2)] text-[var(--tx3)]'
-              }`}
-            >
-              <Scissors size={16} strokeWidth={1.75} />
-            </span>
-            <span className="flex-1 min-w-0">
-              <span className="text-[13px] font-medium text-[var(--tx)] block">
-                {tx('Pendekkan link saja', 'Shorten links only')}
-              </span>
-              <span className="text-[12px] text-[var(--tx3)] block truncate">
-                {tx('URL ringkas dengan analitik klik tanpa halaman bio', 'Quick short URLs with click analytics without bio')}
-              </span>
-            </span>
-          </button>
-        </div>
+            <button type="button" className="welcome-continue" disabled={loading} onClick={handleStart}>
+              <span>{loading ? tx('Membuat sesi...', 'Starting session...') : tx('Mulai sekarang — Gratis', 'Get started — Free')}</span>
+              <ArrowRight size={19} strokeWidth={2} aria-hidden="true" />
+            </button>
 
-        {/* CTA Actions */}
-        <div className="flex flex-col gap-2 pt-1">
-          <button
-            type="button"
-            disabled={loading}
-            className="btn btn-p btn-w disabled:opacity-50 text-[15px]"
-            onClick={handleStart}
-          >
-            {loading ? tx('Membuat sesi...', 'Starting session...') : tx('Mulai sekarang', 'Get started')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-t btn-w"
-            onClick={onOpenLogin}
-          >
-            {tx('Sudah punya akun? Masuk', 'Already have an account? Log in')}
-          </button>
-        </div>
+            <p className="welcome-returning">
+              {tx('Sudah punya halaman?', 'Already have a page?')}{' '}
+              <button type="button" onClick={onOpenLogin}>{tx('Masuk ke akun', 'Log in to your account')}</button>
+            </p>
+            <p className="welcome-legal">
+              {tx('Dengan melanjutkan, kamu menyetujui', 'By continuing, you agree to the')}{' '}
+              <button type="button" onClick={() => onOpenLegal('terms')}>{tx('Ketentuan Layanan', 'Terms of Service')}</button>
+              {' '}{tx('dan', 'and')}{' '}
+              <button type="button" onClick={() => onOpenLegal('privacy')}>{tx('Kebijakan Privasi', 'Privacy Policy')}</button>.
+            </p>
+          </div>
+        </main>
 
-        {/* Legal Footer */}
-        <p className="text-[12px] text-[var(--tx3)] text-center leading-normal">
-          {tx('Dengan melanjutkan kamu menyetujui', 'By continuing you agree to the')}{' '}
-          <button
-            type="button"
-            onClick={() => onOpenLegal('terms')}
-            className="text-[var(--tx2)] hover:underline inline font-medium cursor-pointer"
-          >
-            {tx('Ketentuan Layanan', 'Terms of Service')}
-          </button>{' '}
-          {tx('dan', 'and')}{' '}
-          <button
-            type="button"
-            onClick={() => onOpenLegal('privacy')}
-            className="text-[var(--tx2)] hover:underline inline font-medium cursor-pointer"
-          >
-            {tx('Kebijakan Privasi', 'Privacy Policy')}
-          </button>
-          .
-        </p>
+        <footer className="welcome-footer">
+          <span>© 2026 1stdev.link · by 1stdev.space</span>
+          <span>{tx('Buat halamanmu. Bagikan duniamu.', 'Create your page. Share your world.')}</span>
+        </footer>
       </div>
     </section>
   );
