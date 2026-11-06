@@ -200,12 +200,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div>
-        <p className="small muted">{greet}</p>
-        <h2 className="text-[22px] font-semibold text-[var(--tx)] truncate">
-          {profile.display_name || tx('Halaman Baru', 'New Page')}
-        </h2>
-      </div>
+      <header className="workspace-page-head">
+        <div className="min-w-0">
+          <p className="workspace-eyebrow">{tx('Ringkasan workspace', 'Workspace overview')}</p>
+          <h1 className="workspace-page-title truncate">{profile.display_name || tx('Halaman Baru', 'New Page')}</h1>
+          <p className="workspace-page-subtitle">{greet} · {tx('Kelola halaman, link, dan performa dari satu tempat.', 'Manage your page, links, and performance in one place.')}</p>
+        </div>
+      </header>
 
       <p className="free-strip">
         <b>{t('heroFreeHeadline')}</b> {t('heroFreeSub')}
