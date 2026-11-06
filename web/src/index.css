@@ -1141,3 +1141,26 @@ input:not([type='checkbox']):focus-visible, textarea:focus-visible, select:focus
 @media (prefers-reduced-motion: reduce) {
   .btn-p:active, .dock-create:active { transform: none; }
 }
+
+
+/* Consistent page titles and contextual descriptions across the workspace. */
+.workspace-page-head { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.workspace-eyebrow { color: #18765d; font-size: 10px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+.workspace-page-title {
+  color: #17362d; font-family: 'DM Sans', 'Inter', sans-serif;
+  font-size: clamp(25px, 3.1vw, 34px); font-weight: 700; letter-spacing: -.045em; line-height: 1.2;
+}
+.workspace-page-subtitle { color: #52695e; font-size: 13px; line-height: 1.6; max-width: 640px; }
+.chart { gap: 5px; height: 172px; padding-top: 10px; }
+.chart .col { min-height: 100%; }
+.chart .col i { border-radius: 5px 5px 1px 1px; min-height: 3px; }
+.chart .col:hover i, .chart .col.on i { background: #12644c; }
+.bar { background: #e7f0e8; }
+.bar i { background: #18765d; }
+:where(.btn, .iconbtn, .dock-btn, .workspace-nav-item, .quick-btn):focus-visible {
+  outline: 2px solid #18765d; outline-offset: 3px;
+}
+@media (max-width: 639px) {
+  .workspace-page-title { font-size: 27px; }
+  .workspace-page-head { gap: 4px; }
+}
