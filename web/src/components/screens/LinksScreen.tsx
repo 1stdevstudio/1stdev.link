@@ -94,19 +94,54 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
   };
 
   if (links.length === 0) {
+    const steps = lang === 'en'
+      ? [
+          ['Paste your URL', 'Enter the destination you want to share.'],
+          ['Create a short link', 'Pick a memorable slug or use the suggested one.'],
+          ['Share and track', 'Copy your link and see clicks here.'],
+        ]
+      : [
+          ['Tempel URL tujuan', 'Masukkan tautan yang ingin kamu bagikan.'],
+          ['Buat link pendek', 'Pilih nama singkat atau gunakan saran otomatis.'],
+          ['Bagikan dan pantau', 'Salin link, lalu lihat statistik klik di sini.'],
+        ];
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 min-w-0 w-full">
         <header className="workspace-page-head">
           <p className="workspace-eyebrow">{lang === 'en' ? 'LINK MANAGEMENT' : 'KELOLA LINK'}</p>
           <h1 className="workspace-page-title">{s.title}</h1>
           <p className="workspace-page-subtitle">{lang === 'en' ? 'Create, share, and track all your short links.' : 'Buat, bagikan, dan pantau semua link pendekmu.'}</p>
         </header>
-        <div className="card empty">
-          <Link2 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
-          <h3 className="text-[16px] font-semibold">{s.emptyT}</h3>
-          <p className="small muted">{s.emptyD}</p>
-          <button className="btn btn-p" onClick={onOpenAddLink}><Plus size={18} /> {s.add}</button>
-        </div>
+        <section className="card link-empty-panel" aria-labelledby="link-empty-title">
+          <div className="link-empty-primary">
+            <span className="link-empty-symbol" aria-hidden="true">
+              <Link2 size={28} strokeWidth={1.75} />
+            </span>
+            <div className="flex flex-col gap-2 min-w-0">
+              <h2 id="link-empty-title" className="text-[clamp(21px,2.2vw,28px)] font-bold tracking-tight text-[var(--tx)]">{s.emptyT}</h2>
+              <p className="text-[14px] leading-relaxed text-[var(--tx2)]">{s.emptyD}</p>
+            </div>
+            <button type="button" className="btn btn-p" onClick={onOpenAddLink}>
+              <Plus size={18} strokeWidth={2} /> {s.add}
+            </button>
+          </div>
+          <div className="link-empty-info">
+            <h3 className="text-[15px] font-semibold text-[var(--tx)]">
+              {lang === 'en' ? 'Get started in 3 steps' : 'Mulai dalam 3 langkah'}
+            </h3>
+            <ol className="link-empty-steps">
+              {steps.map(([title, description], index) => (
+                <li className="link-empty-step" key={title}>
+                  <span className="link-empty-step-num" aria-hidden="true">{index + 1}</span>
+                  <div className="min-w-0">
+                    <p className="text-[14px] font-semibold text-[var(--tx)]">{title}</p>
+                    <p className="small muted mt-1 leading-relaxed">{description}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
       </div>
     );
   }
