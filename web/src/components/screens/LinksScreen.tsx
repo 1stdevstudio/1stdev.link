@@ -96,7 +96,11 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
   if (links.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
+        <header className="workspace-page-head">
+          <p className="workspace-eyebrow">{lang === 'en' ? 'LINK MANAGEMENT' : 'KELOLA LINK'}</p>
+          <h1 className="workspace-page-title">{s.title}</h1>
+          <p className="workspace-page-subtitle">{lang === 'en' ? 'Create, share, and track all your short links.' : 'Buat, bagikan, dan pantau semua link pendekmu.'}</p>
+        </header>
         <div className="card empty">
           <Link2 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
           <h3 className="text-[16px] font-semibold">{s.emptyT}</h3>
@@ -111,13 +115,15 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
-        <span className="hidden lg:block">
-          <button className="btn btn-p btn-sm" onClick={onOpenAddLink}>
-            <Plus size={16} /> {s.add}
-          </button>
-        </span>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <header className="workspace-page-head">
+          <p className="workspace-eyebrow">{lang === 'en' ? 'LINK MANAGEMENT' : 'KELOLA LINK'}</p>
+          <h1 className="workspace-page-title">{s.title}</h1>
+          <p className="workspace-page-subtitle">{lang === 'en' ? 'Create, share, and track all your short links.' : 'Buat, bagikan, dan pantau semua link pendekmu.'}</p>
+        </header>
+        <button className="btn btn-p btn-sm shrink-0" onClick={onOpenAddLink}>
+          <Plus size={16} /> {s.add}
+        </button>
       </div>
 
       <div className="kpis">

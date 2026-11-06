@@ -157,6 +157,10 @@ export const AppShell: React.FC<AppShellProps> = ({
             ))}
           </nav>
 
+          <div className="workspace-current" aria-live="polite">
+            {tabs.find((tab) => tab.id === currentTab)?.label || tx('Pengaturan', 'Settings')}
+          </div>
+
           <div className="flex items-center gap-1.5 shrink-0">
             {/* Tombol Buat (desktop) */}
             <div className="relative hidden lg:block">
@@ -217,9 +221,52 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
       </header>
 
-      <div className={`shell-body ${showPreview ? 'with-preview' : ''}`}>
-        <main className="main-area min-w-0">{children}</main>
-        {showPreview && <aside className="preview-col">{previewColumn}</aside>}
+      <div className="workspace-frame">
+        <aside className="workspace-sidebar" aria-label={tx('Navigasi workspace', 'Workspace navigation')}>
+          <nav className="workspace-nav" aria-label={tx('Menu utama', 'Main menu')}>
+            <span className="workspace-nav-label">{tx('Workspace', 'Workspace')}</span>
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <button
+                type="button"
+                key={id}
+                className="workspace-nav-item"
+                aria-current={currentTab === id ? 'page' : undefined}
+                onClick={() => onTabChange(id)}
+              >
+                <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
+                <span>{label}</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              className="workspace-nav-item"
+              aria-current={currentTab === 'account' ? 'page' : undefined}
+              onClick={() => onTabChange('account')}
+            >
+              <CircleUser size={19} strokeWidth={1.8} aria-hidden="true" />
+              <span>{tx('Pengaturan', 'Settings')}</span>
+            </button>
+          </nav>
+          <div className="workspace-sidebar-foot">
+            <p className="text-[12px] font-semibold text-[var(--tx)]">
+              {session.is_guest ? tx('Akun sementara', 'Guest workspace') : tx('Workspace aktif', 'Active workspace')}
+            </p>
+            <p className="text-[12px] text-[var(--tx2)] mt-1 leading-relaxed break-words">
+              {session.is_guest
+                ? tx('Simpan akun agar halaman tetap aman.', 'Save your account to keep your page safe.')
+                : tx('Semua fitur gratis, tanpa iklan.', 'Every feature is free, without ads.')}
+            </p>
+            {session.is_guest && (
+              <button type="button" className="btn btn-p btn-sm mt-3 w-full" onClick={onOpenSaveAccount}>
+                <Save size={16} strokeWidth={1.8} /> {tx('Simpan akun', 'Save account')}
+              </button>
+            )}
+          </div>
+        </aside>
+        <div className={`shell-body ${showPreview ? 'with-preview' : ''}`}>
+          <main className="main-area min-w-0">{children}</main>
+          {showPreview && <aside className="preview-col">{previewColumn}</aside>}
+        </div>
       </div>
 
       {/* Dock melayang (mobile / tablet) */}

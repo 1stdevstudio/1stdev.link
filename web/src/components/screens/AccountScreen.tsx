@@ -41,7 +41,7 @@ const TX = {
 const Row: React.FC<{ icon: React.ReactNode; title: string; desc?: string; onClick: () => void; danger?: boolean }> = ({
   icon, title, desc, onClick, danger,
 }) => (
-  <button type="button" className={`menu-item ${danger ? 'text-rose-400' : ''}`} onClick={onClick}>
+  <button type="button" className={`menu-item ${danger ? 'text-rose-700' : ''}`} onClick={onClick}>
     <span className="w-9 h-9 rounded-[var(--r2)] bg-[var(--s2)] grid place-items-center shrink-0">{icon}</span>
     <span className="grow text-left min-w-0">
       <span className={`block text-[14px] font-semibold ${danger ? '' : 'text-[var(--tx)]'}`}>{title}</span>
@@ -92,7 +92,11 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
 
   return (
     <div className="acct flex flex-col gap-4">
-      <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
+      <header className="workspace-page-head">
+        <p className="workspace-eyebrow">{lang === 'en' ? 'PREFERENCES & SECURITY' : 'PREFERENSI & KEAMANAN'}</p>
+        <h1 className="workspace-page-title">{s.title}</h1>
+        <p className="workspace-page-subtitle">{lang === 'en' ? 'Manage your account, devices, and page preferences.' : 'Kelola akun, perangkat, dan pengaturan halamanmu.'}</p>
+      </header>
 
       {/* Mobile: satu kolom. Desktop: kartu akun menempel di kiri, pengaturan di kanan. */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:gap-6 items-start">

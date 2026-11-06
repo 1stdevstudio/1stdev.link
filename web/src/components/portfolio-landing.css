@@ -1076,3 +1076,146 @@
     font-size: 23px;
   }
 }
+
+
+/* Modern Light / product-first hero. All values below are demo illustrations. */
+.portfolio-landing {
+  --canvas: #f7f9f7;
+  --ink: #17362d;
+  --muted: #52695e;
+  --line: #e0e9e2;
+  --accent: #d9f1e2;
+}
+.portfolio-landing .header { height: 84px; }
+.portfolio-landing .nav-contact { border-radius: 14px; border-color: #d7e5da; font-size: 13px; }
+.portfolio-landing .hero { gap: clamp(26px, 4vw, 60px); padding-top: clamp(36px, 5vw, 78px); align-items: center; }
+.portfolio-landing h1 { font-size: clamp(54px, 6.3vw, 90px); letter-spacing: -.065em; line-height: 1.04; margin-top: 30px; }
+.portfolio-landing h1 em { color: #18765d; }
+.portfolio-landing .headline-star { color: #8bcdaa; }
+.portfolio-landing .intro { font-size: clamp(14px, 1.3vw, 16px); line-height: 1.8; max-width: 470px; }
+.portfolio-landing .button { min-height: 52px; border-radius: 14px; font-weight: 650; font-size: 13px; }
+.portfolio-landing .button.primary { background: #18765d; }
+.portfolio-landing .button.primary:hover { background: #115a46; }
+.portfolio-landing .hero-secondary { font-size: 13px; font-weight: 600; }
+.portfolio-landing .hero-caption { margin-top: 6px; }
+.portfolio-landing .hero-product {
+  min-width: 0; position: relative; min-height: 480px; overflow: hidden;
+  border-radius: 26px; background: #fff; padding: 0; align-self: stretch;
+  box-shadow: 0 25px 90px rgba(17, 75, 48, .11), 0 0 0 1px #e6eee7;
+  transform: translateZ(0);
+}
+.portfolio-landing .hero-product-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  height: 60px; padding: 0 22px; border-bottom: 1px solid #edf3ed;
+}
+.portfolio-landing .hero-product-brand {
+  display: flex; gap: 9px; align-items: center; font-size: 14px;
+  color: #17362d; font-weight: 750; letter-spacing: -.03em;
+}
+.portfolio-landing .hero-product-symbol {
+  display: inline-grid; place-items: center; width: 27px; height: 27px;
+  background: #18765d; color: white; border-radius: 9px;
+}
+.portfolio-landing .hero-product-demo {
+  font-size: 9px; letter-spacing: .1em; font-weight: 700;
+  color: #71877a; background: #eff6f0; padding: 6px 9px; border-radius: 7px;
+}
+.portfolio-landing .hero-product-layout { display: grid; grid-template-columns: 126px minmax(0,1fr); min-height: 420px; }
+.portfolio-landing .hero-product-sidebar {
+  padding: 22px 9px; background: #f5f9f5; display: flex; flex-direction: column; gap: 7px;
+}
+.portfolio-landing .hero-product-nav {
+  display: flex; align-items: center; gap: 7px; padding: 12px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 600; color: #71877a; white-space: nowrap;
+}
+.portfolio-landing .hero-product-nav.active { color: #18765d; background: #e2f2e8; }
+.portfolio-landing .hero-product-content { padding: 34px 24px 24px; min-width: 0; }
+.portfolio-landing .hero-product-kicker { color: #18765d; font-size: 9px; font-weight: 750; letter-spacing: .13em; }
+.portfolio-landing .hero-product-content h3 {
+  font-size: clamp(18px, 1.9vw, 24px); letter-spacing: -.055em; margin-top: 10px;
+  line-height: 1.2; font-weight: 750;
+}
+.portfolio-landing .hero-product-content > p { font-size: 12px; color: #6d8174; margin-top: 5px; }
+.portfolio-landing .hero-product-ready {
+  display: flex; align-items: center; gap: 7px; margin-top: 23px; max-width: 290px;
+  font-size: 10px; color: #17694f; background: #e9f6ed; padding: 11px 12px; border-radius: 11px;
+  overflow-wrap: anywhere;
+}
+.portfolio-landing .hero-product-metrics {
+  display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); max-width: 300px; gap: 10px; margin-top: 12px;
+}
+.portfolio-landing .hero-product-metrics > div {
+  background: #f6f9f6; border-radius: 13px; display: flex; flex-direction: column;
+  gap: 4px; padding: 15px;
+}
+.portfolio-landing .hero-product-metrics small { font-size: 9px; color: #7b9182; font-weight: 650; letter-spacing: .045em; }
+.portfolio-landing .hero-product-metrics strong { font-size: 26px; line-height: 1.1; letter-spacing: -.06em; }
+.portfolio-landing .hero-product-metrics span { color: #819487; font-size: 9px; }
+.portfolio-landing .hero-product-section {
+  display: flex; justify-content: space-between; align-items: center;
+  max-width: 300px; color: #244337; font-size: 12px; margin-top: 25px; font-weight: 700;
+}
+.portfolio-landing .hero-product-link {
+  display: flex; align-items: center; gap: 9px; max-width: 300px; margin-top: 10px;
+  border-radius: 10px; background: #f5f9f5; min-height: 49px; padding: 9px;
+  font-size: 11px; font-weight: 650; color: #284638;
+}
+.portfolio-landing .hero-product-linkicon {
+  display: grid; place-items: center; background: #e3f2e7; color: #18765d;
+  width: 30px; height: 30px; border-radius: 8px; font-size: 16px;
+}
+.portfolio-landing .hero-product-link span:nth-child(2) { display: flex; flex-direction: column; gap: 2px; }
+.portfolio-landing .hero-product-link small { color: #839488; font-size: 9px; font-weight: 400; }
+.portfolio-landing .hero-product-link i { width: 40px; height: 6px; background: #d0e8d5; border-radius: 20px; margin-left: auto; }
+.portfolio-landing .hero-product-phone {
+  position: absolute; width: 166px; right: 17px; bottom: 26px; min-height: 283px;
+  border: 6px solid #1b4536; border-radius: 28px; padding: 20px 10px 12px;
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 7px;
+  box-shadow: 0 16px 32px rgba(19, 59, 36, .19); background: #eef8ee; color: #17362d;
+  transform: rotate(3deg);
+}
+.portfolio-landing .hero-phone-label { font-size: 7px; font-weight: 750; letter-spacing: .08em; color: #67957b; }
+.portfolio-landing .hero-phone-avatar {
+  display: grid; place-items: center; width: 48px; height: 48px; margin-top: 5px;
+  border-radius: 50%; color: #fff; background: linear-gradient(135deg,#18765d,#77bea0); font-size: 22px;
+}
+.portfolio-landing .hero-product-phone strong { font-size: 13px; font-weight: 750; }
+.portfolio-landing .hero-product-phone small { color: #779487; font-size: 9px; }
+.portfolio-landing .hero-product-phone p { font-size: 9px; max-width: 125px; color: #6b8679; line-height: 1.45; }
+.portfolio-landing .hero-phone-button {
+  display: flex; justify-content: space-between; align-items: center; gap: 6px;
+  width: 100%; padding: 9px 7px; border-radius: 8px; color: #fff; background: #18765d;
+  font-size: 8px; font-weight: 650;
+}
+.portfolio-landing .hero-phone-button + .hero-phone-button { background: #e0f0e5; color: #275c46; }
+.portfolio-landing .hero-phone-foot { margin-top: auto; color: #8ba497; font-size: 7px; }
+@media (min-width: 801px) and (max-width: 1280px) {
+  .portfolio-landing .hero-product-sidebar { display: none; }
+  .portfolio-landing .hero-product-layout { grid-template-columns: minmax(0,1fr); }
+  .portfolio-landing .hero-product-content { padding-left: 23px; }
+  .portfolio-landing .hero-product-phone { width: 145px; right: 10px; }
+}
+@media (max-width: 800px) {
+  .portfolio-landing .hero { align-items: start; }
+  .portfolio-landing .hero-product { min-height: 450px; width: 100%; }
+  .portfolio-landing .hero-product-content { padding-right: 150px; }
+  .portfolio-landing .hero-product-phone { right: 20px; }
+}
+@media (max-width: 560px) {
+  .portfolio-landing .wrap { width: calc(100% - 36px); }
+  .portfolio-landing .header { height: 76px; }
+  .portfolio-landing .header nav { gap: 12px; }
+  .portfolio-landing .hero { padding-top: 22px; }
+  .portfolio-landing h1 { font-size: clamp(43px, 11.7vw, 62px); letter-spacing: -.06em; }
+  .portfolio-landing .headline-star { display: none; }
+  .portfolio-landing .hero-product-layout { grid-template-columns: minmax(0,1fr); }
+  .portfolio-landing .hero-product-sidebar { display: none; }
+  .portfolio-landing .hero-product-content { padding: 24px 18px; }
+  .portfolio-landing .hero-product-phone { display: none; }
+  .portfolio-landing .hero-product { min-height: 410px; }
+  .portfolio-landing .hero-product-metrics, .portfolio-landing .hero-product-section, .portfolio-landing .hero-product-link, .portfolio-landing .hero-product-ready { max-width: none; }
+  .portfolio-landing .hero-product-content h3 { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-landing .hero-product-phone { transform: none; }
+}

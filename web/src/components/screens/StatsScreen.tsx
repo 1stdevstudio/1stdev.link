@@ -93,8 +93,12 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
   };
 
   const header = (
-    <div className="flex items-center justify-between gap-3">
-      <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
+    <div className="flex items-center justify-between gap-3 flex-wrap">
+      <header className="workspace-page-head">
+        <p className="workspace-eyebrow">{lang === 'en' ? 'PERFORMANCE' : 'PERFORMA'}</p>
+        <h1 className="workspace-page-title">{s.title}</h1>
+        <p className="workspace-page-subtitle">{lang === 'en' ? 'See how your short links perform over time.' : 'Lihat perkembangan performa link pendekmu dari waktu ke waktu.'}</p>
+      </header>
       <div className="seg">
         {(['7d', '30d'] as Range[]).map((r) => (
           <button key={r} aria-pressed={range === r} onClick={() => setRange(r)}>
@@ -108,7 +112,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
   if (agg && agg.total === 0 && agg.active === 0 && redirectLinks.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
+        {header}
         <div className="card empty">
           <BarChart3 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
           <h3 className="text-[16px] font-semibold">{s.emptyT}</h3>

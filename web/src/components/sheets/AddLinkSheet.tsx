@@ -76,7 +76,7 @@ export const AddLinkSheet: React.FC<AddLinkSheetProps> = ({
     <Sheet isOpen={isOpen} onClose={onClose} title={tx('Tambah link', 'Add link')}>
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         {error && (
-          <div className="p-3 rounded-[var(--r2)] bg-rose-500/10 text-rose-400 text-[13px]">
+          <div className="p-3 rounded-[var(--r2)] bg-rose-500/10 text-rose-700 text-[13px]">
             {error}
           </div>
         )}

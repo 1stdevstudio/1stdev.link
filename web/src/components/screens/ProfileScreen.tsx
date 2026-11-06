@@ -355,6 +355,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
+      <header className="workspace-page-head">
+        <p className="workspace-eyebrow">{tx('STUDIO HALAMAN', 'PAGE STUDIO')}</p>
+        <h1 className="workspace-page-title">{tx('Halaman Saya', 'My Page')}</h1>
+        <p className="workspace-page-subtitle">{tx('Atur konten dan tampilan halaman, lalu lihat hasilnya secara langsung.', 'Customize your content and design, then preview the result live.')}</p>
+      </header>
       {/* Tab builder */}
       <div className="studio-tabs" role="tablist" aria-label={tx('Bagian editor halaman', 'Page editor sections')}>
         {tabs.map(({ id, label, icon: Icon, count, mobileOnly }) => (
@@ -622,7 +627,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                             <button
                               type="button"
                               role="menuitem"
-                              className="flex items-center gap-2.5 px-3 py-2 text-left text-[13px] rounded hover:bg-red-500/10 text-red-400"
+                              className="flex items-center gap-2.5 px-3 py-2 text-left text-[13px] rounded hover:bg-red-500/10 text-red-700"
                               onClick={() => handlePermanentDelete(link)}
                             >
                               <Trash2 size={14} strokeWidth={1.75} />
@@ -681,7 +686,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <button
                   type="button"
                   onClick={handleRemoveCover}
-                  className="text-[12px] text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                  className="text-[12px] text-red-700 hover:text-red-800 flex items-center gap-1 transition-colors"
                 >
                   <Trash2 size={13} strokeWidth={1.75} />
                   <span>{tx('Hapus cover', 'Remove cover')}</span>
@@ -729,7 +734,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <button
                   type="button"
                   onClick={handleRemoveBg}
-                  className="text-[12px] text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                  className="text-[12px] text-red-700 hover:text-red-800 flex items-center gap-1 transition-colors"
                 >
                   <Trash2 size={13} strokeWidth={1.75} />
                   <span>{tx('Hapus latar', 'Remove background')}</span>
@@ -751,7 +756,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                     type="button"
                     disabled={uploadingBg}
                     onClick={() => bgFileRef.current?.click()}
-                    className="px-3 py-1.5 rounded-[var(--r1)] bg-[var(--s2)] hover:bg-[#1a382e] text-[12px] font-medium text-[var(--tx)] flex items-center gap-1.5 transition-colors"
+                    className="px-3 py-1.5 rounded-[var(--r1)] bg-[var(--s2)] hover:bg-[#deebe2] text-[12px] font-medium text-[var(--tx)] flex items-center gap-1.5 transition-colors"
                   >
                     <Upload size={12} strokeWidth={1.75} />
                     <span>{uploadingBg ? tx('Mengunggah...', 'Uploading...') : tx('Ganti foto', 'Change')}</span>
@@ -772,7 +777,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                         type="button"
                         onClick={() => onUpdateStyle?.({ bg_blur: b.val })}
                         className={`py-1 text-[11px] rounded-[var(--r1)] transition-colors ${
-                          bgBlur === b.val ? 'bg-[var(--ac)] text-[var(--ink)] font-bold' : 'bg-[var(--s2)] text-[var(--tx2)] hover:text-white'
+                          bgBlur === b.val ? 'bg-[var(--ac)] text-[var(--ink)] font-bold' : 'bg-[var(--s2)] text-[var(--tx2)] hover:text-[var(--tx)]'
                         }`}
                       >
                         {b.label}
@@ -795,7 +800,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                         type="button"
                         onClick={() => onUpdateStyle?.({ bg_dim: d.val })}
                         className={`py-1 text-[11px] rounded-[var(--r1)] transition-colors ${
-                          bgDim === d.val ? 'bg-[var(--ac)] text-[var(--ink)] font-bold' : 'bg-[var(--s2)] text-[var(--tx2)] hover:text-white'
+                          bgDim === d.val ? 'bg-[var(--ac)] text-[var(--ink)] font-bold' : 'bg-[var(--s2)] text-[var(--tx2)] hover:text-[var(--tx)]'
                         }`}
                       >
                         {d.label}
@@ -830,7 +835,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 aria-pressed={activeBgFx.includes('aurora')}
                 onClick={() => handleToggleBgFx('aurora')}
                 className={`flex items-center justify-between p-3.5 rounded-[var(--r2)] ${
-                  activeBgFx.includes('aurora') ? 'bg-[#18332a]' : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
+                  activeBgFx.includes('aurora') ? 'bg-[#ddf0e4]' : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
                 } transition-colors`}
               >
                 <div className="flex items-center gap-2.5 text-left">
@@ -848,7 +853,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 aria-pressed={activeBgFx.includes('grain')}
                 onClick={() => handleToggleBgFx('grain')}
                 className={`flex items-center justify-between p-3.5 rounded-[var(--r2)] ${
-                  activeBgFx.includes('grain') ? 'bg-[#18332a]' : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
+                  activeBgFx.includes('grain') ? 'bg-[#ddf0e4]' : 'bg-[var(--s1)] hover:bg-[var(--s2)]'
                 } transition-colors`}
               >
                 <div className="flex items-center gap-2.5 text-left">
