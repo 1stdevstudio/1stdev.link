@@ -95,7 +95,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <span className="hero-product-kicker">WORKSPACE</span>
                 <h3>Semua dalam satu panel.</h3>
                 <p>Halaman Anda siap dibagikan.</p>
-                <div className="hero-product-ready"><CheckCircle2 size={17} /> link.1stnear.com/@creator</div>
+                <div className="hero-product-ready"><CheckCircle2 size={17} /> 1stdev.link/@creator</div>
                 <div className="hero-product-metrics">
                   <div><small>LINK AKTIF</small><strong>12</strong><span>Contoh statistik</span></div>
                   <div><small>KLIK LINK</small><strong>2.4k</strong><span>Contoh statistik</span></div>
