@@ -1,4 +1,5 @@
 import React from 'react';
+import { BarChart3, CheckCircle2, LayoutDashboard, Link2, ArrowUpRight } from 'lucide-react';
 import './portfolio-landing.css';
 
 interface LandingPageProps {
@@ -47,11 +48,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span className="status-dot"></span> LINK BIO CERDAS & PEMENDEK TAUTAN
             </p>
             <h1 id="hero-title">
-              Satu alamat. <em>Semua dunia Anda.</em>
+              Satu link. <em>Lebih banyak peluang.</em>
               <span className="headline-star" aria-hidden="true">✳</span>
             </h1>
             <p className="intro">
-              Hubungkan pengunjung, karya, produk, dan media sosial Anda dalam satu tempat yang cepat dan tenang. Sub-15ms di edge global, tanpa pelacak iklan.
+              Buat halaman profesional untuk karya, produk, dan semua tautan penting Anda. Kelola semuanya dari satu panel yang sederhana, cepat, dan gratis.
             </p>
 
             <div className="hero-actions">
@@ -78,43 +79,47 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
-          {/* Sisi Kanan: Orbital Sculpture (.space-art persis di portfolio asli) */}
-          <div className="space-art" role="img" aria-label="Sculpture orbital mint di ruang hijau gelap">
-            <div className="space-grid" aria-hidden="true"></div>
-            <div className="space-art-top">
-              <span>1STDEV LINK PLATFORM</span>
-              <span className="art-coordinate">001 / ∞</span>
+          {/* Product-first preview: a visual example, not fabricated live user metrics. */}
+          <div className="hero-product" role="img" aria-label="Ilustrasi light mode panel 1stdev.link dengan halaman publik dan contoh statistik">
+            <div className="hero-product-head">
+              <span className="hero-product-brand"><span className="hero-product-symbol"><Link2 size={14} /></span> 1stdev.link</span>
+              <span className="hero-product-demo">CONTOH TAMPILAN</span>
             </div>
-
-            <div className="orbital-system" aria-hidden="true">
-              <div className="orbit orbit-one"></div>
-              <div className="orbit orbit-two"></div>
-              <div className="orbit orbit-three"></div>
-              <div className="planet"></div>
-              <span className="satellite satellite-one"></span>
-              <span className="satellite satellite-two"></span>
-              <span className="space-cross cross-one">+</span>
-              <span className="space-cross cross-two">+</span>
+            <div className="hero-product-layout">
+              <div className="hero-product-sidebar">
+                <span className="hero-product-nav active"><LayoutDashboard size={15} /> Ringkasan</span>
+                <span className="hero-product-nav"><Link2 size={15} /> Halaman</span>
+                <span className="hero-product-nav"><BarChart3 size={15} /> Statistik</span>
+              </div>
+              <div className="hero-product-content">
+                <span className="hero-product-kicker">WORKSPACE</span>
+                <h3>Semua dalam satu panel.</h3>
+                <p>Halaman Anda siap dibagikan.</p>
+                <div className="hero-product-ready"><CheckCircle2 size={17} /> link.1stnear.com/@creator</div>
+                <div className="hero-product-metrics">
+                  <div><small>LINK AKTIF</small><strong>12</strong><span>Contoh statistik</span></div>
+                  <div><small>KLIK LINK</small><strong>2.4k</strong><span>Contoh statistik</span></div>
+                </div>
+                <div className="hero-product-section">Tautan populer <ArrowUpRight size={15} /></div>
+                <div className="hero-product-link"><span className="hero-product-linkicon">↗</span><span>Portfolio pilihan<small>1stdev.link / karya</small></span><i /></div>
+                <div className="hero-product-link"><span className="hero-product-linkicon">◎</span><span>Produk & katalog<small>1stdev.link / katalog</small></span><i /></div>
+              </div>
             </div>
-
-            <div className="floating-label" aria-hidden="true">
-              <span className="label-dot"></span>
-              <span>1STDEV.LINK · SUB-15MS EDGE</span>
+            <div className="hero-product-phone" aria-hidden="true">
+              <span className="hero-phone-label">HALAMAN PUBLIK</span>
+              <span className="hero-phone-avatar">✳</span>
+              <strong>Studio Kreatif</strong>
+              <small>@creator</small>
+              <p>Ide, karya, dan cerita di satu tempat.</p>
+              <span className="hero-phone-button">Lihat portfolio <ArrowUpRight size={13} /></span>
+              <span className="hero-phone-button">Jelajahi katalog <ArrowUpRight size={13} /></span>
+              <span className="hero-phone-foot">Made with 1stdev.link</span>
             </div>
-
-            <div className="space-art-bottom">
-              <span>
-                SATU IDENTITAS TERPUSAT.<br />
-                <strong>SAMBUNGKAN SEGALANYA.</strong>
-              </span>
-              <span className="space-seal" aria-hidden="true">✳</span>
-            </div>
-            <span className="space-word" aria-hidden="true">EDGE</span>
           </div>
 
           <div className="hero-caption">
-            <span>DIBANGUN DI ATAS CLOUDFLARE GLOBAL EDGE</span>
-            <span>SUB-15MS RESPONSE TIME ↗</span>
+            <span>CLOUDFLARE EDGE NATIVE</span>
+            <span>CREATOR · UMKM · AFFILIATE</span>
           </div>
         </section>
 
