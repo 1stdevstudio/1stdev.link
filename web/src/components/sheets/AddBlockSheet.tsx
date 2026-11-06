@@ -217,7 +217,7 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
   return (
     <Sheet isOpen={isOpen} onClose={handleClose} title={active ? `${tx('Tambah', 'Add')} ${active.name}` : tx('Tambah isi', 'Add content')}>
       {error && (
-        <p role="alert" className="mb-3 rounded-[var(--r2)] bg-[rgba(248,113,113,0.12)] px-3 py-2.5 text-[13px] leading-snug text-rose-300">
+        <p role="alert" className="mb-3 rounded-[var(--r2)] bg-[rgba(248,113,113,0.12)] px-3 py-2.5 text-[13px] leading-snug text-rose-700">
           {error}
         </p>
       )}
