@@ -355,6 +355,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
+      <header className="workspace-page-head">
+        <p className="workspace-eyebrow">{tx('STUDIO HALAMAN', 'PAGE STUDIO')}</p>
+        <h1 className="workspace-page-title">{tx('Halaman Saya', 'My Page')}</h1>
+        <p className="workspace-page-subtitle">{tx('Atur konten dan tampilan halaman, lalu lihat hasilnya secara langsung.', 'Customize your content and design, then preview the result live.')}</p>
+      </header>
       {/* Tab builder */}
       <div className="studio-tabs" role="tablist" aria-label={tx('Bagian editor halaman', 'Page editor sections')}>
         {tabs.map(({ id, label, icon: Icon, count, mobileOnly }) => (
