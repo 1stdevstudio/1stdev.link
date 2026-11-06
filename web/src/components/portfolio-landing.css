@@ -1219,3 +1219,196 @@
 @media (prefers-reduced-motion: reduce) {
   .portfolio-landing .hero-product-phone { transform: none; }
 }
+
+
+/* ==========================================================
+   Landing layout stability — isolate responsive presentation
+   from the full-width authenticated workspace.
+   ========================================================== */
+.portfolio-landing { overflow-x: clip; }
+.portfolio-landing .wrap {
+  width: min(1400px, calc(100% - clamp(32px, 6vw, 112px)));
+  max-width: none;
+}
+.portfolio-landing .hero {
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
+  gap: clamp(28px, 3vw, 50px);
+  align-items: center;
+}
+.portfolio-landing .hero-copy,
+.portfolio-landing .hero-product,
+.portfolio-landing .work-heading > *,
+.portfolio-landing .project-art > * { min-width: 0; }
+.portfolio-landing h1 {
+  font-size: clamp(46px, 5.2vw, 80px);
+  letter-spacing: -.052em;
+  line-height: 1.04;
+  max-width: 13ch;
+  margin: 22px 0 24px;
+}
+.portfolio-landing .headline-star { display: none; }
+.portfolio-landing .hero-copy { padding: 12px 0 22px; }
+.portfolio-landing .hero-note { flex-wrap: wrap; row-gap: 5px; }
+.portfolio-landing .hero-product {
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.portfolio-landing .hero-product-layout { min-height: 460px; }
+.portfolio-landing .hero-product-content {
+  padding: 30px clamp(176px, 32%, 232px) 26px 22px;
+}
+.portfolio-landing .hero-product-ready,
+.portfolio-landing .hero-product-metrics,
+.portfolio-landing .hero-product-section,
+.portfolio-landing .hero-product-link { max-width: none; }
+.portfolio-landing .hero-product-metrics > div { padding: 12px; }
+.portfolio-landing .hero-product-phone { transform: none; }
+.portfolio-landing .discipline-strip > .wrap {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 24px;
+}
+.portfolio-landing .project-art {
+  padding: clamp(32px, 4vw, 60px);
+  gap: 20px;
+}
+.portfolio-landing .project-art .product-story { flex: 0 1 42%; }
+.portfolio-landing .project-art .bio-composition { flex: 0 1 55%; }
+.portfolio-landing .footer-wordmark { min-width: 0; font-size: clamp(42px, 10.5vw, 148px); }
+
+@media (max-width: 1120px) {
+  .portfolio-landing .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-top: 28px;
+  }
+  .portfolio-landing .hero-copy {
+    max-width: 800px;
+    padding-bottom: 4px;
+  }
+  .portfolio-landing h1 {
+    font-size: clamp(48px, 6.7vw, 76px);
+    max-width: 16ch;
+  }
+  .portfolio-landing .hero-product-layout {
+    grid-template-columns: 126px minmax(0, 1fr);
+    min-height: 400px;
+  }
+  .portfolio-landing .hero-product-sidebar { display: flex; }
+  .portfolio-landing .hero-product-content {
+    padding: 27px clamp(190px, 27%, 240px) 26px 26px;
+  }
+  .portfolio-landing .hero-product-phone { right: 28px; bottom: 26px; width: 166px; }
+  .portfolio-landing .work-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .portfolio-landing .work-heading > p { max-width: 65ch; }
+  .portfolio-landing .section { padding-top: 72px; padding-bottom: 72px; }
+}
+
+@media (max-width: 800px) {
+  .portfolio-landing .hero { gap: 22px; }
+  .portfolio-landing h1 {
+    font-size: clamp(46px, 8.4vw, 66px);
+    letter-spacing: -.045em;
+  }
+  .portfolio-landing .hero-product-layout {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+  .portfolio-landing .hero-product-sidebar { padding: 17px 6px; }
+  .portfolio-landing .hero-product-nav { font-size: 10px; gap: 5px; padding: 11px 6px; }
+  .portfolio-landing .hero-product-content {
+    padding: 26px 195px 25px 20px;
+  }
+  .portfolio-landing .hero-product-phone { width: 160px; right: 19px; bottom: 21px; }
+  .portfolio-landing .project-art { height: 410px; padding: 36px 28px; }
+  .portfolio-landing .project-art .product-brand { font-size: clamp(26px, 4vw, 35px); }
+  .portfolio-landing .project-art .product-story p { font-size: clamp(23px, 3.5vw, 30px); }
+  .portfolio-landing .process-heading { grid-template-columns: minmax(0, 1fr); }
+  .portfolio-landing .footer { flex-wrap: wrap; gap: 18px; }
+  .portfolio-landing .contact-bottom { gap: 20px; }
+}
+
+@media (max-width: 720px) {
+  .portfolio-landing .hero-product-head { padding: 0 16px; height: 56px; }
+  .portfolio-landing .hero-product-layout {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .portfolio-landing .hero-product-sidebar,
+  .portfolio-landing .hero-product-phone { display: none; }
+  .portfolio-landing .hero-product-content { padding: 26px 22px 30px; }
+  .portfolio-landing .hero-product-content h3 { font-size: 23px; }
+  .portfolio-landing .hero-product { min-height: 0; }
+  .portfolio-landing .hero-product-metrics,
+  .portfolio-landing .hero-product-section,
+  .portfolio-landing .hero-product-link,
+  .portfolio-landing .hero-product-ready { width: 100%; }
+  .portfolio-landing .project-art {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: start;
+    gap: 24px;
+    height: auto;
+    min-height: 570px;
+    padding: 56px 22px 40px;
+  }
+  .portfolio-landing .project-art .product-story {
+    flex: none;
+    width: 100%;
+    text-align: center;
+  }
+  .portfolio-landing .project-art .product-tag { letter-spacing: .08em; }
+  .portfolio-landing .project-art .bio-composition {
+    flex: none;
+    width: min(100%, 360px);
+    height: 305px;
+  }
+  .portfolio-landing .bio-float { left: 4px; }
+  .portfolio-landing .work-heading { gap: 16px; }
+  .portfolio-landing .work-heading h2 { font-size: clamp(36px, 8vw, 52px); }
+  .portfolio-landing .section { padding-top: 58px; padding-bottom: 58px; }
+  .portfolio-landing .process-steps { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .portfolio-landing .contact { padding: 50px 0 46px; }
+  .portfolio-landing .contact h2 { font-size: clamp(39px, 8vw, 65px); letter-spacing: -.055em; }
+  .portfolio-landing .contact-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-top: 26px;
+  }
+  .portfolio-landing .footer-wordmark { font-size: clamp(38px, 9vw, 70px); }
+  .portfolio-landing .footer { align-items: flex-start; flex-direction: column; }
+  .portfolio-landing .footer-links { flex-wrap: wrap; gap: 10px 16px; }
+}
+
+@media (max-width: 620px) {
+  .portfolio-landing .header { height: 72px; }
+  .portfolio-landing .header nav > a { display: none; }
+  .portfolio-landing .header nav { gap: 0; }
+  .portfolio-landing .brand-name { font-size: 25px; }
+  .portfolio-landing .nav-contact { padding: 11px 16px; }
+  .portfolio-landing .hero { padding-top: 18px; }
+  .portfolio-landing .hero-copy { padding-top: 8px; }
+  .portfolio-landing h1 {
+    font-size: clamp(43px, 10.5vw, 60px);
+    max-width: 13ch;
+  }
+  .portfolio-landing .hero-actions { gap: 13px; }
+  .portfolio-landing .discipline-strip .strip-star { display: none; }
+  .portfolio-landing .hero-caption { flex-wrap: wrap; gap: 8px 16px; }
+  .portfolio-landing .contact-arrow { font-size: 50px; }
+  .portfolio-landing .footer-star { display: none; }
+}
+
+@media (max-width: 390px) {
+  .portfolio-landing .hero-product-metrics { gap: 8px; }
+  .portfolio-landing .hero-product-metrics > div { padding: 10px; }
+  .portfolio-landing .hero-product-head { gap: 6px; }
+  .portfolio-landing .hero-product-demo { font-size: 8px; letter-spacing: .03em; }
+  .portfolio-landing .hero-note { font-size: 9px; letter-spacing: .035em; }
+  .portfolio-landing .bio-orbit { max-width: 340px; }
+}
