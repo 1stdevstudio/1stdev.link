@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BarChart3, ShieldCheck } from 'lucide-react';
+import { BarChart3, Download, RotateCw, ShieldCheck } from 'lucide-react';
 import { LinkItem } from '../../types';
 import { api } from '../../api';
+import { isContentBlock } from '../../../../shared/business';
 import { useI18n } from '../../i18n/context';
 
 interface StatsScreenProps {
@@ -9,7 +10,6 @@ interface StatsScreenProps {
 }
 
 type Range = '7d' | '30d';
-const MAX_LINKS = 10; // batasi request agar hemat kuota free tier
 
 const TX = {
   id: {
@@ -31,7 +31,8 @@ const TX = {
 interface Agg {
   byDate: { date: string; clicks: number }[];
   byCountry: { country: string; clicks: number }[];
-  byLink: { link: LinkItem; clicks: number }[];
+  byLink: { link: Pick<LinkItem, 'id' | 'title' | 'slug'>; clicks: number }[];
+  active: number;
   total: number;
 }
 
@@ -43,44 +44,53 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
   const [error, setError] = useState(false);
   const [picked, setPicked] = useState<number | null>(null);
 
-  const topLinks = useMemo(
-    () => [...links].sort((a, b) => b.clicks - a.clicks).slice(0, MAX_LINKS),
-    [links]
-  );
+  const [retry, setRetry] = useState(0);
+  const redirectLinks = useMemo(() => links.filter((link) => !isContentBlock(link.block_type) && link.destination_url !== '#'), [links]);
 
   useEffect(() => {
-    if (topLinks.length === 0) return;
     let alive = true;
     setAgg(null);
     setError(false);
     setPicked(null);
-    Promise.all(topLinks.map((l) => api.getLinkAnalytics(l.id, range).then((a) => ({ l, a }))))
-      .then((rows) => {
-        if (!alive) return;
-        const days = range === '7d' ? 7 : 30;
-        const dates = new Map<string, number>();
-        for (let i = days - 1; i >= 0; i--) {
-          const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-          dates.set(d, 0);
-        }
-        const geo = new Map<string, number>();
-        let total = 0;
-        const byLink = rows.map(({ l, a }) => {
-          a.by_date.forEach((r) => dates.has(r.date) && dates.set(r.date, (dates.get(r.date) || 0) + r.clicks));
-          a.by_country.forEach((r) => geo.set(r.country || '', (geo.get(r.country || '') || 0) + r.clicks));
-          total += a.total_clicks;
-          return { link: l, clicks: a.total_clicks };
-        });
-        setAgg({
-          byDate: [...dates].map(([date, clicks]) => ({ date, clicks })),
-          byCountry: [...geo].map(([country, clicks]) => ({ country, clicks })).sort((a, b) => b.clicks - a.clicks),
-          byLink: byLink.filter((r) => r.clicks > 0).sort((a, b) => b.clicks - a.clicks),
-          total,
-        });
-      })
-      .catch(() => alive && setError(true));
+    api.getAnalyticsSummary(range).then((summary) => {
+      if (!alive) return;
+      const dates = new Map<string, number>();
+      const days = range === '7d' ? 7 : 30;
+      for (let i = days - 1; i >= 0; i--) dates.set(new Date(Date.now() - i * 864e5).toISOString().slice(0, 10), 0);
+      for (const row of summary.by_date) if (dates.has(row.date)) dates.set(row.date, row.clicks);
+      setAgg({
+        total: summary.total_clicks,
+        active: summary.active_links,
+        byDate: [...dates].map(([date, clicks]) => ({ date, clicks })),
+        byCountry: summary.by_country,
+        byLink: summary.by_link.filter((link) => link.clicks > 0).map((link) => ({ link, clicks: link.clicks })),
+      });
+    }).catch(() => { if (alive) setError(true); });
     return () => { alive = false; };
-  }, [topLinks, range]);
+  }, [redirectLinks, range, retry]);
+
+  const downloadSummary = () => {
+    if (!agg) return;
+    const cell = (raw: string | number) => {
+      let value = String(raw);
+      if (/^\s*[=+@-]/.test(value)) value = `'${value}`;
+      return `"${value.replace(/"/g, '""')}"`;
+    };
+    const rows: (string | number)[][] = [
+      ['section', 'date_or_name', 'clicks'],
+      ...agg.byDate.map((row) => ['daily_utc', row.date, row.clicks]),
+      ...agg.byCountry.map((row) => ['country', row.country, row.clicks]),
+      ...agg.byLink.map((row) => ['top_link', row.link.title || row.link.slug, row.clicks]),
+      ['total', range, agg.total],
+    ];
+    const blob = new Blob(['\ufeff', rows.map((row) => row.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `1stdev-statistik-${range}-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 
   const header = (
     <div className="flex items-center justify-between gap-3">
@@ -95,7 +105,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
     </div>
   );
 
-  if (links.length === 0) {
+  if (agg && agg.total === 0 && agg.active === 0 && redirectLinks.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <h2 className="text-[20px] font-semibold text-[var(--tx)]">{s.title}</h2>
@@ -109,7 +119,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
   }
 
   const max = Math.max(1, ...(agg?.byDate.map((d) => d.clicks) || [1]));
-  const fmtDate = (d: string) => new Date(d).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short' });
+  const fmtDate = (d: string) => new Date(d).toLocaleDateString(lang === 'en' ? 'en-US' : 'id-ID', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   const regionName = (code: string) => {
     if (!code || code === 'XX') return s.unknown;
     try { return new Intl.DisplayNames([lang], { type: 'region' }).of(code) || code; } catch { return code; }
@@ -122,12 +132,16 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
 
       <div className="kpis kpis-4">
         <div className="kpi"><span>{s.clicks}</span><b>{agg ? agg.total.toLocaleString() : '–'}</b></div>
-        <div className="kpi"><span>{s.active}</span><b>{links.filter((l) => l.is_active).length}</b></div>
+        <div className="kpi"><span>{s.active}</span><b>{agg ? agg.active : '–'}</b></div>
         <div className="kpi"><span>{s.countries}</span><b>{agg ? agg.byCountry.length : '–'}</b></div>
         <div className="kpi"><span>{s.best}</span><b className="truncate">{agg?.byLink[0] ? agg.byLink[0].link.title || `/${agg.byLink[0].link.slug}` : '–'}</b></div>
       </div>
 
-      {error && <p className="small text-[var(--warn,#fbbf24)]">{s.err}</p>}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <p className="small muted">{lang === 'en' ? 'All tracked links · dates in UTC · clicks are not sales' : 'Semua link terlacak · tanggal dalam UTC · klik bukan penjualan'}</p>
+        <button type="button" className="btn btn-g btn-sm gap-2" disabled={!agg} onClick={downloadSummary}><Download size={16} />{lang === 'en' ? 'Export summary' : 'Unduh ringkasan'}</button>
+      </div>
+      {error && <div role="alert" className="card flex items-center justify-between gap-3"><p className="small text-[var(--warn,#fbbf24)]">{s.err}</p><button type="button" className="btn btn-g btn-sm gap-2" onClick={() => setRetry((value) => value + 1)}><RotateCw size={16} />{lang === 'en' ? 'Retry' : 'Coba lagi'}</button></div>}
 
       <section className="card">
         <div className="flex items-baseline justify-between mb-3">
@@ -137,7 +151,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
           </span>
         </div>
         {!agg ? (
-          <p className="small muted py-8 text-center">{s.loading}</p>
+          <p className="small muted py-8 text-center">{error ? s.err : s.loading}</p>
         ) : agg.total === 0 ? (
           <p className="small muted py-8 text-center">{s.none}</p>
         ) : (

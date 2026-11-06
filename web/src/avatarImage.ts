@@ -123,3 +123,45 @@ export async function prepareBackground(file: File): Promise<Blob> {
   }
   throw new Error('too_large');
 }
+
+
+/**
+ * Siapkan foto produk atau layanan katalog:
+ * Menjaga rasio aspek asli (tanpa crop persegi), resize proporsional max 1600px,
+ * bersihkan EXIF metadata via canvas, dan simpan dalam WebP/JPEG max 1 MiB.
+ */
+export async function prepareCatalogImage(file: File): Promise<Blob> {
+  const src = await decode(file);
+  const w = src.width;
+  const h = src.height;
+  if (!w || !h) throw new Error('unsupported');
+
+  const maxDim = 1600;
+  let targetW = w;
+  let targetH = h;
+
+  if (targetW > maxDim || targetH > maxDim) {
+    if (targetW > targetH) {
+      targetH = Math.round((targetH * maxDim) / targetW);
+      targetW = maxDim;
+    } else {
+      targetW = Math.round((targetW * maxDim) / targetH);
+      targetH = maxDim;
+    }
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = targetW;
+  canvas.height = targetH;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('unsupported');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(src, 0, 0, w, h, 0, 0, targetW, targetH);
+  if ('close' in src) src.close();
+
+  for (const [type, q] of [['image/webp', 0.85], ['image/jpeg', 0.82], ['image/jpeg', 0.7]] as const) {
+    const blob = await toBlob(canvas, type, q);
+    if (blob && blob.type === type && blob.size <= MAX_MEDIA_BYTES) return blob;
+  }
+  throw new Error('too_large');
+}

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n/context';
 
-// Pengganti window.confirm(): dialog di dalam aplikasi, sesuai desain, bisa diterjemahkan.
+// Pengganti window.confirm(): dialog modal aksesibel, sesuai desain, aman dari konflik fokus sheet.
 // Pakai: const confirm = useConfirm(); if (await confirm({ title, danger: true })) { ... }
 
 export interface ConfirmOptions {
@@ -21,7 +21,9 @@ export const useConfirm = () => useContext(ConfirmContext);
 export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { tx } = useI18n();
   const [state, setState] = useState<(ConfirmOptions & { resolve: (v: boolean) => void }) | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
   const lastFocus = useRef<HTMLElement | null>(null);
 
   const confirm = useCallback<ConfirmFn>(
@@ -35,9 +37,13 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const close = useCallback(
     (value: boolean) => {
-      state?.resolve(value);
+      const resolver = state?.resolve;
       setState(null);
-      lastFocus.current?.focus?.();
+      resolver?.(value);
+      // Pulihkan fokus keyboard ke elemen sebelumnya
+      requestAnimationFrame(() => {
+        lastFocus.current?.focus?.();
+      });
     },
     [state]
   );
@@ -46,12 +52,44 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!state) return;
     // Fokus awal di "Batal": aksi berbahaya tidak terpicu oleh Enter yang tak sengaja.
     cancelRef.current?.focus();
+
+    // R12: Tangkap keyboard event di fase capture agar dialog bersarang tidak konflik dengan Sheet
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
+        e.preventDefault();
         e.stopPropagation();
         close(false);
+        return;
+      }
+      if (e.key === 'Tab') {
+        e.stopPropagation();
+        const container = dialogRef.current;
+        if (!container) return;
+        const focusables = Array.from(
+          container.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusables.length === 0) {
+          e.preventDefault();
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first || !container.contains(document.activeElement)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last || !container.contains(document.activeElement)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
+
     document.addEventListener('keydown', onKey, true);
     return () => document.removeEventListener('keydown', onKey, true);
   }, [state, close]);
@@ -60,15 +98,42 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <ConfirmContext.Provider value={confirm}>
       {children}
       {state && (
-        <div className="cfm-wrap" onPointerDown={(e) => e.target === e.currentTarget && close(false)}>
-          <div className="cfm" role="alertdialog" aria-modal="true" aria-labelledby="cfm-t" aria-describedby={state.message ? 'cfm-m' : undefined}>
-            <h2 id="cfm-t" className="text-[17px] font-semibold text-[var(--tx)]">{state.title}</h2>
-            {state.message && <p id="cfm-m" className="small muted mt-1.5 leading-relaxed">{state.message}</p>}
+        <div
+          className="cfm-wrap"
+          role="presentation"
+          onPointerDown={(e) => {
+            if (e.target === e.currentTarget) {
+              e.stopPropagation();
+              close(false);
+            }
+          }}
+        >
+          <div
+            ref={dialogRef}
+            className="cfm"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="cfm-t"
+            aria-describedby={state.message ? 'cfm-m' : undefined}
+          >
+            <h2 id="cfm-t" className="text-[17px] font-semibold text-[var(--tx)]">
+              {state.title}
+            </h2>
+            {state.message && (
+              <p id="cfm-m" className="small muted mt-1.5 leading-relaxed">
+                {state.message}
+              </p>
+            )}
             <div className="cfm-actions">
               <button ref={cancelRef} type="button" className="btn btn-g" onClick={() => close(false)}>
                 {state.cancelLabel || tx('Batal', 'Cancel')}
               </button>
-              <button type="button" className={`btn ${state.danger ? 'btn-danger' : 'btn-p'}`} onClick={() => close(true)}>
+              <button
+                ref={confirmRef}
+                type="button"
+                className={`btn ${state.danger ? 'btn-danger' : 'btn-p'}`}
+                onClick={() => close(true)}
+              >
                 {state.confirmLabel || tx('Lanjut', 'Continue')}
               </button>
             </div>

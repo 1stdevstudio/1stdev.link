@@ -14,49 +14,35 @@ export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }
   const sheetRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
-  const prevOpenRef = useRef(false);
-
   useEffect(() => {
-    if (!isOpen) {
-      prevOpenRef.current = false;
-      return;
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onCloseRef.current();
+    if (!isOpen) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const focusables = () => Array.from(sheetRef.current?.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex="0"]'
+    ) || []).filter((el) => el.getClientRects().length > 0);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current();
+      if (event.key !== 'Tab') return;
+      const items = focusables();
+      const first = items[0], last = items[items.length - 1];
+      if (!first) { event.preventDefault(); return; }
+      if (event.shiftKey && (document.activeElement === first || !sheetRef.current?.contains(document.activeElement))) {
+        event.preventDefault(); last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !sheetRef.current?.contains(document.activeElement))) {
+        event.preventDefault(); first.focus();
       }
     };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    // Auto-focus only when sheet first opens, and never steal focus if user is already typing
-    if (!prevOpenRef.current) {
-      prevOpenRef.current = true;
-      const timer = setTimeout(() => {
-        if (sheetRef.current && !sheetRef.current.contains(document.activeElement)) {
-          const firstInput = sheetRef.current.querySelector<HTMLElement>(
-            'input:not([disabled]), textarea:not([disabled])'
-          );
-          if (firstInput) {
-            firstInput.focus();
-          } else {
-            const focusable = sheetRef.current.querySelector<HTMLElement>(
-              'button:not([disabled])'
-            );
-            focusable?.focus();
-          }
-        }
-      }, 50);
-
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-        clearTimeout(timer);
-      };
-    }
-
+    const frame = requestAnimationFrame(() => {
+      if (!sheetRef.current?.contains(document.activeElement)) {
+        const input = sheetRef.current?.querySelector<HTMLElement>('input:not([disabled]), textarea:not([disabled])');
+        (input || focusables()[0])?.focus();
+      }
+    });
+    document.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      cancelAnimationFrame(frame);
+      document.removeEventListener('keydown', onKey);
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
   }, [isOpen]);
 

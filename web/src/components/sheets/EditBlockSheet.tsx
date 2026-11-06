@@ -1,3 +1,4 @@
+import type { BusinessData } from '../../../../shared/business';
 import React, { useEffect, useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Sheet } from '../Sheet';
@@ -5,6 +6,7 @@ import { BioBlockType, LinkItem } from '../../types';
 import { useI18n } from '../../i18n/context';
 
 export interface BlockPatch {
+  data_json?: BusinessData | string;
   title?: string;
   destination_url?: string;
   block_type?: BioBlockType;

@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "status": 200,
+    "total_clicks": 66,
+    "ranking_links": 11
+  },
+  "detach": {
+    "redirect_preserved": true,
+    "click_history": 66
+  },
+  "public": {
+    "status": 200,
+    "referral_preserved": true,
+    "whatsapp_cta": true,
+    "indexable_business": true,
+    "script_tags": 1
+  },
+  "parallel_login": {
+    "requests": 40,
+    "invalid_credentials": 10,
+    "rate_limited": 30,
+    "server_errors": 0
+  }
+}

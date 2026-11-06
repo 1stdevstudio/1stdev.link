@@ -1,0 +1,102 @@
+{
+  "health": 200,
+  "frontend": {
+    "status": 200,
+    "entry": "/assets/index-BI-F8D-j.js",
+    "cache_control": "no-cache, no-store, must-revalidate, no-transform"
+  },
+  "assets": [
+    {
+      "path": "/assets/index-BI-F8D-j.js",
+      "status": 200,
+      "sha256_match": true,
+      "edge_cache": "MISS",
+      "cf_cache": null
+    },
+    {
+      "path": "/assets/index-CiL1Cq4Q.css",
+      "status": 200,
+      "sha256_match": true,
+      "edge_cache": "MISS",
+      "cf_cache": null
+    },
+    {
+      "path": "/assets/browser-BLVd-4xa.js",
+      "status": 200,
+      "sha256_match": true,
+      "edge_cache": "MISS",
+      "cf_cache": null
+    }
+  ],
+  "public_profile": {
+    "status": 200,
+    "catalog_retained": true,
+    "executable_scripts": 0
+  },
+  "www.1stdev.link": {
+    "status": 301,
+    "location": "https://1stdev.link/@1stnear?from=release"
+  },
+  "link.1stnear.com": {
+    "status": 301,
+    "location": "https://1stdev.link/@1stnear?from=release"
+  },
+  "api_negative_checks": [
+    {
+      "path": "/api/auth/me",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/analytics/summary",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/auth/send-otp",
+      "status": 400,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/auth/send-otp",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/auth/login",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/auth/handoff",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/auth/handoff/claim",
+      "status": 400,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/links",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    },
+    {
+      "path": "/api/media/avatar",
+      "status": 401,
+      "no_store": true,
+      "no_otp_preview": true
+    }
+  ],
+  "scanner_block": 403,
+  "missing_asset": 404
+}

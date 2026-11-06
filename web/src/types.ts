@@ -1,4 +1,5 @@
-export type BioBlockType =
+import type { BusinessBlockType, BusinessData, BusinessSettings } from '../../shared/business';
+export type BioBlockType = BusinessBlockType
   | 'link'
   | 'featured'
   | 'header'
@@ -30,6 +31,7 @@ export interface LinkItem {
   sort_order: number;
   is_active: boolean | number;
   block_type?: BioBlockType;
+  data_json?: BusinessData | string;
   style?: BioBlockStyle | string;
   created_at?: number;
 }
@@ -40,13 +42,18 @@ export interface LinkAnalytics {
   by_country: { country: string; clicks: number }[];
 }
 
+export interface AnalyticsSummary extends LinkAnalytics {
+  by_link: { id: string; slug: string; title?: string; clicks: number }[];
+  active_links: number;
+}
+
 export interface BioProfileStyle {
   bg?: 'dark' | 'light' | 'gradient' | 'custom' | 'image';
   accent?: string;
   font?: 'modern' | 'classic' | 'mono' | 'rounded';
   btn?: 'soft' | 'solid' | 'glass' | 'outline' | 'shadow';
-  radius?: number; // 0 - 28px
-  gap?: number; // 8 - 24px
+  radius?: number; // 0 - 32px
+  gap?: number; // 0 - 32px
   enter?: 'none' | 'fade' | 'slide' | 'bounce';
   hover?: 'none' | 'lift' | 'glow' | 'press';
   bgfx?: string[]; // ['grain', 'aurora']
@@ -61,6 +68,7 @@ export interface BioProfileStyle {
 }
 
 export interface BioProfile {
+  business?: BusinessSettings;
   handle: string;
   display_name: string;
   bio: string;

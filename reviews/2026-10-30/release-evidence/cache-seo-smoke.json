@@ -1,0 +1,23 @@
+[
+  {
+    "path": "/assets/index-BI-F8D-j.js",
+    "status": 200,
+    "edge_cache": "HIT",
+    "cf_cache": "HIT",
+    "content_type": "application/javascript"
+  },
+  {
+    "path": "/assets/index-CiL1Cq4Q.css",
+    "status": 200,
+    "edge_cache": "HIT",
+    "cf_cache": "HIT",
+    "content_type": "text/css; charset=utf-8"
+  },
+  {
+    "path": "/sitemap.xml?release=20261030",
+    "status": 200,
+    "edge_cache": "MISS",
+    "cf_cache": null,
+    "content_type": "application/xml; charset=utf-8"
+  }
+]

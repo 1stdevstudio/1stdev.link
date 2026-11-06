@@ -20,7 +20,11 @@ CREATE TABLE IF NOT EXISTS bio_profiles (
     bio TEXT,
     avatar_url TEXT,
     social_links TEXT,
-    theme TEXT DEFAULT 'minimal-dark',
+    theme TEXT DEFAULT '1stnear',
+    business_json TEXT,
+    avatar_shape TEXT DEFAULT 'circle',
+    verified_badge INTEGER NOT NULL DEFAULT 0,
+    style TEXT DEFAULT '{}',
     updated_at INTEGER DEFAULT (unixepoch())
 );
 
@@ -37,6 +41,9 @@ CREATE TABLE IF NOT EXISTS links (
     title TEXT,
     is_bio_entry INTEGER NOT NULL DEFAULT 0,
     sort_order INTEGER NOT NULL DEFAULT 0,
+    data_json TEXT,
+    block_type TEXT DEFAULT 'link',
+    style TEXT DEFAULT '{}',
     is_active INTEGER NOT NULL DEFAULT 1,
     created_at INTEGER DEFAULT (unixepoch())
 );
@@ -55,3 +62,38 @@ CREATE TABLE IF NOT EXISTS link_analytics (
 );
 
 CREATE INDEX IF NOT EXISTS idx_analytics_link_date ON link_analytics(link_id, date);
+
+-- Additive: apply to the target D1 database before deploying the Worker.
+CREATE TABLE IF NOT EXISTS auth_challenges (
+  id TEXT PRIMARY KEY,
+  user_id TEXT,
+  expires_at INTEGER NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  consumed INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_auth_challenges_expiry ON auth_challenges(expires_at);
+
+
+-- 5. Rate Limits Table (D1 Atomic Enforcement)
+CREATE TABLE IF NOT EXISTS rate_limits (
+    key_hash TEXT PRIMARY KEY,
+    count INTEGER NOT NULL,
+    reset_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_rate_limits_reset ON rate_limits(reset_at);
+
+CREATE TABLE IF NOT EXISTS media_cleanup_runs (
+    user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    last_run INTEGER NOT NULL,
+    cursors_json TEXT NOT NULL DEFAULT '{}'
+);
+
+-- 6. Atomic Link Quota Trigger (Max 100 links per user across all block types)
+CREATE TRIGGER IF NOT EXISTS trg_links_max_quota
+BEFORE INSERT ON links
+FOR EACH ROW
+WHEN (SELECT COUNT(*) FROM links WHERE user_id = NEW.user_id) >= 100
+BEGIN
+    SELECT RAISE(ABORT, 'QUOTA_EXCEEDED: Maximum 100 links per user');
+END;

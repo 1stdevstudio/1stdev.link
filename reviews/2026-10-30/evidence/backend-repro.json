@@ -1,0 +1,29 @@
+{
+  "scope": "Local memory-only reproduction, no network, production credentials, or production bindings",
+  "cwd": "/Users/spixelsdev/edgelink/worker",
+  "parallelRate": {
+    "requests": 40,
+    "configuredLimit": 5,
+    "allowed": 40,
+    "storedCount": 1
+  },
+  "ordinaryLinkCap": {
+    "existingBlocks": 100,
+    "blockType": "link",
+    "status": 201,
+    "resultingBlocks": 101
+  },
+  "streamedUpload": {
+    "declaredContentLength": null,
+    "status": 413,
+    "chunksRead": 64,
+    "totalBytesRead": 2097152,
+    "allowedBytes": 524288,
+    "storedObjects": 0
+  },
+  "kvWriteFailure": {
+    "route": "/api/auth/login",
+    "status": 500,
+    "response": "Internal Server Error"
+  }
+}

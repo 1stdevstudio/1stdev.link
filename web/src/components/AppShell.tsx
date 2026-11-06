@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Home, Link2, User, Scissors, BarChart2, Share2, Plus, LayoutList, X, CircleUser } from 'lucide-react';
+import { Home, Link2, User, Scissors, BarChart2, Share2, Plus, LayoutList, X, CircleUser, Save } from 'lucide-react';
 import { AuthSession } from '../types';
 import { useI18n } from '../i18n/context';
 
@@ -29,7 +29,7 @@ const Logo: React.FC = () => (
   </div>
 );
 
-/** Menu "Buat": satu pintu untuk menambah isi profil atau link pendek. */
+/** Menu "Buat": satu pintu untuk menambah isi halaman atau link pendek. */
 const CreateMenu: React.FC<{ onClose: () => void; onAddBlock: () => void; onAddLink: () => void; className: string }> = ({
   onClose,
   onAddBlock,
@@ -38,6 +38,7 @@ const CreateMenu: React.FC<{ onClose: () => void; onAddBlock: () => void; onAddL
 }) => {
   const { tx } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     const onDown = (e: PointerEvent) => {
@@ -74,14 +75,14 @@ const CreateMenu: React.FC<{ onClose: () => void; onAddBlock: () => void; onAddL
     <div ref={ref} role="menu" className={`create-menu ${className}`}>
       {item(
         <LayoutList size={18} strokeWidth={1.75} />,
-        tx('Tambah isi profil', 'Add to profile'),
-        tx('Link, WhatsApp, video, toko, teks', 'Link, WhatsApp, video, shop, text'),
+        tx('Tambah isi halaman', 'Add to page'),
+        tx('Link, WhatsApp, katalog, video, teks', 'Link, WhatsApp, catalog, video, text'),
         onAddBlock
       )}
       {item(
         <Scissors size={18} strokeWidth={1.75} />,
         tx('Pendekkan link', 'Shorten a link'),
-        tx('Link pendek dengan statistik klik', 'Short link with click stats'),
+        tx('Link pendek dengan analitik klik', 'Short link with click stats'),
         onAddLink
       )}
     </div>
@@ -103,9 +104,10 @@ export const AppShell: React.FC<AppShellProps> = ({
   const [createOpen, setCreateOpen] = useState<'top' | 'dock' | null>(null);
   const showPreview = currentTab === 'profile' && !!previewColumn;
 
+  // 4 destinasi utama + nama tab profil diubah menjadi "Halaman"
   const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
     { id: 'home', label: tx('Beranda', 'Home'), icon: Home },
-    { id: 'profile', label: tx('Profil', 'Profile'), icon: User },
+    { id: 'profile', label: tx('Halaman', 'Page'), icon: User },
     { id: 'links', label: tx('Link', 'Links'), icon: Scissors },
     { id: 'stats', label: tx('Statistik', 'Stats'), icon: BarChart2 },
   ];
@@ -130,11 +132,16 @@ export const AppShell: React.FC<AppShellProps> = ({
     <div className="min-h-screen bg-[var(--bg)] text-[var(--tx)]">
       <header className="appbar">
         <div className="appbar-in">
-          <button type="button" className="shrink-0 min-h-[44px] rounded-[var(--r2)]" onClick={() => onTabChange('home')} aria-label="1stdev.link">
+          <button
+            type="button"
+            className="shrink-0 min-h-[44px] rounded-[var(--r2)] text-left"
+            onClick={() => onTabChange('home')}
+            aria-label="1stdev.link"
+          >
             <Logo />
           </button>
 
-          {/* Tab tengah (desktop) */}
+          {/* Tab navigasi desktop */}
           <nav className="tabs-top" aria-label={tx('Navigasi utama', 'Main navigation')}>
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
@@ -144,13 +151,14 @@ export const AppShell: React.FC<AppShellProps> = ({
                 className={currentTab === id ? 'on' : ''}
                 onClick={() => onTabChange(id)}
               >
-                <Icon size={16} strokeWidth={1.9} />
+                <Icon size={16} strokeWidth={1.75} />
                 {label}
               </button>
             ))}
           </nav>
 
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* Tombol Buat (desktop) */}
             <div className="relative hidden lg:block">
               <button
                 type="button"
@@ -159,7 +167,7 @@ export const AppShell: React.FC<AppShellProps> = ({
                 aria-expanded={createOpen === 'top'}
                 onClick={() => setCreateOpen(createOpen === 'top' ? null : 'top')}
               >
-                <Plus size={16} strokeWidth={2.2} />
+                <Plus size={16} strokeWidth={2} />
                 {tx('Buat', 'Create')}
               </button>
               {createOpen === 'top' && (
@@ -171,14 +179,31 @@ export const AppShell: React.FC<AppShellProps> = ({
                 />
               )}
             </div>
+
+            {/* Simpan akun (guest) */}
             {session.is_guest && (
-              <button type="button" className="btn btn-g btn-sm" onClick={onOpenSaveAccount}>
-                {tx('Simpan akun', 'Save account')}
+              <button
+                type="button"
+                className="btn btn-g btn-sm save-account"
+                aria-label={tx('Simpan akun', 'Save account')}
+                onClick={onOpenSaveAccount}
+              >
+                <Save className="save-account-icon" size={18} strokeWidth={1.75} />
+                <span className="save-account-label">{tx('Simpan akun', 'Save account')}</span>
               </button>
             )}
-            <button type="button" className="iconbtn" onClick={onOpenShare} aria-label={tx('Bagikan profil', 'Share profile')}>
+
+            {/* Bagikan halaman */}
+            <button
+              type="button"
+              className="iconbtn"
+              onClick={onOpenShare}
+              aria-label={tx('Bagikan halaman', 'Share page')}
+            >
               <Share2 size={18} strokeWidth={1.75} />
             </button>
+
+            {/* Akun pengguna */}
             <button
               type="button"
               className={`iconbtn ${currentTab === 'account' ? 'text-[var(--ac)]' : ''}`}

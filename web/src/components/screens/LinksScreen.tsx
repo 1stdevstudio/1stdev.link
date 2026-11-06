@@ -3,12 +3,13 @@ import { Search, Copy, Plus, Trash2, Check, ExternalLink, Link2 } from 'lucide-r
 import { LinkItem } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { useConfirm } from '../ConfirmDialog';
+import { Select } from '../Select';
 
 interface LinksScreenProps {
   links: LinkItem[];
   onOpenAddLink: () => void;
-  onToggleActive: (id: string, currentState: boolean) => void;
-  onDeleteLink: (id: string) => void;
+  onToggleActive: (id: string, currentState: boolean) => Promise<void>;
+  onDeleteLink: (id: string) => Promise<void>;
   onToast: (msg: string) => void;
 }
 
@@ -18,14 +19,14 @@ type Sort = 'new' | 'clicks' | 'az';
 const TX = {
   id: {
     title: 'Link', add: 'Tambah link', search: 'Cari link…', total: 'Total link', clicks: 'Total klik',
-    best: 'Terbaik', all: 'Semua', on: 'Aktif', off: 'Nonaktif', bio: 'Di profil', sNew: 'Terbaru',
+    best: 'Terbaik', all: 'Semua', on: 'Aktif', off: 'Nonaktif', bio: 'Di halaman', sNew: 'Terbaru',
     sClicks: 'Klik terbanyak', sAz: 'A–Z', copied: 'Link disalin', del: 'Hapus link ini?', open: 'Buka',
     copy: 'Salin', remove: 'Hapus', app: 'Arah HP', click: 'klik', emptyT: 'Belum ada link',
     emptyD: 'Tempel link panjang, kami buatkan versi pendek yang mudah dibagikan.', noRes: 'Tidak ada link yang cocok.',
   },
   en: {
     title: 'Links', add: 'Add link', search: 'Search links…', total: 'Total links', clicks: 'Total clicks',
-    best: 'Top link', all: 'All', on: 'Active', off: 'Inactive', bio: 'On profile', sNew: 'Newest',
+    best: 'Top link', all: 'All', on: 'Active', off: 'Inactive', bio: 'On page', sNew: 'Newest',
     sClicks: 'Most clicks', sAz: 'A–Z', copied: 'Link copied', del: 'Delete this link?', open: 'Open',
     copy: 'Copy', remove: 'Delete', app: 'App routing', click: 'clicks', emptyT: 'No links yet',
     emptyD: 'Paste a long link and we will make a short one that is easy to share.', noRes: 'No matching links.',
@@ -72,11 +73,24 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
     return list;
   }, [links, query, filter, sort]);
 
-  const handleCopy = (slug: string, id: string) => {
-    navigator.clipboard.writeText(`${baseUrl}/${slug}`);
-    setCopiedId(id);
-    onToast(s.copied);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleCopy = async (slug: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(`${baseUrl}/${slug}`);
+      setCopiedId(id);
+      onToast(s.copied);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch { onToast(lang === 'en' ? 'Could not copy the link.' : 'Gagal menyalin link.'); }
+  };
+
+  const toggle = async (link: LinkItem) => {
+    try { await onToggleActive(link.id, !!link.is_active); }
+    catch (error) { onToast(error instanceof Error ? error.message : 'Gagal menyimpan perubahan.'); }
+  };
+
+  const remove = async (link: LinkItem) => {
+    if (!await confirm({ title: s.del, message: lang === 'en' ? 'This permanently deletes the short link and its click history.' : 'Shortlink dan riwayat kliknya akan dihapus permanen.', confirmLabel: s.remove, danger: true })) return;
+    try { await onDeleteLink(link.id); }
+    catch (error) { onToast(error instanceof Error ? error.message : 'Gagal menghapus link.'); }
   };
 
   if (links.length === 0) {
@@ -117,11 +131,11 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--tx3)]" />
           <input className="input pl-10" placeholder={s.search} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={s.search} />
         </div>
-        <select className="chip-select max-w-[44%]" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Urutkan">
+        <Select className="chip-select max-w-[44%]" value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Urutkan">
           <option value="new">{s.sNew}</option>
           <option value="clicks">{s.sClicks}</option>
           <option value="az">{s.sAz}</option>
-        </select>
+        </Select>
       </div>
 
       <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
@@ -152,7 +166,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
                   role="switch"
                   aria-checked={!!l.is_active}
                   aria-label={l.is_active ? s.on : s.off}
-                  onClick={() => onToggleActive(l.id, !!l.is_active)}
+                  onClick={() => { void toggle(l); }}
                 ><i /></button>
               </div>
               <div className="flex items-center gap-2 mt-3 flex-wrap">
@@ -166,7 +180,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
                   <a className="iconbtn" href={`${baseUrl}/${l.slug}`} target="_blank" rel="noopener noreferrer" aria-label={s.open}>
                     <ExternalLink size={18} />
                   </a>
-                  <button className="iconbtn" onClick={async () => { if (await confirm({ title: s.del, message: `${baseUrl.replace(/^https?:\/\//, '')}/${l.slug}`, confirmLabel: s.remove, danger: true })) onDeleteLink(l.id); }} aria-label={s.remove}>
+                  <button className="iconbtn" onClick={() => { void remove(l); }} aria-label={s.remove}>
                     <Trash2 size={18} />
                   </button>
                 </div>

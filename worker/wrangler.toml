@@ -14,6 +14,7 @@ routes = [
 ENVIRONMENT = "production"
 BASE_URL = "https://1stdev.link"
 DOMAIN_REDIRECT = "on"
+EMAIL_FROM = "1stdev.link Security <no-reply@otp.1stdev.link>"
 
 # D1 Database Binding
 [[d1_databases]]

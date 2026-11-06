@@ -1,10 +1,16 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { BUSINESS_TYPES, INDUSTRIES, BLOCK_LABELS, CATALOG_LABELS, defaultBusinessData, isBusinessBlock, isContentBlock, readBusiness, validateBusinessData, validateBusinessSettings } from '../../shared/business.js';
+import { bodyLimit } from 'hono/body-limit';
 import type { Env, User, BioProfile, Link, CachedSlug, CachedBioProfile, OtpRecord } from './types.js';
 import { isReservedSlug, validateDestinationUrl, checkRateLimit, generateSecureOtp, sendOtpEmail } from './security.js';
+import { validateStyleJson, validateProfilePatch } from './profileValidation.js';
+import { issueChallenge, attemptChallenge } from './authChallenges.js';
+import { readObject } from '../../shared/bio.js';
 import { renderBioPage } from './bio.js';
-import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, avatarPrefix, mediaPrefix, isValidMediaKey, mediaKeyFromUrl, pruneAvatars } from './media.js';
+import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, mediaPrefix, isValidMediaKey, cleanupMediaIfDue } from './media.js';
 import { renderDocsHtml } from './docs.js';
+import { cachedPublicResponse, publicCacheControl, ASSET_CACHE, MEDIA_CACHE_POLICY, SEO_CACHE, SITEMAP_CACHE } from './publicCache.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
 const app = new Hono<{ Bindings: Env; Variables: { user?: User } }>();
@@ -43,7 +49,10 @@ app.use('*', async (c, next) => {
   c.header('X-Frame-Options', 'DENY');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   // API JSON tidak untuk mesin pencari.
-  if (c.req.path.startsWith('/api/')) c.header('X-Robots-Tag', 'noindex, nofollow');
+  if (c.req.path.startsWith('/api/')) {
+    c.header('X-Robots-Tag', 'noindex, nofollow');
+    c.header('Cache-Control', 'no-store');
+  }
   c.header(
     'Content-Security-Policy',
     // Dashboard SPA (proxied from Pages) + SSR bio: own CSS/JS, Google Fonts, inline styles.
@@ -62,6 +71,21 @@ app.use('*', async (c, next) => {
   }
 });
 
+// Bound JSON parsing and reject primitive bodies before route destructuring.
+const jsonBodyLimit = bodyLimit({ maxSize: 65536, onError: (c) => c.json({ status: 'error', message: 'Payload too large' }, 413) });
+app.use('/api/*', (c, next) => c.req.path.startsWith('/api/media/') ? next() : jsonBodyLimit(c, next));
+app.use('/api/*', async (c, next) => {
+  if (!c.req.path.startsWith('/api/media/') && ['POST', 'PUT', 'PATCH'].includes(c.req.method) && c.req.raw.body) {
+    try {
+      const text = await c.req.text();
+      if (!text.trim()) return next();
+      const body = JSON.parse(text);
+      if (!body || typeof body !== 'object' || Array.isArray(body)) return c.json({ status: 'error', message: 'JSON object required' }, 400);
+    } catch { return c.json({ status: 'error', message: 'Invalid JSON body' }, 400); }
+  }
+  return next();
+});
+
 // Helper to safely execute background task via ctx.waitUntil or Promise fallback
 function safeWaitUntil(c: any, promise: Promise<any>) {
   try {
@@ -73,6 +97,10 @@ function safeWaitUntil(c: any, promise: Promise<any>) {
     // ExecutionContext not available in testing or standard fetch
   }
   promise.catch(() => {});
+}
+
+function scheduleMediaCleanup(c: any, userId: string) {
+  if (c.env.MEDIA && c.env.DB) safeWaitUntil(c, cleanupMediaIfDue(c.env.MEDIA, c.env.DB, userId).catch(() => 0));
 }
 
 // Helper: Generate Base62 Random Slug
@@ -140,7 +168,41 @@ app.get('/health', (c) => c.json({ status: 'ok', service: 'edgelink-worker' }));
 // Media (foto profil di R2)
 // -------------------------------------------------------------
 
-const MEDIA_CACHE = 'public, max-age=31536000, immutable';
+const MEDIA_CACHE = publicCacheControl(MEDIA_CACHE_POLICY);
+
+async function readLimitedImage(request: Request, maxBytes: number): Promise<ArrayBuffer | null> {
+  if (!request.body) return new ArrayBuffer(0);
+  const reader = request.body.getReader(), chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    while (true) {
+      const part = await reader.read();
+      if (part.done) break;
+      size += part.value.byteLength;
+      if (size > maxBytes) { void reader.cancel().catch(() => {}); return null; }
+      chunks.push(part.value);
+    }
+  } finally { reader.releaseLock(); }
+  const result = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { result.set(chunk, offset); offset += chunk.byteLength; }
+  return result.buffer;
+}
+
+const SLUG_PATTERN = /^[a-zA-Z0-9_-]{3,30}$/;
+const REDIRECT_SLUG_PATTERN = /^[a-zA-Z0-9_-]{1,100}$/;
+const negativeSlugWrites = new Map<string, Promise<unknown>>();
+function negativeSlugKey(c: any, slug: string): Request {
+  return new Request(new URL(`/__edgelink_slug_miss/${encodeURIComponent(slug)}`, c.env.BASE_URL || new URL(c.req.url).origin).toString());
+}
+async function clearNegativeSlug(c: any, slug: string): Promise<void> {
+  if (typeof caches === 'undefined') return;
+  const key = negativeSlugKey(c, slug);
+  try {
+    await negativeSlugWrites.get(key.url)?.catch(() => {});
+    await caches.default.delete(key);
+  } catch { /* A cache outage must not undo a successful database mutation. */ }
+}
 
 // Upload media (foto profil, cover banner, background).
 app.post('/api/media/:type', apiAuthMiddleware, async (c) => {
@@ -169,12 +231,14 @@ app.post('/api/media/:type', apiAuthMiddleware, async (c) => {
     return c.json({ status: 'error', message: `Image too large (max ${Math.round(target.maxBytes / 1024)} KB)` }, 413);
   }
 
-  const rate = await checkRateLimit(c.env.KV, `rate:media:${user.id}`, 20, 3600);
+  const rate = await checkRateLimit(c.env.KV, `rate:media:${user.id}`, 20, 3600, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
   if (!rate.allowed) {
     return c.json({ status: 'error', message: 'Too many uploads. Try again later.' }, 429);
   }
 
-  const buf = await c.req.arrayBuffer();
+  const buf = await readLimitedImage(c.req.raw, target.maxBytes);
+  if (buf === null) return c.json({ status: 'error', message: `Image too large (max ${Math.round(target.maxBytes / 1024)} KB)` }, 413);
   if (buf.byteLength === 0) {
     return c.json({ status: 'error', message: 'Empty body' }, 400);
   }
@@ -189,34 +253,31 @@ app.post('/api/media/:type', apiAuthMiddleware, async (c) => {
 
   const key = `${mediaPrefix(target.folder, user.id)}${await contentHash(buf)}.${kind.ext}`;
   await c.env.MEDIA.put(key, buf, { httpMetadata: { contentType: kind.mime, cacheControl: MEDIA_CACHE } });
+  scheduleMediaCleanup(c, user.id);
 
   const base = (c.env.BASE_URL || new URL(c.req.url).origin).replace(/\/$/, '');
   return c.json({ status: 'success', data: { url: `${base}/m/${key}` } });
 });
 
-// Sajikan media publik (avatars, covers, backgrounds). Nama file = hash isi, jadi aman di-cache selamanya.
+// Media publik memakai nama hash isi; cache dapat dipakai ulang sampai TTL berakhir.
 app.get('/m/:folder/:uid/:file', async (c) => {
   const key = `${c.req.param('folder')}/${c.req.param('uid')}/${c.req.param('file')}`;
   if (!c.env.MEDIA || !isValidMediaKey(key)) return c.text('Not found', 404);
 
-  const obj = await c.env.MEDIA.get(key);
-  if (!obj) return c.text('Not found', 404);
-
-  const type = obj.httpMetadata?.contentType || 'application/octet-stream';
-  const etag = obj.httpEtag;
-  if (etag && c.req.header('If-None-Match') === etag) {
-    return new Response(null, { status: 304, headers: { ETag: etag, 'Cache-Control': MEDIA_CACHE } });
-  }
-  return new Response(obj.body, {
-    headers: {
-      'Content-Type': type,
-      'Cache-Control': MEDIA_CACHE,
-      ETag: etag,
-      'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': "default-src 'none'; sandbox",
-      'Cross-Origin-Resource-Policy': 'cross-origin',
-    },
-  });
+  return cachedPublicResponse(c.req.raw, MEDIA_CACHE_POLICY, async () => {
+    const obj = await c.env.MEDIA!.get(key);
+    if (!obj) return c.text('Not found', 404);
+    return new Response(obj.body, {
+      headers: {
+        'Content-Type': obj.httpMetadata?.contentType || 'application/octet-stream',
+        'Cache-Control': MEDIA_CACHE,
+        ETag: obj.httpEtag,
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'; sandbox",
+        'Cross-Origin-Resource-Policy': 'cross-origin',
+      },
+    });
+  }, (task) => safeWaitUntil(c, task));
 });
 
 // Developer API Documentation (Live HTML & spec)
@@ -225,24 +286,32 @@ app.get('/api/docs', (c) => c.html(renderDocsHtml()));
 
 const PAGES_ORIGIN = 'https://edgelink-afl.pages.dev';
 
+// Only public byte ranges are forwarded; dashboard credentials must never reach Pages.
+function fetchPublicFile(path: string, request: Request): Promise<Response> {
+  const headers = new Headers();
+  for (const name of ['range', 'if-range']) {
+    const value = request.headers.get(name);
+    if (value) headers.set(name, value);
+  }
+  // Fetch a full GET on HEAD/conditional misses so the cache never stores an empty body or 304.
+  return fetch(`${PAGES_ORIGIN}${path}`, { method: 'GET', headers, redirect: 'manual' });
+}
+
 // Serve SPA Dashboard and Static Assets directly on link.1stnear.com
 app.get('/assets/*', async (c) => {
   const url = new URL(c.req.url);
-  const resp = await fetch(`${PAGES_ORIGIN}${url.pathname}${url.search}`, c.req.raw);
-  return new Response(resp.body, {
-    status: resp.status,
-    headers: resp.headers,
-  });
+  return cachedPublicResponse(c.req.raw, ASSET_CACHE,
+    () => fetchPublicFile(`${url.pathname}${url.search}`, c.req.raw), (task) => safeWaitUntil(c, task));
 });
 
 app.get('/vite.svg', async (c) => {
-  const resp = await fetch(`${PAGES_ORIGIN}/vite.svg`, c.req.raw);
-  return new Response(resp.body, { status: resp.status, headers: resp.headers });
+  return cachedPublicResponse(c.req.raw, SEO_CACHE,
+    () => fetchPublicFile('/vite.svg', c.req.raw), (task) => safeWaitUntil(c, task));
 });
 
 app.get('/favicon.ico', async (c) => {
-  const resp = await fetch(`${PAGES_ORIGIN}/favicon.ico`, c.req.raw);
-  return new Response(resp.body, { status: resp.status, headers: resp.headers });
+  return cachedPublicResponse(c.req.raw, SEO_CACHE,
+    () => fetchPublicFile('/favicon.ico', c.req.raw), (task) => safeWaitUntil(c, task));
 });
 
 // ---------- SEO & GEO ----------
@@ -253,37 +322,29 @@ app.get('/robots.txt', (c) => {
 
 app.get('/sitemap.xml', async (c) => {
   const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
-  // Edge cache 1 jam: crawler tidak menghabiskan kuota baca D1.
-  const cache = typeof caches !== 'undefined' ? (caches as any).default : null;
-  const cacheKey = new Request(`${baseUrl}/sitemap.xml`);
-  if (cache) {
-    const hit = await cache.match(cacheKey);
-    if (hit) return hit;
-  }
-  let rows: SitemapProfileRow[] = [];
-  if (c.env.DB) {
-    try {
-      const res = (await c.env.DB.prepare(SITEMAP_PROFILES_SQL).all()) as { results?: SitemapProfileRow[] };
-      rows = res.results || [];
-    } catch (err) {
-      console.error('sitemap query failed:', err);
+  return cachedPublicResponse(c.req.raw, SITEMAP_CACHE, async () => {
+    let rows: SitemapProfileRow[] = [];
+    if (c.env.DB) {
+      try {
+        const res = (await c.env.DB.prepare(SITEMAP_PROFILES_SQL).all()) as { results?: SitemapProfileRow[] };
+        rows = res.results || [];
+      } catch (err) {
+        console.error('sitemap query failed:', err);
+        return c.text('Temporarily unavailable', 503);
+      }
     }
-  }
-  const res = new Response(renderSitemapXml(baseUrl, rows), {
-    headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' },
-  });
-  if (cache) safeWaitUntil(c, cache.put(cacheKey, res.clone()));
-  return res;
+    return new Response(renderSitemapXml(baseUrl, rows), {
+      headers: { 'content-type': 'application/xml; charset=utf-8' },
+    });
+  }, (task) => safeWaitUntil(c, task));
 });
 
 // Aset statis SEO/GEO dari Pages (web/public): kartu sosial, ikon, manifest, llms.txt.
 const STATIC_SEO_FILES = ['/og.png', '/apple-touch-icon.png', '/icon-192.png', '/icon-512.png', '/site.webmanifest', '/llms.txt', '/llms-full.txt'];
 for (const path of STATIC_SEO_FILES) {
   app.get(path, async (c) => {
-    const resp = await fetch(`${PAGES_ORIGIN}${path}`);
-    const headers = new Headers(resp.headers);
-    if (resp.ok) headers.set('cache-control', 'public, max-age=86400');
-    return new Response(resp.body, { status: resp.status, headers });
+    return cachedPublicResponse(c.req.raw, SEO_CACHE,
+      () => fetchPublicFile(path, c.req.raw), (task) => safeWaitUntil(c, task));
   });
 }
 
@@ -329,7 +390,7 @@ async function handleBio(c: any, handle: string) {
   let links: Link[] | undefined = cached?.links;
 
   // 2. Fallback to D1
-  if (!profile) {
+  if (!profile || typeof profile.is_guest !== 'number') {
     const db = c.env.DB;
     if (!db) {
       return c.text('Service Unavailable', 503);
@@ -343,6 +404,10 @@ async function handleBio(c: any, handle: string) {
     if (!profile) {
       return c.text('Bio profile not found', 404);
     }
+
+    const owner = await db.prepare('SELECT is_guest FROM users WHERE id = ?').bind(profile.user_id).first() as { is_guest?: number } | null;
+    if (!owner) return c.text('Bio profile not found', 404);
+    profile = { ...profile, is_guest: owner.is_guest ? 1 : 0 };
 
     // Fetch active bio links for this profile
     const linksResult = (await db
@@ -374,7 +439,7 @@ app.get('/:slug', async (c) => {
   if (slug.startsWith('@')) {
     return handleBio(c, slug.slice(1));
   }
-  if (!slug || isReservedSlug(slug)) {
+  if (!REDIRECT_SLUG_PATTERN.test(slug) || isReservedSlug(slug)) {
     return c.text('Not Found', 404);
   }
 
@@ -390,16 +455,17 @@ app.get('/:slug', async (c) => {
     }
   }
 
-  // 2. Anti-Scan 404 Cache Check
-  if (!cached && c.env.KV) {
-    const isNotFound = await c.env.KV.get(`slug:nf:${slug}`).catch(() => null);
-    if (isNotFound) {
-      return c.text('Link not found', 404);
-    }
+  const canCacheMiss = !['authorization', 'x-api-key', 'cookie', 'range', 'if-range'].some((header) => c.req.raw.headers.has(header));
+  const missCache = canCacheMiss && typeof caches !== 'undefined' ? caches.default : undefined;
+  const missKey = negativeSlugKey(c, slug);
+  if (!cached && missCache) {
+    const miss = await missCache.match(missKey).catch(() => undefined);
+    if (miss) return c.text('Link not found', 404, { 'Cache-Control': 'no-store' });
   }
 
   let linkId = cached?.id;
   let destinationUrl = cached?.url;
+  if (destinationUrl === '#') return c.text('Not Found', 404);
   let iosUrl = cached?.ios_url;
   let androidUrl = cached?.android_url;
 
@@ -411,10 +477,11 @@ app.get('/:slug', async (c) => {
     }
 
     const row = (await db
-      .prepare('SELECT id, destination_url, ios_url, android_url, is_active FROM links WHERE slug = ?')
+      .prepare('SELECT id, destination_url, ios_url, android_url, is_active, block_type FROM links WHERE slug = ?')
       .bind(slug)
-      .first()) as { id: string; destination_url: string; ios_url?: string; android_url?: string; is_active: number } | null;
+      .first()) as { id: string; destination_url: string; ios_url?: string; android_url?: string; is_active: number; block_type?: string } | null;
 
+    if (row && (isContentBlock(row.block_type) || row.destination_url === '#')) return c.text('Not Found', 404);
     if (!row || row.is_active !== 1) {
       // Fallback: Check if slug is actually a bio handle (allows link.1stnear.com/yogi without @)
       const bioProfile = (await db
@@ -425,11 +492,14 @@ app.get('/:slug', async (c) => {
         return c.redirect(`/@${bioProfile.handle}`, 302);
       }
 
-      // Cache 404 for 60s in KV to block DB scan attacks
-      if (c.env.KV) {
-        safeWaitUntil(c, c.env.KV.put(`slug:nf:${slug}`, '1', { expirationTtl: 60 }));
+      // Short-lived edge-local misses avoid a KV write for every scanner path.
+      if (missCache) {
+        const write = missCache.put(missKey, new Response('Link not found', { status: 404, headers: { 'Cache-Control': 'public, max-age=30' } })).catch(() => {});
+        negativeSlugWrites.set(missKey.url, write);
+        await write;
+        if (negativeSlugWrites.get(missKey.url) === write) negativeSlugWrites.delete(missKey.url);
       }
-      return c.text('Link not found or inactive', 404);
+      return c.text('Link not found or inactive', 404, { 'Cache-Control': 'no-store' });
     }
 
     linkId = row.id;
@@ -492,8 +562,9 @@ app.post('/api/auth/guest', async (c) => {
   const ip = getClientIp(c);
 
   // Anti-bot rate limiter: max 5 guest creations per IP per hour
-  if (c.env.KV) {
-    const rate = await checkRateLimit(c.env.KV, `rate:guest:${ip}`, 5, 3600);
+  if (c.env.KV || c.env.DB) {
+    const rate = await checkRateLimit(c.env.KV, `rate:guest:${ip}`, 5, 3600, c.env.DB);
+    if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
     if (!rate.allowed) {
       return c.json({ status: 'error', message: 'Too many guest workspaces created from this IP. Please wait 1 hour.' }, 429);
     }
@@ -552,8 +623,8 @@ app.post('/api/auth/send-otp', async (c) => {
     return c.json({ status: 'error', message: 'Invalid JSON body' }, 400);
   }
 
-  const { email, purpose } = body;
-  if (!email || !email.includes('@') || !email.includes('.')) {
+  const { email, purpose } = body || {};
+  if (typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return c.json({ status: 'error', message: 'Valid email address is required' }, 400);
   }
 
@@ -561,14 +632,16 @@ app.post('/api/auth/send-otp', async (c) => {
   const validPurpose = purpose === 'login' ? 'login' : 'claim';
 
   // 1. IP rate limit: max 10 OTP requests per hour per IP
-  if (c.env.KV) {
-    const ipRate = await checkRateLimit(c.env.KV, `rate:otp_ip:${ip}`, 10, 3600);
+  if (c.env.KV || c.env.DB) {
+    const ipRate = await checkRateLimit(c.env.KV, `rate:otp_ip:${ip}`, 10, 3600, c.env.DB);
+    if (ipRate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
     if (!ipRate.allowed) {
       return c.json({ status: 'error', message: 'Rate limit exceeded. Please wait 1 hour.' }, 429);
     }
 
     // 2. Cooldown limit: max 1 request per email per 60 seconds
-    const emailRate = await checkRateLimit(c.env.KV, `rate:otp_send:${cleanEmail}`, 1, 60);
+    const emailRate = await checkRateLimit(c.env.KV, `rate:otp_send:${cleanEmail}`, 1, 60, c.env.DB);
+    if (emailRate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
     if (!emailRate.allowed) {
       return c.json({ status: 'error', message: 'Please wait 60 seconds before requesting another code.' }, 429);
     }
@@ -577,11 +650,17 @@ app.post('/api/auth/send-otp', async (c) => {
   // Identify user if logged in
   const currentUser = await authenticateUser(c);
 
+  if (!c.env.KV) return c.json({ status: 'error', message: 'Verification unavailable' }, 503);
+  if (validPurpose === 'claim' && !currentUser) {
+    return c.json({ status: 'error', message: 'Session required to claim workspace' }, 401);
+  }
+
   // 3. Generate cryptographically random 6-digit OTP
   const code = generateSecureOtp();
   const now = Math.floor(Date.now() / 1000);
 
   const otpRecord: OtpRecord = {
+    challenge_id: await issueChallenge(c.env.DB, validPurpose === 'claim' ? currentUser!.id : null, 600),
     code,
     attempts: 0,
     purpose: validPurpose,
@@ -595,7 +674,12 @@ app.post('/api/auth/send-otp', async (c) => {
   }
 
   // 5. Dispatch email
-  const emailRes = await sendOtpEmail(c.env.RESEND_API_KEY, cleanEmail, code, validPurpose);
+  const emailRes = await sendOtpEmail(c.env.RESEND_API_KEY, cleanEmail, code, validPurpose, c.env.ENVIRONMENT === 'development', c.env.EMAIL_FROM);
+
+  if (!emailRes.success) {
+    await c.env.KV.delete(`otp:${cleanEmail}`);
+    return c.json({ status: 'error', message: 'Could not send verification email' }, 503);
+  }
 
   return c.json({
     status: 'success',
@@ -614,8 +698,8 @@ app.post('/api/auth/verify-otp', async (c) => {
     return c.json({ status: 'error', message: 'Invalid JSON body' }, 400);
   }
 
-  const { email, code, purpose } = body;
-  if (!email || !code) {
+  const { email, code, purpose } = body || {};
+  if (typeof email !== 'string' || email.length > 254 || typeof code !== 'string' || !/^\d{6}$/.test(code) || !['claim', 'login'].includes(purpose)) {
     return c.json({ status: 'error', message: 'Email and 6-digit code are required' }, 400);
   }
 
@@ -625,6 +709,10 @@ app.post('/api/auth/verify-otp', async (c) => {
   if (!c.env.KV) {
     return c.json({ status: 'error', message: 'KV storage unavailable' }, 503);
   }
+
+  const rate = await checkRateLimit(c.env.KV, `rate:otp_verify:${getClientIp(c)}`, 20, 300, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
+  if (!rate.allowed) return c.json({ status: 'error', message: 'Too many attempts' }, 429);
 
   // 1. Fetch OTP record
   const rawRecord = await c.env.KV.get(`otp:${cleanEmail}`);
@@ -639,35 +727,33 @@ app.post('/api/auth/verify-otp', async (c) => {
     return c.json({ status: 'error', message: 'Corrupted verification record' }, 500);
   }
 
+  if (record.purpose !== purpose || !Number.isFinite(record.created_at) || record.created_at + 600 <= Math.floor(Date.now() / 1000)) {
+    return c.json({ status: 'error', message: 'Invalid or expired verification code' }, 400);
+  }
+  const claimUser = purpose === 'claim' ? await authenticateUser(c) : null;
+  if (purpose === 'claim' && (!claimUser || record.user_id !== claimUser.id)) {
+    return c.json({ status: 'error', message: 'Verification belongs to another session' }, 403);
+  }
+
   // 2. Anti-Brute-Force & Replay Check
   if (record.used || record.attempts >= 3) {
     await c.env.KV.delete(`otp:${cleanEmail}`);
     return c.json({ status: 'error', message: 'Verification code has been used or invalidated. Please request a new one.' }, 400);
   }
 
-  // 3. Compare Code
-  if (record.code !== cleanCode) {
-    record.attempts += 1;
-    if (record.attempts >= 3) {
-      await c.env.KV.put(`otp:${cleanEmail}`, JSON.stringify({ ...record, attempts: 3, used: true }), { expirationTtl: 60 });
-      return c.json({ status: 'error', message: 'Incorrect code. Maximum attempts reached. Code invalidated.' }, 429);
-    }
-    // Update attempts with remaining TTL
-    await c.env.KV.put(`otp:${cleanEmail}`, JSON.stringify(record), { expirationTtl: 600 });
-    return c.json({ status: 'error', message: `Invalid code. ${3 - record.attempts} attempts remaining.` }, 401);
+  // A conditional D1 UPDATE decides attempts and consumption atomically.
+  if (!record.challenge_id || !await attemptChallenge(c.env.DB, record.challenge_id, record.purpose === 'claim' ? record.user_id || null : null, record.code === cleanCode)) {
+    return c.json({ status: 'error', message: 'Invalid, expired or already used code' }, 401);
   }
-
-  // 4. Code is Valid! Mark as used immediately with 60s tombstone (Single-Use Defense)
-  await c.env.KV.put(`otp:${cleanEmail}`, JSON.stringify({ ...record, used: true, attempts: 999 }), { expirationTtl: 60 });
+  await c.env.KV.delete(`otp:${cleanEmail}`);
 
   const now = Math.floor(Date.now() / 1000);
   const db = c.env.DB;
   if (!db) return c.json({ status: 'error', message: 'Database unavailable' }, 503);
 
   // 5. Handle Claim Workspace
-  if (purpose === 'claim' || record.purpose === 'claim') {
-    const authUser = await authenticateUser(c);
-    const targetUserId = authUser?.id || record.user_id;
+  if (purpose === 'claim') {
+    const targetUserId = claimUser?.id;
 
     if (!targetUserId) {
       return c.json({ status: 'error', message: 'Session required to claim workspace' }, 401);
@@ -678,6 +764,7 @@ app.post('/api/auth/verify-otp', async (c) => {
         .prepare('UPDATE users SET email = ?, is_guest = 0, updated_at = ? WHERE id = ?')
         .bind(cleanEmail, now, targetUserId)
         .run();
+      await invalidateUserBioCache(c, targetUserId);
 
       const user = (await db
         .prepare('SELECT id, email, api_key, is_guest FROM users WHERE id = ?')
@@ -764,37 +851,9 @@ app.post('/api/auth/verify-otp', async (c) => {
 });
 
 // POST /api/auth/claim - Claim Guest Account with permanent email (Direct legacy / token)
-app.post('/api/auth/claim', apiAuthMiddleware, async (c) => {
-  const user = c.get('user') as User;
-  let body: any;
-  try {
-    body = await c.req.json();
-  } catch {
-    return c.json({ status: 'error', message: 'Invalid JSON body' }, 400);
-  }
-
-  const { email } = body;
-  if (!email || !email.includes('@') || !email.includes('.')) {
-    return c.json({ status: 'error', message: 'A valid email address is required' }, 400);
-  }
-
-  const cleanEmail = email.trim().toLowerCase();
-  const now = Math.floor(Date.now() / 1000);
-
-  try {
-    await c.env.DB
-      .prepare('UPDATE users SET email = ?, is_guest = 0, updated_at = ? WHERE id = ?')
-      .bind(cleanEmail, now, user.id)
-      .run();
-
-    return c.json({ status: 'success', message: 'Workspace claimed successfully' });
-  } catch (err: any) {
-    if (err.message && err.message.includes('UNIQUE constraint failed: users.email')) {
-      return c.json({ status: 'error', message: 'This email is already associated with an account' }, 409);
-    }
-    return c.json({ status: 'error', message: 'Failed to claim workspace' }, 500);
-  }
-});
+app.post('/api/auth/claim', apiAuthMiddleware, (c) =>
+  c.json({ status: 'error', message: 'Email verification required. Use send-otp and verify-otp.' }, 403)
+);
 
 // GET /api/auth/me - Get current session
 app.get('/api/auth/me', apiAuthMiddleware, async (c) => {
@@ -825,18 +884,21 @@ const HANDOFF_TTL = 120;
 app.post('/api/auth/handoff', apiAuthMiddleware, async (c) => {
   const user = c.get('user') as User;
   if (!c.env.KV) return c.json({ status: 'error', message: 'Unavailable' }, 503);
-  const rate = await checkRateLimit(c.env.KV, `rate:handoff:${user.id}`, 10, 3600);
+  const rate = await checkRateLimit(c.env.KV, `rate:handoff:${user.id}`, 10, 3600, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
   if (!rate.allowed) return c.json({ status: 'error', message: 'Too many requests' }, 429);
 
   const bytes = crypto.getRandomValues(new Uint8Array(32));
   const code = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-  await c.env.KV.put(`handoff:${code}`, user.id, { expirationTtl: HANDOFF_TTL });
+  const challengeId = await issueChallenge(c.env.DB, user.id, HANDOFF_TTL);
+  await c.env.KV.put(`handoff:${code}`, JSON.stringify({ userId: user.id, challengeId }), { expirationTtl: HANDOFF_TTL });
   return c.json({ status: 'success', data: { code, expires_in: HANDOFF_TTL } });
 });
 
 app.post('/api/auth/handoff/claim', async (c) => {
   if (!c.env.KV || !c.env.DB) return c.json({ status: 'error', message: 'Unavailable' }, 503);
-  const rate = await checkRateLimit(c.env.KV, `rate:handoff_claim:${getClientIp(c)}`, 20, 300);
+  const rate = await checkRateLimit(c.env.KV, `rate:handoff_claim:${getClientIp(c)}`, 20, 300, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
   if (!rate.allowed) return c.json({ status: 'error', message: 'Too many requests' }, 429);
 
   const body = (await c.req.json().catch(() => ({}))) as { code?: unknown };
@@ -844,8 +906,9 @@ app.post('/api/auth/handoff/claim', async (c) => {
   if (!/^[a-f0-9]{64}$/.test(code)) return c.json({ status: 'error', message: 'Invalid code' }, 400);
 
   const key = `handoff:${code}`;
-  const userId = await c.env.KV.get(key);
-  if (!userId) return c.json({ status: 'error', message: 'Code expired' }, 410);
+  const transfer = await c.env.KV.get<{ userId: string; challengeId: string }>(key, 'json');
+  if (!transfer || !await attemptChallenge(c.env.DB, transfer.challengeId, transfer.userId, true)) return c.json({ status: 'error', message: 'Code expired' }, 410);
+  const userId = transfer.userId;
   await c.env.KV.delete(key);
 
   const user = (await c.env.DB
@@ -861,8 +924,9 @@ app.post('/api/auth/login', async (c) => {
   const ip = getClientIp(c);
 
   // Anti-brute force limiter: max 10 login attempts per IP per 5 minutes
-  if (c.env.KV) {
-    const rate = await checkRateLimit(c.env.KV, `rate:login:${ip}`, 10, 300);
+  if (c.env.KV || c.env.DB) {
+    const rate = await checkRateLimit(c.env.KV, `rate:login:${ip}`, 10, 300, c.env.DB);
+    if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
     if (!rate.allowed) {
       return c.json(
         { status: 'error', message: 'Too many login attempts. Please wait 5 minutes.' },
@@ -878,7 +942,7 @@ app.post('/api/auth/login', async (c) => {
     return c.json({ status: 'error', message: 'Invalid JSON body' }, 400);
   }
 
-  const credential = (body.credential || '').trim();
+  const credential = typeof body.credential === 'string' ? body.credential.trim() : '';
   if (!credential) {
     return c.json({ status: 'error', message: 'Email or Access Key is required' }, 400);
   }
@@ -939,14 +1003,46 @@ async function invalidateUserBioCache(c: any, userId: string) {
 }
 
 // -------------------------------------------------------------
+// Create missing starter blocks in one atomic D1 batch. Never insert example business data.
+app.post('/api/business/preset', apiAuthMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  if (!c.env.KV) return c.json({ status: 'error', message: 'Unavailable' }, 503);
+  const rate = await checkRateLimit(c.env.KV, `rate:preset:${getClientIp(c)}`, 10, 60, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
+  if (!rate.allowed) return c.json({ status: 'error', message: 'Too many requests' }, 429);
+  const body = await c.req.json();
+  const industry = INDUSTRIES.find(([id]) => id === body.industry)?.[0];
+  if (!industry) return c.json({ status: 'error', message: 'Invalid industry' }, 400);
+  const count = await c.env.DB.prepare('SELECT COUNT(*) AS total FROM links WHERE user_id = ?').bind(user.id).first<{ total: number }>();
+  const present = await c.env.DB.prepare("SELECT block_type FROM links WHERE user_id = ? AND is_bio_entry = 1 AND block_type IN ('catalog','business_info','location','contact')").bind(user.id).all<{ block_type: string }>();
+  const missing = ['catalog', 'business_info', 'location', 'contact'].filter((kind) => !present.results.some((row) => row.block_type === kind)).length;
+  if ((count?.total || 0) + missing > 100) return c.json({ status: 'error', code: 'LINK_QUOTA_EXCEEDED', message: 'Not enough room for starter blocks (maximum 100)' }, 400);
+  const now = Math.floor(Date.now() / 1000);
+  const statements = (['catalog', 'business_info', 'location', 'contact'] as const).map((kind) => {
+    const id = `lnk_${crypto.randomUUID().replace(/-/g, '')}`;
+    return c.env.DB.prepare(`INSERT INTO links (id, user_id, slug, destination_url, title, is_bio_entry, sort_order, is_active, block_type, created_at, data_json)
+      SELECT ?, ?, ?, '#', ?, 1, COALESCE((SELECT MAX(sort_order) + 1 FROM links WHERE user_id = ?), 0), 1, ?, ?, ?
+      WHERE NOT EXISTS (SELECT 1 FROM links WHERE user_id = ? AND block_type = ? AND is_bio_entry = 1)`)
+      .bind(id, user.id, crypto.randomUUID().replace(/-/g, ''), kind === 'catalog' ? CATALOG_LABELS[industry] : BLOCK_LABELS[kind], user.id, kind, now, JSON.stringify(defaultBusinessData(kind, industry)), user.id, kind);
+  });
+  try { await c.env.DB.batch(statements); }
+  catch (error) {
+    if (/QUOTA_EXCEEDED/.test(String(error))) return c.json({ status: 'error', code: 'LINK_QUOTA_EXCEEDED', message: 'Maximum 100 links per account' }, 400);
+    return c.json({ status: 'error', message: 'Could not create starter blocks. Please retry.' }, 503);
+  }
+  await invalidateUserBioCache(c, user.id);
+  return c.json({ status: 'success' });
+});
+
 // POST /api/links - Create shortlink or bio card with Smart Device Routing & Anti-Bot
 app.post('/api/links', apiAuthMiddleware, async (c) => {
   const user = c.get('user') as User;
   const ip = getClientIp(c);
 
   // Anti-bot rate limiter: max 30 links per IP per minute
-  if (c.env.KV) {
-    const rate = await checkRateLimit(c.env.KV, `rate:link:${ip}`, 30, 60);
+  if (c.env.KV || c.env.DB) {
+    const rate = await checkRateLimit(c.env.KV, `rate:link:${ip}`, 30, 60, c.env.DB);
+    if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Rate limiting unavailable. Please retry.' }, 503);
     if (!rate.allowed) {
       return c.json({ status: 'error', message: 'Rate limit exceeded. Maximum 30 links per minute.' }, 429);
     }
@@ -960,16 +1056,26 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
   }
 
   const { destination_url, title, is_bio_entry, sort_order, ios_url, android_url } = body;
-  let slug = (body.slug || '').trim();
+  let slug = typeof body.slug === 'string' ? body.slug.trim() : '';
 
-  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider'];
-  const blockType = (body.block_type || 'link').toLowerCase();
+  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider', ...BUSINESS_TYPES];
+  const blockType = typeof body.block_type === 'string' ? body.block_type.toLowerCase() : 'link';
   if (!validBlockTypes.includes(blockType)) {
     return c.json({ status: 'error', message: 'Invalid block_type' }, 400);
   }
 
-  const isContentOnly = ['header', 'text', 'divider'].includes(blockType);
-  let targetUrl = (destination_url || '').trim();
+  const count = await c.env.DB.prepare('SELECT COUNT(*) AS total FROM links WHERE user_id = ?').bind(user.id).first<{ total: number }>();
+  if ((count?.total || 0) >= 100) return c.json({ status: 'error', code: 'LINK_QUOTA_EXCEEDED', message: 'Maximum 100 links per account' }, 400);
+
+  const isContentOnly = isContentBlock(blockType);
+  let dataJson: string | null = null;
+  if (isBusinessBlock(blockType)) {
+    if (typeof title !== 'string' || !title.trim() || title.length > 100) return c.json({ status: 'error', message: 'Business block title is required (maximum 100 characters)' }, 400);
+    try { dataJson = JSON.stringify(validateBusinessData(blockType, body.data_json, (url) => validateDestinationUrl(url).valid)); }
+    catch (error) { return c.json({ status: 'error', message: (error as Error).message }, 400); }
+  } else if (body.data_json !== undefined) return c.json({ status: 'error', message: 'data_json is only supported on business blocks' }, 400);
+  let targetUrl = typeof destination_url === 'string' ? destination_url.trim() : '';
+  if (isBusinessBlock(blockType)) targetUrl = '#';
   if (!targetUrl) {
     if (isContentOnly) {
       targetUrl = '#';
@@ -1001,8 +1107,8 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
     if (isReservedSlug(slug)) {
       return c.json({ status: 'error', message: `Slug '${slug}' is reserved` }, 400);
     }
-    if (!/^[a-zA-Z0-9_-]+$/.test(slug)) {
-      return c.json({ status: 'error', message: 'Slug can only contain alphanumeric characters, hyphens, and underscores' }, 400);
+    if (!SLUG_PATTERN.test(slug)) {
+      return c.json({ status: 'error', message: 'Slug must contain 3–30 letters, numbers, hyphens, or underscores' }, 400);
     }
   } else {
     let attempts = 0;
@@ -1027,18 +1133,19 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
 
   const id = `lnk_${crypto.randomUUID().replace(/-/g, '')}`;
   const now = Math.floor(Date.now() / 1000);
-  const bioEntryFlag = is_bio_entry !== undefined ? (is_bio_entry ? 1 : 0) : (blockType !== 'link' ? 1 : 0);
+  const bioEntryFlag = isBusinessBlock(blockType) ? 1 : is_bio_entry !== undefined ? (is_bio_entry ? 1 : 0) : (blockType !== 'link' ? 1 : 0);
   const sort = typeof sort_order === 'number' ? sort_order : 0;
 
   try {
     await c.env.DB
       .prepare(
-        `INSERT INTO links (id, user_id, slug, destination_url, ios_url, android_url, title, is_bio_entry, sort_order, is_active, block_type, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`
+        `INSERT INTO links (id, user_id, slug, destination_url, ios_url, android_url, title, is_bio_entry, sort_order, is_active, block_type, created_at, data_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`
       )
-      .bind(id, user.id, slug, targetUrl, ios_url || null, android_url || null, title || null, bioEntryFlag, sort, blockType, now)
+      .bind(id, user.id, slug, targetUrl, ios_url || null, android_url || null, title || null, bioEntryFlag, sort, blockType, now, dataJson)
       .run();
   } catch (err: any) {
+    if (/QUOTA_EXCEEDED/.test(String(err))) return c.json({ status: 'error', code: 'LINK_QUOTA_EXCEEDED', message: 'Maximum 100 links per account' }, 400);
     if (err.message && err.message.includes('UNIQUE constraint failed: links.slug')) {
       return c.json({ status: 'error', message: `Slug '${slug}' already exists` }, 409);
     }
@@ -1046,15 +1153,15 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
   }
 
   // Populate KV cache with smart device targets
-  if (c.env.KV) {
+  if (c.env.KV && !isContentOnly) {
     const dataToCache: CachedSlug = { id, url: targetUrl, ios_url: ios_url || undefined, android_url: android_url || undefined };
-    safeWaitUntil(c, c.env.KV.put(`slug:${slug}`, JSON.stringify(dataToCache), { expirationTtl: 86400 }));
-    // Invalidate 404 cache if previously hit
-    safeWaitUntil(c, c.env.KV.delete(`slug:nf:${slug}`).catch(() => {}));
+    await c.env.KV.put(`slug:${slug}`, JSON.stringify(dataToCache), { expirationTtl: 86400 }).catch(() => {});
   }
+  await clearNegativeSlug(c, slug);
 
   // Invalidate bio cache in KV
   await invalidateUserBioCache(c, user.id);
+  scheduleMediaCleanup(c, user.id);
 
   const baseUrl = c.env.BASE_URL || new URL(c.req.url).origin;
   return c.json(
@@ -1072,6 +1179,7 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
         sort_order: sort,
         is_active: 1,
         block_type: blockType,
+        data_json: dataJson,
         clicks: 0,
         created_at: now
       }
@@ -1089,7 +1197,7 @@ app.get('/api/links', apiAuthMiddleware, async (c) => {
   const offset = (page - 1) * limit;
 
   let query = `
-    SELECT l.id, l.slug, l.destination_url, l.ios_url, l.android_url, l.title, l.is_bio_entry, l.sort_order, l.is_active, l.block_type, l.style, l.created_at,
+    SELECT l.id, l.slug, l.destination_url, l.ios_url, l.android_url, l.title, l.is_bio_entry, l.sort_order, l.is_active, l.block_type, l.style, l.data_json, l.created_at,
            COALESCE(SUM(la.clicks), 0) AS clicks
     FROM links l
     LEFT JOIN link_analytics la ON l.id = la.link_id
@@ -1103,7 +1211,7 @@ app.get('/api/links', apiAuthMiddleware, async (c) => {
     query += ' AND l.is_bio_entry = 0';
   }
 
-  query += ' GROUP BY l.id ORDER BY l.created_at DESC LIMIT ? OFFSET ?';
+  query += ' GROUP BY l.id ORDER BY l.created_at DESC, l.id ASC LIMIT ? OFFSET ?';
   bindings.push(limit, offset);
 
   try {
@@ -1114,6 +1222,29 @@ app.get('/api/links', apiAuthMiddleware, async (c) => {
     });
   } catch (err: any) {
     return c.json({ status: 'error', message: err.message || 'Failed to list links' }, 500);
+  }
+});
+
+// One tenant aggregate; all redirectable links contribute before the top-20 ranking.
+app.get('/api/analytics/summary', apiAuthMiddleware, async (c) => {
+  const user = c.get('user') as User;
+  const range = c.req.query('range') || '7d';
+  if (range !== '7d' && range !== '30d') return c.json({ status: 'error', message: 'range must be 7d or 30d' }, 400);
+  const until = new Date().toISOString().slice(0, 10);
+  const since = new Date(Date.now() - ((range === '7d' ? 7 : 30) - 1) * 864e5).toISOString().slice(0, 10);
+  const redirectable = "COALESCE(l.block_type, 'link') NOT IN ('catalog','business_info','location','contact','announcement','header','text','divider') AND (l.destination_url LIKE 'https://%' OR l.destination_url LIKE 'http://%')";
+  const scope = `FROM link_analytics la JOIN links l ON l.id = la.link_id WHERE l.user_id = ? AND ${redirectable} AND la.date >= ? AND la.date <= ?`;
+  try {
+    const [dates, countries, ranking, active] = await Promise.all([
+      c.env.DB.prepare(`/* summary_dates */ SELECT la.date AS date, SUM(la.clicks) AS clicks ${scope} GROUP BY la.date ORDER BY la.date ASC`).bind(user.id, since, until).all<{ date: string; clicks: number }>(),
+      c.env.DB.prepare(`/* summary_countries */ SELECT la.country AS country, SUM(la.clicks) AS clicks ${scope} GROUP BY la.country ORDER BY clicks DESC, la.country ASC`).bind(user.id, since, until).all(),
+      c.env.DB.prepare(`/* summary_links */ SELECT l.id, l.slug, l.title, SUM(la.clicks) AS clicks ${scope} GROUP BY l.id ORDER BY clicks DESC, l.id ASC LIMIT 20`).bind(user.id, since, until).all(),
+      c.env.DB.prepare(`/* summary_active */ SELECT COUNT(*) AS active_links FROM links l WHERE l.user_id = ? AND l.is_active = 1 AND ${redirectable}`).bind(user.id).first<{ active_links: number }>(),
+    ]);
+    const byDate = dates.results || [];
+    return c.json({ status: 'success', data: { total_clicks: byDate.reduce((sum, row) => sum + Number(row.clicks || 0), 0), by_date: byDate, by_country: countries.results || [], by_link: ranking.results || [], active_links: Number(active?.active_links || 0) } });
+  } catch {
+    return c.json({ status: 'error', message: 'Analytics unavailable. Please retry.' }, 503);
   }
 });
 
@@ -1210,8 +1341,9 @@ app.get('/api/bio-profile', apiAuthMiddleware, async (c) => {
       theme: profile.theme || 'minimal-dark',
       avatar_shape: profile.avatar_shape || 'circle',
       verified_badge: profile.verified_badge === 1,
-      style: profile.style ? JSON.parse(profile.style) : {},
-      social_links: socialLinks
+      business: readBusiness(profile.business_json),
+      style: readObject(profile.style),
+      social_links: readObject(socialLinks)
     }
   });
 });
@@ -1227,10 +1359,10 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
     return c.json({ status: 'error', message: 'Invalid JSON body' }, 400);
   }
 
-  const { is_active, block_type } = body;
+  const { is_active, block_type, is_bio_entry } = body;
   const hasTitle = body.title !== undefined;
   const hasUrl = body.destination_url !== undefined;
-  if (is_active === undefined && block_type === undefined && !hasTitle && !hasUrl) {
+  if (is_active === undefined && is_bio_entry === undefined && block_type === undefined && !hasTitle && !hasUrl && body.data_json === undefined) {
     return c.json({ status: 'error', message: 'Nothing to update' }, 400);
   }
 
@@ -1244,15 +1376,28 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
   }
 
   // Validate everything first so a bad field never leaves a half-applied edit.
-  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider'];
+  const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider', ...BUSINESS_TYPES];
   const nextType = block_type !== undefined ? String(block_type).toLowerCase() : (link as any).block_type || 'link';
   if (!validBlockTypes.includes(nextType)) {
     return c.json({ status: 'error', message: 'Invalid block_type' }, 400);
   }
-  const isContentOnly = ['header', 'text', 'divider'].includes(nextType);
+  const isContentOnly = isContentBlock(nextType);
 
   const sets: string[] = [];
   const vals: any[] = [];
+  if (is_bio_entry !== undefined) {
+    if (![0, 1, false, true].includes(is_bio_entry)) return c.json({ status: 'error', message: 'is_bio_entry must be 0, 1, or boolean' }, 400);
+    sets.push('is_bio_entry = ?'); vals.push(is_bio_entry ? 1 : 0);
+  }
+  if (isBusinessBlock(nextType)) {
+    try {
+      const data = validateBusinessData(nextType, body.data_json !== undefined ? body.data_json : link.data_json, (url) => validateDestinationUrl(url).valid);
+      sets.push('data_json = ?'); vals.push(JSON.stringify(data));
+    } catch (error) { return c.json({ status: 'error', message: (error as Error).message }, 400); }
+  } else if (body.data_json !== undefined) return c.json({ status: 'error', message: 'data_json requires a business block' }, 400);
+  if (isBusinessBlock(nextType) !== isBusinessBlock(link.block_type)) {
+    return c.json({ status: 'error', message: 'Create a new block to change between links and business content' }, 400);
+  }
 
   if (hasTitle) {
     const title = String(body.title ?? '').trim().slice(0, 280);
@@ -1263,6 +1408,7 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
     vals.push(title || null);
   }
 
+  if (isBusinessBlock(nextType) && hasUrl && body.destination_url !== '#') return c.json({ status: 'error', message: 'Business information cannot be used as a redirect' }, 400);
   let nextUrl = link.destination_url;
   if (hasUrl) {
     nextUrl = String(body.destination_url ?? '').trim() || (isContentOnly ? '#' : '');
@@ -1311,6 +1457,9 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
   }
 
   await invalidateUserBioCache(c, user.id);
+
+  await clearNegativeSlug(c, link.slug);
+  scheduleMediaCleanup(c, user.id);
 
   return c.json({ status: 'success', message: 'Link updated' });
 });
@@ -1369,107 +1518,9 @@ app.delete('/api/links/:id', apiAuthMiddleware, async (c) => {
 
   await invalidateUserBioCache(c, user.id);
 
+  scheduleMediaCleanup(c, user.id);
   return c.json({ status: 'success', message: 'Link deleted' });
 });
-
-function validateStyleJson(raw: any): { valid: boolean; cleaned?: string; error?: string } {
-  if (!raw) return { valid: true, cleaned: '{}' };
-  let obj: any = raw;
-  if (typeof raw === 'string') {
-    try {
-      obj = JSON.parse(raw);
-    } catch {
-      return { valid: false, error: 'Invalid JSON for style' };
-    }
-  }
-  if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-    return { valid: false, error: 'Style must be a JSON object' };
-  }
-
-  // Check payload size <= 4KB
-  const str = JSON.stringify(obj);
-  if (str.length > 4096) {
-    return { valid: false, error: 'Style payload exceeds 4KB limit' };
-  }
-
-  const allowedBg = ['dark', 'light', 'gradient', 'custom', 'image'];
-  const allowedFont = ['modern', 'classic', 'mono', 'rounded'];
-  const allowedBtn = ['soft', 'solid', 'glass', 'outline', 'shadow'];
-  const allowedEnter = ['none', 'fade', 'slide', 'bounce'];
-  const allowedHover = ['none', 'lift', 'glow', 'press'];
-  const allowedShapes = ['circle', 'squircle', 'rounded'];
-  const allowedBgFx = ['grain', 'aurora'];
-
-  const cleaned: Record<string, any> = {};
-
-  if (obj.bg !== undefined) {
-    if (!allowedBg.includes(obj.bg)) return { valid: false, error: 'Invalid bg option' };
-    cleaned.bg = obj.bg;
-  }
-  if (obj.accent !== undefined) {
-    if (typeof obj.accent !== 'string' || !/^#[0-9a-fA-F]{3,8}$/.test(obj.accent)) {
-      return { valid: false, error: 'Invalid accent hex color' };
-    }
-    cleaned.accent = obj.accent;
-  }
-  if (obj.font !== undefined) {
-    if (!allowedFont.includes(obj.font)) return { valid: false, error: 'Invalid font option' };
-    cleaned.font = obj.font;
-  }
-  if (obj.btn !== undefined) {
-    if (!allowedBtn.includes(obj.btn)) return { valid: false, error: 'Invalid btn option' };
-    cleaned.btn = obj.btn;
-  }
-  if (obj.radius !== undefined) {
-    const num = Number(obj.radius);
-    if (isNaN(num) || num < 0 || num > 32) return { valid: false, error: 'Radius must be 0-32px' };
-    cleaned.radius = Math.round(num);
-  }
-  if (obj.gap !== undefined) {
-    const num = Number(obj.gap);
-    if (isNaN(num) || num < 0 || num > 32) return { valid: false, error: 'Gap must be 0-32px' };
-    cleaned.gap = Math.round(num);
-  }
-  if (obj.enter !== undefined) {
-    if (!allowedEnter.includes(obj.enter)) return { valid: false, error: 'Invalid enter effect' };
-    cleaned.enter = obj.enter;
-  }
-  if (obj.hover !== undefined) {
-    if (!allowedHover.includes(obj.hover)) return { valid: false, error: 'Invalid hover effect' };
-    cleaned.hover = obj.hover;
-  }
-  if (obj.av_shape !== undefined) {
-    if (!allowedShapes.includes(obj.av_shape)) return { valid: false, error: 'Invalid avatar shape' };
-    cleaned.av_shape = obj.av_shape;
-  }
-  if (obj.ring !== undefined) {
-    cleaned.ring = Boolean(obj.ring);
-  }
-  if (obj.cover_url !== undefined && obj.cover_url) {
-    const valid = validateDestinationUrl(obj.cover_url);
-    if (!valid.valid) return { valid: false, error: 'Invalid cover_url: https required' };
-    cleaned.cover_url = obj.cover_url.trim();
-  }
-  if (obj.bg_image !== undefined && obj.bg_image) {
-    const valid = validateDestinationUrl(obj.bg_image);
-    if (!valid.valid) return { valid: false, error: 'Invalid bg_image: https required' };
-    cleaned.bg_image = obj.bg_image.trim();
-  }
-  if (obj.bgfx !== undefined) {
-    if (!Array.isArray(obj.bgfx)) return { valid: false, error: 'bgfx must be an array' };
-    cleaned.bgfx = obj.bgfx.filter((x: string) => allowedBgFx.includes(x));
-  }
-  if (obj.bg_blur !== undefined) {
-    const num = Number(obj.bg_blur);
-    cleaned.bg_blur = isNaN(num) ? 0 : Math.min(30, Math.max(0, num));
-  }
-  if (obj.bg_dim !== undefined) {
-    const num = Number(obj.bg_dim);
-    cleaned.bg_dim = isNaN(num) ? 0 : Math.min(90, Math.max(0, num));
-  }
-
-  return { valid: true, cleaned: JSON.stringify(cleaned) };
-}
 
 // PUT /api/bio-profile - Update bio profile
 app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
@@ -1481,7 +1532,10 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
     return c.json({ status: 'error', message: 'Invalid JSON body' }, 400);
   }
 
-  const { handle, display_name, bio, avatar_url, theme, social_links, avatar_shape, verified_badge, style } = body;
+  const validation = validateProfilePatch(body);
+  if (!validation.valid) return c.json({ status: 'error', message: validation.error }, 400);
+  body = validation.value;
+  const { handle, display_name, bio, avatar_url, theme, social_links, avatar_shape, style } = body;
 
   const existing = (await c.env.DB
     .prepare('SELECT * FROM bio_profiles WHERE user_id = ?')
@@ -1494,7 +1548,10 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
   const newAvatarUrl = avatar_url !== undefined ? avatar_url : existing?.avatar_url || null;
   const newTheme = theme !== undefined ? theme : existing?.theme || '1stnear';
   const newAvatarShape = avatar_shape !== undefined ? avatar_shape : existing?.avatar_shape || 'circle';
-  const newVerifiedBadge = verified_badge !== undefined ? (verified_badge ? 1 : 0) : existing?.verified_badge || 0;
+  const newVerifiedBadge = existing?.verified_badge || 0;
+  let businessJson: string;
+  try { businessJson = JSON.stringify(body.business !== undefined ? validateBusinessSettings(body.business) : readBusiness(existing?.business_json)); }
+  catch (error) { return c.json({ status: 'error', message: (error as Error).message }, 400); }
 
   let newStyleJson: string = '{}';
   if (style !== undefined) {
@@ -1504,7 +1561,7 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
     }
     newStyleJson = styleCheck.cleaned || '{}';
   } else {
-    newStyleJson = existing?.style || '{}';
+    newStyleJson = JSON.stringify(readObject(existing?.style));
   }
 
   let newSocialLinks: string | null = null;
@@ -1531,8 +1588,8 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
   try {
     await c.env.DB
       .prepare(
-        `INSERT INTO bio_profiles (user_id, handle, display_name, bio, avatar_url, social_links, theme, avatar_shape, verified_badge, style, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO bio_profiles (user_id, handle, display_name, bio, avatar_url, social_links, theme, avatar_shape, verified_badge, style, updated_at, business_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT (user_id) DO UPDATE SET
            handle = excluded.handle,
            display_name = excluded.display_name,
@@ -1543,9 +1600,10 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
            avatar_shape = excluded.avatar_shape,
            verified_badge = excluded.verified_badge,
            style = excluded.style,
+           business_json = excluded.business_json,
            updated_at = excluded.updated_at`
       )
-      .bind(user.id, newHandle, newDisplayName, newBio, newAvatarUrl, newSocialLinks, newTheme, newAvatarShape, newVerifiedBadge, newStyleJson, now)
+      .bind(user.id, newHandle, newDisplayName, newBio, newAvatarUrl, newSocialLinks, newTheme, newAvatarShape, newVerifiedBadge, newStyleJson, now, businessJson)
       .run();
   } catch (err: any) {
     if (err.message && err.message.includes('UNIQUE constraint failed: bio_profiles.handle')) {
@@ -1556,21 +1614,16 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
 
   // Invalidate old & new handle in KV cache
   if (c.env.KV) {
-    safeWaitUntil(
-      c,
-      Promise.all([
+    await Promise.all([
         c.env.KV.delete(`bio:${newHandle}`).catch(() => {}),
         existing?.handle && existing.handle !== newHandle
           ? c.env.KV.delete(`bio:${existing.handle}`).catch(() => {})
           : Promise.resolve()
-      ])
-    );
+      ]);
   }
 
-  // Foto lama (dan upload yang tak jadi dipakai) dihapus dari R2 saat foto berganti.
-  if (c.env.MEDIA && newAvatarUrl !== (existing?.avatar_url || null)) {
-    safeWaitUntil(c, pruneAvatars(c.env.MEDIA, user.id, mediaKeyFromUrl(newAvatarUrl)));
-  }
+  // Preserve referenced/recent media; the bounded sweep runs at most once per day.
+  scheduleMediaCleanup(c, user.id);
 
   return c.json({
     status: 'success',
@@ -1582,8 +1635,9 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
       theme: newTheme,
       avatar_shape: newAvatarShape,
       verified_badge: newVerifiedBadge === 1,
+      business: JSON.parse(businessJson),
       style: JSON.parse(newStyleJson),
-      social_links: newSocialLinks ? JSON.parse(newSocialLinks) : {}
+      social_links: readObject(newSocialLinks)
     }
   });
 });

@@ -31,7 +31,6 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
   const [bio, setBio] = useState(profile.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '');
   const [showAvatarInput, setShowAvatarInput] = useState(false);
-  const [verifiedBadge, setVerifiedBadge] = useState<boolean>(Boolean(profile.verified_badge));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -83,7 +82,6 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
         bio: bio.trim(),
         // null = hapus foto; server lalu membersihkan file lama di penyimpanan.
         avatar_url: (avatarUrl.trim() || null) as string | undefined,
-        verified_badge: verifiedBadge,
       });
       onClose();
     } catch (err: any) {
@@ -218,14 +216,7 @@ export const EditProfileSheet: React.FC<EditProfileSheetProps> = ({
           <div className="hint text-right">{bio.length}/160</div>
         </div>
 
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={verifiedBadge}
-            onChange={(e) => setVerifiedBadge(e.target.checked)}
-          />
-          <span>{tx('Tampilkan tanda terverifikasi', 'Show verified badge')}</span>
-        </label>
+
 
         <button
           type="submit"

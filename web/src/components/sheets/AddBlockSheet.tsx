@@ -1,3 +1,4 @@
+import { BUSINESS_TYPES, BLOCK_LABELS, type BusinessBlockType } from '../../../../shared/business';
 import React, { useMemo, useState } from 'react';
 import { Sheet } from '../Sheet';
 import {
@@ -11,6 +12,7 @@ import { useI18n } from '../../i18n/context';
 interface AddBlockSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectBusinessBlock: (kind: BusinessBlockType) => void;
   onSelectLinkType: (type: 'link' | 'featured') => void;
   onCreateBlock: (payload: { title: string; destination_url: string; block_type: BioBlockType }) => Promise<void>;
 }
@@ -162,7 +164,7 @@ const buildCatalog = (tx: Tx, lang: 'id' | 'en') => {
   return { BLOCKS, TEMPLATE_DEFS, GROUPS };
 };
 
-export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, onSelectLinkType, onCreateBlock }) => {
+export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, onSelectLinkType, onSelectBusinessBlock, onCreateBlock }) => {
   const { tx, lang } = useI18n();
   const { BLOCKS, TEMPLATE_DEFS, GROUPS } = useMemo(() => buildCatalog(tx, lang), [lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const [active, setActive] = useState<BlockDef | null>(null);
@@ -256,6 +258,7 @@ export const AddBlockSheet: React.FC<AddBlockSheetProps> = ({ isOpen, onClose, o
         </div>
       )}
 
+      {!active && mode === 'blocks' && <section><h3 className="sec-label">Usaha</h3><div className="business-block-library">{BUSINESS_TYPES.map((kind) => <button className="btn btn-g btn-sm" key={kind} onClick={() => { handleClose(); onSelectBusinessBlock(kind); }}>{BLOCK_LABELS[kind]}</button>)}</div></section>}
       {!active && mode === 'blocks' && (
         <div className="flex flex-col gap-4">
           {GROUPS.map((g) => (

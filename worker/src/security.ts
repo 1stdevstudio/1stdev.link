@@ -37,7 +37,10 @@ const PRIVATE_IPV4_RANGES = [
   /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // 172.16.0.0/12
   /^192\.168\./,               // 192.168.0.0/16
   /^169\.254\./,               // 169.254.0.0/16
-  /^0\./                       // 0.0.0.0/8
+  /^0\./,                      // 0.0.0.0/8
+  /^100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\./, // shared address space
+  /^198\.(18|19)\./,           // benchmarking
+  /^(22[4-9]|23[0-9]|24[0-9]|25[0-5])\./ // multicast/reserved
 ];
 
 export function validateDestinationUrl(urlString: string): { valid: boolean; error?: string } {
@@ -53,7 +56,10 @@ export function validateDestinationUrl(urlString: string): { valid: boolean; err
     return { valid: false, error: 'Only http and https schemes are permitted' };
   }
 
-  const hostname = parsed.hostname.toLowerCase();
+  if (typeof urlString !== 'string' || urlString.length > 4096 || parsed.username || parsed.password) {
+    return { valid: false, error: 'Invalid destination URL' };
+  }
+  const hostname = parsed.hostname.toLowerCase().replace(/\.+$/, '');
 
   // Hostname checks for localhost & common loopback
   if (
@@ -72,7 +78,10 @@ export function validateDestinationUrl(urlString: string): { valid: boolean; err
     hostname === '::1' ||
     hostname.startsWith('[fc') ||
     hostname.startsWith('[fd') ||
-    hostname.startsWith('[fe80')
+    /^\[fe[89ab]/.test(hostname) ||
+    hostname === '[::]' ||
+    hostname.startsWith('[::ffff:') ||
+    (hostname.startsWith('[') && !/^\[[23][0-9a-f]{0,3}:/.test(hostname))
   ) {
     return { valid: false, error: 'Destination URL resolves to private IPv6 address' };
   }
@@ -87,27 +96,70 @@ export function validateDestinationUrl(urlString: string): { valid: boolean; err
   return { valid: true };
 }
 
-/**
- * KV-backed atomic rate limiter
- */
+export interface RateLimitResult {
+  allowed: boolean;
+  remaining: number;
+  resetAt?: number;
+  serviceUnavailable?: boolean;
+}
+
+export async function hashRateLimitKey(key: string): Promise<string> {
+  const data = new TextEncoder().encode(key);
+  const buf = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export const RATE_LIMIT_SQL = `
+      INSERT INTO rate_limits (key_hash, count, reset_at) VALUES (?, 1, ?)
+      ON CONFLICT(key_hash) DO UPDATE SET
+        count = CASE WHEN rate_limits.reset_at <= ? THEN 1 ELSE rate_limits.count + 1 END,
+        reset_at = CASE WHEN rate_limits.reset_at <= ? THEN excluded.reset_at ELSE rate_limits.reset_at END
+      WHERE rate_limits.reset_at <= ? OR rate_limits.count < ?
+      RETURNING count, reset_at
+    `;
+
+/** D1 enforces a strict window; KV only caches an exhausted allowance. */
 export async function checkRateLimit(
-  kv: any,
+  kv: KVNamespace | undefined,
   key: string,
   limit: number,
-  ttlSeconds: number = 60
-): Promise<{ allowed: boolean; remaining: number }> {
-  if (!kv) return { allowed: true, remaining: limit };
-
-  const currentVal = await kv.get(key);
-  const count = currentVal ? parseInt(currentVal, 10) : 0;
-
-  if (count >= limit) {
-    return { allowed: false, remaining: 0 };
+  ttlSeconds: number = 60,
+  db?: D1Database
+): Promise<RateLimitResult> {
+  if (!db || !Number.isSafeInteger(limit) || limit < 1 || ttlSeconds < 1) {
+    return { allowed: false, remaining: 0, serviceUnavailable: true };
   }
-
-  const nextCount = count + 1;
-  await kv.put(key, nextCount.toString(), { expirationTtl: ttlSeconds });
-  return { allowed: true, remaining: Math.max(0, limit - nextCount) };
+  const now = Math.floor(Date.now() / 1000);
+  const keyHash = await hashRateLimitKey(key);
+  const blockKey = `rate:deny:${keyHash}`;
+  if (kv) {
+    try {
+      const blockedUntil = Number(await kv.get(blockKey));
+      if (blockedUntil > now) return { allowed: false, remaining: 0, resetAt: blockedUntil };
+    } catch { /* D1 remains the authority when KV is unavailable. */ }
+  }
+  try {
+    const row = await db.prepare(RATE_LIMIT_SQL).bind(keyHash, now + ttlSeconds, now, now, now, limit).first<{ count: number; reset_at: number }>();
+    if (!row) {
+      const exhausted = await db.prepare('SELECT reset_at FROM rate_limits WHERE key_hash = ?').bind(keyHash).first<{ reset_at: number }>();
+      if (!exhausted) return { allowed: false, remaining: 0, serviceUnavailable: true };
+      return { allowed: false, remaining: 0, resetAt: exhausted.reset_at };
+    }
+    // One marker per exhausted window, never one KV write per denied request.
+    // KV's minimum TTL is 60s; its numeric value enforces the actual reset time.
+    if (row.count === limit && kv) {
+      try { await kv.put(blockKey, String(row.reset_at), { expirationTtl: Math.max(60, row.reset_at - now) }); }
+      catch { /* A quota or KV outage cannot bypass the D1 limit. */ }
+    }
+    if (Math.random() < 0.02) {
+      try {
+        await db.prepare('DELETE FROM rate_limits WHERE key_hash IN (SELECT key_hash FROM rate_limits WHERE reset_at < ? LIMIT 50)').bind(now).run();
+      } catch { /* Bounded expiry cleanup may retry on a later request. */ }
+    }
+    return { allowed: true, remaining: Math.max(0, limit - row.count), resetAt: row.reset_at };
+  } catch {
+    return { allowed: false, remaining: 0, serviceUnavailable: true };
+  }
 }
 
 /**
@@ -152,16 +204,18 @@ export function generateSecureOtp(): string {
 }
 
 /**
- * Dispatch verification OTP email via Resend API (or console fallback)
+ * Dispatch verification email. Preview is opt-in for local development only.
  */
 export async function sendOtpEmail(
   apiKey: string | undefined,
   toEmail: string,
   code: string,
-  purpose: string
+  purpose: string,
+  allowPreview = false,
+  fromAddress = '1stdev.link Security <no-reply@otp.1stdev.link>'
 ): Promise<{ success: boolean; preview?: string; error?: string }> {
   if (apiKey) {
-    const sendWithFrom = async (fromAddress: string) => {
+    const send = async () => {
       return fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -191,28 +245,21 @@ export async function sendOtpEmail(
     };
 
     try {
-      // 1. Try sending from official domain auth@1stnear.com
-      let res = await sendWithFrom('1stdev.link Security <auth@1stnear.com>');
-      if (res.ok) {
-        return { success: true };
-      }
-
-      // 2. If 1stnear.com is not verified yet, fallback to onboarding@resend.dev
-      res = await sendWithFrom('1stdev.link Security <onboarding@resend.dev>');
+      // Use the configured, verified sender. Resend's testing domain cannot send to customers.
+      const res = await send();
       if (res.ok) {
         return { success: true };
       }
 
       const finalErr: any = await res.json().catch(() => ({}));
       console.warn('Resend email delivery notice:', finalErr?.message);
-      // Return dev preview if recipient is outside sandbox allowlist
-      return { success: true, error: finalErr?.message, preview: code };
+      // Provider rejection must never disclose the verification code.
+      return { success: false, error: 'Email delivery failed' };
     } catch (err: any) {
       console.error('Failed to dispatch email via Resend:', err);
     }
   }
 
-  // Graceful fallback for dev / sandbox mode
-  console.log(`[AUTH-OTP] Email to ${toEmail} | Purpose: ${purpose} | Code: ${code}`);
-  return { success: true, preview: code };
+  // Only an explicit development environment may preview a code.
+  return allowPreview ? { success: true, preview: code } : { success: false, error: 'Email delivery unavailable' };
 }

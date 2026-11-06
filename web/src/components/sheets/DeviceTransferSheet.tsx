@@ -1,73 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sheet } from '../Sheet';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, KeyRound } from 'lucide-react';
 import { useI18n } from '../../i18n/context';
+import { api } from '../../api';
 
 interface DeviceTransferSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  apiKey?: string;
   onToast: (msg: string) => void;
 }
 
-export const DeviceTransferSheet: React.FC<DeviceTransferSheetProps> = ({
-  isOpen,
-  onClose,
-  apiKey,
-  onToast,
-}) => {
+export const DeviceTransferSheet: React.FC<DeviceTransferSheetProps> = ({ isOpen, onClose, onToast }) => {
   const { tx } = useI18n();
   const [copied, setCopied] = useState(false);
-  const syncUrl = `${window.location.origin}/?sync_key=${encodeURIComponent(apiKey || '')}`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-    syncUrl
-  )}`;
-
-  const handleCopy = () => {
-    if (!apiKey) return;
-    navigator.clipboard.writeText(apiKey);
-    setCopied(true);
-    onToast(tx('Kode disalin', 'Code copied'));
-    setTimeout(() => setCopied(false), 2000);
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [expiresAt, setExpiresAt] = useState(0);
+  useEffect(() => { if (!isOpen) { setUrl(''); setExpiresAt(0); setCopied(false); } }, [isOpen]);
+  useEffect(() => {
+    if (!expiresAt) return;
+    const timer = setTimeout(() => { setUrl(''); setCopied(false); }, Math.max(0, expiresAt - Date.now()));
+    return () => clearTimeout(timer);
+  }, [expiresAt]);
+  const generate = async () => {
+    setLoading(true);
+    try {
+      const code = await api.createHandoff();
+      const target = new URL(window.location.origin);
+      target.searchParams.set('handoff', code);
+      setUrl(target.toString());
+      setExpiresAt(Date.now() + 120000);
+      setCopied(false);
+    } catch { onToast(tx('Gagal membuat tautan transfer', 'Could not create transfer link')); }
+    finally { setLoading(false); }
   };
-
-  return (
-    <Sheet isOpen={isOpen} onClose={onClose} title={tx('Pindah perangkat', 'Move to another device')}>
-      <div className="flex flex-col gap-4">
-        <p className="text-[13px] text-[var(--tx2)] leading-normal">
-          {tx('Di perangkat baru, buka 1stdev.link, pilih', 'On the new device, open 1stdev.link, choose')}{' '}
-          <strong className="text-[var(--tx)] font-semibold">{tx('Masuk', 'Log in')}</strong>{tx(', lalu scan kode ini.', ', then scan this code.')}
-        </p>
-
-        {/* QR Code Container */}
-        <div className="w-[140px] h-[140px] mx-auto rounded-[var(--r2)] bg-white p-2.5 grid place-items-center shadow-lg">
-          <img
-            src={qrUrl}
-            alt={tx('QR pindah perangkat', 'Device transfer QR')}
-            className="w-full h-full object-contain"
-          />
-        </div>
-
-        {/* Sync Key Row */}
-        <div className="flex items-center justify-between gap-2 bg-[var(--in)] rounded-[var(--r2)] p-1 pl-3">
-          <span className="mono grow text-[13px] text-[var(--tx)] truncate select-all">
-            {apiKey || 'el_live_••••••••'}
-          </span>
-          <button
-            type="button"
-            className="btn btn-g btn-sm shrink-0"
-            onClick={handleCopy}
-          >
-            {copied ? <Check size={14} strokeWidth={2} /> : <Copy size={14} strokeWidth={1.75} />}
-            <span>{copied ? tx('Disalin', 'Copied') : tx('Salin', 'Copy')}</span>
-          </button>
-        </div>
-
-        {/* Security Warning */}
-        <p className="text-[13px] text-[var(--warn)] leading-relaxed">
-          {tx('Jangan bagikan kode ini. Siapa pun yang memilikinya bisa membuka akun kamu.', 'Do not share this code. Anyone who has it can open your account.')}
-        </p>
-      </div>
-    </Sheet>
-  );
+  const copy = async () => {
+    if (!url || Date.now() >= expiresAt) return;
+    try { await navigator.clipboard.writeText(url); setCopied(true); }
+    catch { onToast(tx('Tidak dapat menyalin tautan', 'Could not copy link')); }
+  };
+  return <Sheet isOpen={isOpen} onClose={onClose} title={tx('Pindah perangkat', 'Move to another device')}>
+    <div className="flex flex-col gap-4">
+      <p className="text-[13px] text-[var(--tx2)]">{tx('Buat tautan sekali pakai, lalu buka di perangkat baru. Berlaku 2 menit.', 'Create a single-use link and open it on your new device. Expires in 2 minutes.')}</p>
+      <button className="btn btn-p" disabled={loading} onClick={generate}><KeyRound size={16} strokeWidth={1.75} />{loading ? tx('Membuat...', 'Creating...') : tx('Buat tautan transfer', 'Create transfer link')}</button>
+      {url && <div className="flex gap-2 items-center bg-[var(--s2)] rounded-lg p-3">
+        <span className="truncate text-[13px] min-w-0 flex-1 select-all">{url}</span>
+        <button className="btn btn-g btn-sm" onClick={copy}>{copied ? <Check size={16} /> : <Copy size={16} />} {copied ? tx('Disalin', 'Copied') : tx('Salin', 'Copy')}</button>
+      </div>}
+      <p className="text-[13px] text-[var(--warn)]">{tx('Tautan ini memberikan akses akun. Buka hanya di perangkat milikmu.', 'This link grants account access. Open it only on your own device.')}</p>
+    </div>
+  </Sheet>;
 };

@@ -1,4 +1,5 @@
-import { LinkItem, LinkAnalytics, BioProfile, AuthSession, ApiResponse } from './types';
+import { defaultBusinessData, isContentBlock, BLOCK_LABELS, CATALOG_LABELS, type Industry, type BusinessData } from '../../shared/business';
+import { LinkItem, LinkAnalytics, AnalyticsSummary, BioProfile, AuthSession, ApiResponse } from './types';
 
 const STORAGE_LINKS = 'edgelink_mock_links';
 const STORAGE_PROFILE = 'edgelink_mock_profile';
@@ -89,6 +90,7 @@ function saveMockProfile(profile: BioProfile) {
 export class ApiClient {
   private baseUrl: string;
   private useMock: boolean;
+  private sessionRequest?: Promise<AuthSession | null>;
 
   constructor() {
     const envBase = import.meta.env.VITE_API_URL || '';
@@ -97,7 +99,7 @@ export class ApiClient {
     const servedByWorker = /^(www\.)?1stdev\.link$|^link\.1stnear\.com$/.test(window.location.hostname);
     this.baseUrl = servedByWorker ? window.location.origin : envBase;
     // Auto mock mode if running in dev without backend or localStorage flag
-    this.useMock = import.meta.env.VITE_USE_MOCK === 'true' || !envBase;
+    this.useMock = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK === 'true';
   }
 
   setMockMode(enable: boolean) {
@@ -109,19 +111,19 @@ export class ApiClient {
   }
 
   private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
-    const token = localStorage.getItem('edgelink_token') || 'edgelink_live_secret_key';
+    const token = localStorage.getItem('edgelink_token');
     const res = await fetch(`${this.baseUrl}${path}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
     });
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ message: res.statusText }));
-      throw new Error(err.message || `HTTP ${res.status}`);
+      throw Object.assign(new Error(err.message || `HTTP ${res.status}`), { status: res.status });
     }
 
     return res.json();
@@ -155,7 +157,14 @@ export class ApiClient {
     return Boolean(localStorage.getItem('edgelink_token'));
   }
 
-  async getExistingSession(): Promise<AuthSession | null> {
+  getExistingSession(): Promise<AuthSession | null> {
+    if (!this.sessionRequest) {
+      this.sessionRequest = this.restoreSession().finally(() => { this.sessionRequest = undefined; });
+    }
+    return this.sessionRequest;
+  }
+
+  private async restoreSession(): Promise<AuthSession | null> {
     if (this.useMock) {
       const has = localStorage.getItem('edgelink_token');
       if (has) {
@@ -172,12 +181,6 @@ export class ApiClient {
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const syncKey = urlParams.get('sync_key');
-    if (syncKey) {
-      localStorage.setItem('edgelink_token', syncKey);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
     // Sesi yang dibawa dari domain lama (lihat main.tsx). Kode sekali pakai, hapus dari URL segera.
     const handoff = urlParams.get('handoff');
     if (handoff) {
@@ -201,8 +204,9 @@ export class ApiClient {
     try {
       const me = await this.request<ApiResponse<AuthSession>>('/api/auth/me');
       return me.data || null;
-    } catch {
-      localStorage.removeItem('edgelink_token');
+    } catch (error) {
+      if ((error as { status?: number }).status !== 401) throw error;
+      if (localStorage.getItem('edgelink_token') === existingToken) localStorage.removeItem('edgelink_token');
       return null;
     }
   }
@@ -220,22 +224,15 @@ export class ApiClient {
 
   async initSession(): Promise<AuthSession> {
     if (this.useMock) {
+      localStorage.setItem('edgelink_token', 'dev_mock_session');
       return {
+        api_key: 'dev_mock_session',
         id: 'usr_mock_123',
         email: 'creator@edgelink.local',
         is_guest: true,
         handle: 'creator',
         display_name: 'Edge Creator',
       };
-    }
-
-    // Check URL query sync_key (instant cross-device link / QR scan)
-    const urlParams = new URLSearchParams(window.location.search);
-    const syncKey = urlParams.get('sync_key');
-    if (syncKey) {
-      localStorage.setItem('edgelink_token', syncKey);
-      // Clean URL without refresh
-      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     const existingToken = localStorage.getItem('edgelink_token');
@@ -381,13 +378,23 @@ export class ApiClient {
       return [...links].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
     }
 
-    const query = filter ? `?filter=${filter}` : '';
-    const res = await this.request<ApiResponse<LinkItem[]>>(`/api/links${query}`);
-    return res.data || [];
+    const token = localStorage.getItem('edgelink_token');
+    const collected = new Map<string, LinkItem>();
+    for (let page = 1; page <= 100; page++) {
+      if (token !== localStorage.getItem('edgelink_token')) throw new Error('Session changed');
+      const query = new URLSearchParams({ limit: '100', page: String(page), ...(filter ? { filter } : {}) });
+      const res = await this.request<ApiResponse<LinkItem[]>>(`/api/links?${query}`);
+      const rows = res.data || [];
+      for (const row of rows) collected.set(row.id, row);
+      if (rows.length < 100) return [...collected.values()];
+    }
+    throw new Error('Too many links to load. Please contact support.');
   }
 
   async createLink(payload: {
     destination_url: string;
+    block_type?: import('./types').BioBlockType;
+    data_json?: BusinessData;
     slug?: string;
     title?: string;
     is_bio_entry?: boolean;
@@ -405,7 +412,7 @@ export class ApiClient {
       }
 
       const newLink: LinkItem = {
-        id: `lnk_${Date.now().toString(36)}`,
+        id: `lnk_${crypto.randomUUID()}`,
         slug,
         destination_url: payload.destination_url,
         ios_url: payload.ios_url,
@@ -416,6 +423,8 @@ export class ApiClient {
         sort_order: payload.sort_order ?? links.length + 1,
         is_active: 1,
         created_at: Math.floor(Date.now() / 1000),
+        block_type: payload.block_type,
+        data_json: payload.data_json,
       };
 
       links.unshift(newLink);
@@ -447,7 +456,7 @@ export class ApiClient {
 
   async updateLink(
     id: string,
-    patch: { title?: string; destination_url?: string; block_type?: import('./types').BioBlockType }
+    patch: { title?: string; destination_url?: string; block_type?: import('./types').BioBlockType; data_json?: BusinessData | string; is_bio_entry?: boolean | number }
   ): Promise<void> {
     if (this.useMock) {
       saveMockLinks(getMockLinks().map((l) => (l.id === id ? { ...l, ...patch } : l)));
@@ -502,6 +511,23 @@ export class ApiClient {
     });
   }
 
+  // One tenant aggregate: totals include all links, ranking is bounded by the server.
+  async getAnalyticsSummary(range: '7d' | '30d' = '7d'): Promise<AnalyticsSummary> {
+    if (this.useMock) {
+      const links = getMockLinks().filter((link) => !isContentBlock(link.block_type) && link.destination_url !== '#');
+      const total = links.reduce((sum, link) => sum + link.clicks, 0);
+      return {
+        total_clicks: total,
+        by_date: [{ date: new Date().toISOString().slice(0, 10), clicks: total }],
+        by_country: total ? [{ country: 'ID', clicks: total }] : [],
+        by_link: [...links].sort((a, b) => b.clicks - a.clicks).slice(0, 20).map(({ id, slug, title, clicks }) => ({ id, slug, title, clicks })),
+        active_links: links.filter((link) => link.is_active).length,
+      };
+    }
+    const res = await this.request<ApiResponse<AnalyticsSummary>>(`/api/analytics/summary?range=${range}`);
+    return res.data!;
+  }
+
   // Analytics
   async getLinkAnalytics(linkId: string, _range: '7d' | '30d' = '7d'): Promise<LinkAnalytics> {
     if (this.useMock) {
@@ -528,6 +554,18 @@ export class ApiClient {
 
     const res = await this.request<ApiResponse<LinkAnalytics>>(`/api/links/${linkId}/analytics?range=${_range}`);
     return res.data!;
+  }
+
+  async applyBusinessPreset(industry: Industry): Promise<void> {
+    if (this.useMock) {
+      const links = getMockLinks();
+      for (const kind of ['catalog', 'business_info', 'location', 'contact'] as const) {
+        if (links.some((l) => l.is_bio_entry && l.block_type === kind)) continue;
+        links.push({ id: `lnk_${crypto.randomUUID()}`, slug: crypto.randomUUID(), destination_url: '#', title: kind === 'catalog' ? CATALOG_LABELS[industry] : BLOCK_LABELS[kind], block_type: kind, data_json: defaultBusinessData(kind, industry), is_bio_entry: 1, is_active: 1, sort_order: Math.max(0, ...links.map((l) => l.sort_order)) + 1, clicks: 0 });
+      }
+      saveMockLinks(links); return;
+    }
+    await this.request('/api/business/preset', { method: 'POST', body: JSON.stringify({ industry }) });
   }
 
   // Bio Profile

@@ -281,7 +281,7 @@ describe('EdgeLink Cloudflare Worker Backend Tests', () => {
     }), env);
     await mockKv.delete('bio:paper');
     const def = await (await app.fetch(new Request('http://localhost/@paper'), env)).text();
-    assert.match(def, /--bg: #0e1f1b/);
+    assert.match(def, /--bg: #070e0c/);
     assert.match(def, /--accent: #e9be54/);
   });
 
