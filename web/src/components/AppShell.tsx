@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link2, Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
+import { Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
 import { WORKSPACE_NAV } from './navigation/workspaceNav';
 import { WorkspaceNavButton } from './navigation/WorkspaceNavButton';
 import { StudioSidebar } from './navigation/StudioSidebar';
+import { BrandMark } from './brand/BrandMark';
 import type { TabType } from './navigation/workspaceNav';
 import { AuthSession } from '../types';
 import { useI18n } from '../i18n/context';
@@ -25,11 +26,11 @@ interface AppShellProps {
 
 const Logo: React.FC = () => (
   <div className="flex items-center gap-2.5 font-bold min-w-0">
-    <span className="w-8 h-8 rounded-[var(--r2)] bg-[var(--ac)] text-[var(--ink)] grid place-items-center shrink-0">
-      <Link2 size={17} strokeWidth={2} />
+    <span className="w-[37px] h-[37px] grid place-items-center shrink-0">
+      <BrandMark size={37} />
     </span>
     <span className="min-w-0 flex flex-col leading-tight">
-      <span className="truncate text-[15px]">1stdev.link</span>
+      <span className="truncate text-[15px]">1stdev<span className="text-[var(--ac)]">.</span>link</span>
       <span className="truncate text-[11px] font-normal text-[var(--tx2)]">by 1stdev.space</span>
     </span>
   </div>
