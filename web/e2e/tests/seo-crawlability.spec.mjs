@@ -8,7 +8,7 @@ test('raw HTML serves meaningful landing content before JavaScript', async ({ re
   expect(html).toContain('Link bio dan link pendek gratis untuk kreator dan UMKM');
   expect(html).toContain('href="https://1stdev.link/"');
   expect(html).toContain('href="/docs"');
-  expect(html).toContain('href="/llms.txt"');
+  expect(html).toContain('href="/llms.txt?v=20261109"');
   expect(html).not.toContain('<noscript>');
 });
 
