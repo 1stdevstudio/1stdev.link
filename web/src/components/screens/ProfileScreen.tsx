@@ -915,6 +915,33 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                       <span className="theme-bar w-[55%]" style={{ background: s.text, opacity: 0.8 }} />
                       <span className="theme-bar theme-btn" style={{ background: s.featBg }} />
                       <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
-                      <span className="theme-bar theme-btn" style={{ backgroun
-... (output truncated, full output saved to: /mnt/files/.composio/output/bash_milk_stdout.txt)
-Run 'cat /mnt/files/.composio/output/bash_milk_stdout.txt' to view the full output, or use 'head -n 100 /mnt/files/.composio/output/bash_milk_stdout.txt' / 'tail -n 100 /mnt/files/.composio/output/bash_milk_stdout.txt' to view parts of it.
+                      <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
+                    </span>
+                    <span className="flex items-center justify-between gap-1 px-0.5">
+                      <span className="text-[13px] font-medium text-[var(--tx)] truncate">{L(th.name)}</span>
+                      {active && <Check size={14} strokeWidth={2.5} className="text-[var(--ac)] shrink-0" />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {tab === 'preview' && (
+        <section id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" className="lg:hidden pt-1">
+          {preview}
+        </section>
+      )}
+
+      <ImageCropperModal
+        isOpen={cropState.isOpen}
+        imageFile={cropState.file}
+        cropType={cropState.type}
+        onCropComplete={handleCropComplete}
+        onCancel={() => setCropState({ isOpen: false, file: null, type: 'cover' })}
+      />
+    </div>
+  );
+};
