@@ -5,7 +5,6 @@ const menu = [
   ['profile', 'Halaman', '#content'],
   ['links', 'Link', '#links'],
   ['stats', 'Statistik', '#stats'],
-  ['account', 'Pengaturan', '#account'],
 ];
 
 async function openWorkspace(page) {
@@ -24,7 +23,7 @@ async function openWorkspace(page) {
 
 test.describe('Studio sidebar redesign', () => {
   for (const [width, height] of [[1024, 768], [1280, 800], [1440, 900], [1920, 1080]]) {
-    test('visual, five nav items and shortcuts at ' + width + '×' + height, async ({ page }, testInfo) => {
+    test('visual, four primary destinations and settings shortcut at ' + width + '×' + height, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height });
       await openWorkspace(page);
       const sidebar = page.locator('.sidebar4');
@@ -32,7 +31,8 @@ test.describe('Studio sidebar redesign', () => {
       await expect(sidebar.locator('.sidebar4-brand')).toBeVisible();
       await expect(sidebar.locator('.sidebar4-brand')).toContainText('Semua dalam satu tempat.');
       await expect(sidebar.locator('.sidebar4-nav-heading')).toContainText('MENU UTAMA');
-      await expect(sidebar.locator('.sidebar4-nav-links > button[data-nav-id]')).toHaveCount(5);
+      await expect(sidebar.locator('.sidebar4-nav-links > button[data-nav-id]')).toHaveCount(4);
+      await expect(sidebar.locator('.sidebar4-settings')).toBeVisible();
       await expect(sidebar.locator('.sidebar4-share')).toBeVisible();
       await expect(sidebar.locator('.sidebar4-account')).toBeVisible();
 
@@ -56,6 +56,10 @@ test.describe('Studio sidebar redesign', () => {
         await expect(sidebar.locator('.sidebar4-nav-links button[aria-current="page"]')).toHaveCount(1);
       }
 
+      await sidebar.locator('.sidebar4-settings').click();
+      await expect(page).toHaveURL(/#account$/);
+      await expect(sidebar.locator('.sidebar4-settings')).toHaveAttribute('aria-current', 'page');
+      await expect(page.locator('.panel3-account')).toBeVisible();
       await sidebar.locator('button[data-nav-id="home"]').click();
       await expect(page).toHaveURL(/#home$/);
       await page.evaluate(async () => document.fonts.ready);
@@ -72,7 +76,7 @@ test.describe('Studio sidebar redesign', () => {
     });
   }
 
-  test('mobile keeps the existing five-item dock and no sidebar', async ({ page }) => {
+  test('mobile keeps four-item dock and header settings', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await openWorkspace(page);
     await expect(page.locator('.sidebar4')).toBeHidden();
@@ -82,6 +86,9 @@ test.describe('Studio sidebar redesign', () => {
       buttons.map((button) => button.getAttribute('data-nav-id'))
     );
     expect(ids).toEqual(menu.map(([id]) => id));
+    await page.locator('.panel3-topbar .panel3-settings-shortcut').click();
+    await expect(page).toHaveURL(/#account$/);
+    await expect(page.locator('.panel3-account')).toBeVisible();
   });
 
   test('sidebar is still reachable at 1024px with a short viewport', async ({ page }) => {

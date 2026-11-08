@@ -5,7 +5,6 @@ const menu = [
   ['profile', 'Halaman', '#content'],
   ['links', 'Link', '#links'],
   ['stats', 'Statistik', '#stats'],
-  ['account', 'Pengaturan', '#account'],
 ];
 
 async function startGuest(page) {
@@ -24,7 +23,7 @@ async function startGuest(page) {
 
 test.describe('one consistent navigation across every page', () => {
   for (const width of [320, 390, 768, 1024, 1440, 1920]) {
-    test('all five destinations, labels, active state and create at ' + width + 'px', async ({ page }, testInfo) => {
+    test('four primary destinations plus settings shortcut and create at ' + width + 'px', async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height: width < 500 ? 844 : 900 });
       await startGuest(page);
       const activeNav = width >= 1024 ? page.locator('.panel3-sidebar .workspace-nav') : page.locator('.panel3-dock');
@@ -45,6 +44,15 @@ test.describe('one consistent navigation across every page', () => {
         const current = await activeNav.locator('button[aria-current="page"]').getAttribute('data-nav-id');
         expect(current).toBe(id);
       }
+      const settings = width >= 1024
+        ? page.locator('.sidebar4-settings')
+        : page.locator('.panel3-topbar .panel3-settings-shortcut');
+      await expect(settings).toBeVisible();
+      await settings.click();
+      await expect(page).toHaveURL(/#account$/);
+      await expect(page.locator('.panel3-account')).toBeVisible();
+      await expect(settings).toHaveAttribute('aria-current', 'page');
+      await expect(activeNav.locator('button[aria-current="page"]')).toHaveCount(0);
       await expect(page.locator('.panel3-topbar').getByRole('button', { name: 'Buat', exact: true })).toBeVisible();
       await page.locator('.panel3-topbar').getByRole('button', { name: 'Buat', exact: true }).click();
       await expect(page.getByRole('menu')).toBeVisible();
