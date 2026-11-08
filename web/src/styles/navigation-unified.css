@@ -11,7 +11,7 @@
   white-space: nowrap;
 }
 .panel3 .panel3-dock {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .panel3 .panel3-dock .dock-btn {
   width: 100%;
@@ -129,4 +129,11 @@
   .portfolio-landing .site-header .start-nav { gap: 0; }
   .portfolio-landing .site-header .start-nav > a { display: none; }
   .portfolio-landing .site-header .start-login { min-height: 42px; padding: 0 13px; }
+}
+
+/* Settings is deliberately a shortcut, not a fifth primary destination. */
+.panel3 .panel3-settings-shortcut { display: none; }
+@media (max-width: 1023px) {
+  .panel3 .panel3-settings-shortcut { display: grid; }
+  .panel3 .panel3-settings-shortcut[aria-current='page'] { color: #18765d; background: #e5f3e8; }
 }

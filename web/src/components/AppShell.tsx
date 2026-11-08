@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
+import { Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight, Settings2 } from 'lucide-react';
 import { WORKSPACE_NAV } from './navigation/workspaceNav';
 import { WorkspaceNavButton } from './navigation/WorkspaceNavButton';
 import { StudioSidebar } from './navigation/StudioSidebar';
@@ -133,7 +133,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
           <div className="workspace-current panel3-page-crumb" aria-live="polite">
             <span className="panel3-crumb-overline">{tx('WORKSPACE', 'WORKSPACE')} <ChevronRight size={12} aria-hidden="true" /> {tx('PANEL KONTROL', 'CONTROL PANEL')}</span>
-            <strong>{activeNav ? tx(activeNav.labelId, activeNav.labelEn) : tx('Beranda', 'Home')}</strong>
+            <strong>{currentTab === 'account' ? tx('Pengaturan', 'Settings') : activeNav ? tx(activeNav.labelId, activeNav.labelEn) : tx('Beranda', 'Home')}</strong>
           </div>
 
           <div className="panel3-top-actions flex items-center gap-2 shrink-0">
@@ -179,6 +179,18 @@ export const AppShell: React.FC<AppShellProps> = ({
               </button>
             )}
 
+            {/* Settings stays outside the four primary destinations on small screens. */}
+            <button
+              type="button"
+              className="iconbtn panel3-settings-shortcut"
+              data-nav-id="account"
+              aria-label={tx('Pengaturan', 'Settings')}
+              aria-current={currentTab === 'account' ? 'page' : undefined}
+              onClick={() => navigate('account')}
+            >
+              <Settings2 size={18} strokeWidth={1.75} />
+            </button>
+
             {/* Bagikan halaman */}
             <button
               type="button"
@@ -215,7 +227,7 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
       </div>
 
-      {/* Exactly the same five destinations on mobile and desktop. */}
+      {/* The same four primary destinations on desktop and mobile. Settings is a shortcut. */}
       <nav className="dock panel3-dock" aria-label={tx('Navigasi utama', 'Main navigation')}>
         {WORKSPACE_NAV.map((item) => (
           <WorkspaceNavButton

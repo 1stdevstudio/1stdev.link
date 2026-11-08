@@ -12,6 +12,7 @@ import './styles/navigation-unified.css';
 import './styles/sidebar-studio.css';
 import './styles/qr-studio.css';
 import './styles/legal-redesign.css';
+import './styles/profile-settings-v3.css';
 import { ConfirmProvider } from './components/ConfirmDialog';
 
 /**
