@@ -20,8 +20,8 @@ async function openGuestPanel(page) {
 async function goToScreen(page, key, width) {
   const nav = width >= 1024 ? page.locator('.panel3-sidebar') : page.locator('.panel3-dock');
   const labels = { home: 'Beranda', profile: 'Halaman', links: 'Link', stats: 'Statistik', account: 'Pengaturan' };
-  if (key === 'account' && width < 1024) {
-    await page.locator('.panel3-topbar .panel3-settings-shortcut').click();
+  if (key === 'account') {
+    await (width >= 1024 ? page.locator('.sidebar4-settings') : page.locator('.panel3-topbar .panel3-settings-shortcut')).click();
   } else {
     await nav.getByRole('button', { name: labels[key], exact: true }).click();
   }
