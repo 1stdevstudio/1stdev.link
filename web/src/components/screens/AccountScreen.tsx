@@ -17,7 +17,7 @@ import { useConfirm } from '../ConfirmDialog';
 
 const TX = {
   id: {
-    title: 'Akun', unsaved: 'Belum disimpan', saved: 'Tersimpan', save: 'Simpan akun',
+    title: 'Pengaturan Akun & Profil', unsaved: 'Belum disimpan', saved: 'Tersimpan', save: 'Simpan akun',
     unsavedD: 'Simpan dengan email agar profil dan link tidak hilang saat ganti HP.', guest: 'Tamu',
     done: 'Kelengkapan profil', secProfile: 'Profil & halaman', secDev: 'Perangkat & keamanan', secPref: 'Preferensi', secMore: 'Lainnya',
     editProfile: 'Informasi profil', editProfileD: 'Nama, foto, bio, dan alamat profil', move: 'Pindah perangkat', moveD: 'Scan QR atau pakai kode', lang: 'Bahasa', design: 'Tampilan halaman',
@@ -27,7 +27,7 @@ const TX = {
     outD: 'Ganti akun atau mulai baru', outT: 'Keluar dari sesi ini?', outQ: 'Simpan akun dulu agar profil dan link tidak hilang.',
   },
   en: {
-    title: 'Account', unsaved: 'Not saved', saved: 'Saved', save: 'Save account',
+    title: 'Account & Profile Settings', unsaved: 'Not saved', saved: 'Saved', save: 'Save account',
     unsavedD: 'Save with your email so your profile and links survive a phone change.', guest: 'Guest',
     done: 'Profile completeness', secProfile: 'Profile & page', secDev: 'Devices & security', secPref: 'Preferences', secMore: 'More',
     editProfile: 'Profile information', editProfileD: 'Name, photo, bio, and profile URL', move: 'Move to another device', moveD: 'Scan a QR or use a code', lang: 'Language', design: 'Page appearance',
@@ -97,7 +97,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
       <header className="workspace-page-head">
         <p className="workspace-eyebrow">{lang === 'en' ? 'PREFERENCES & SECURITY' : 'PREFERENSI & KEAMANAN'}</p>
         <h1 className="workspace-page-title">{s.title}</h1>
-        <p className="workspace-page-subtitle">{lang === 'en' ? 'Manage your account, devices, and page preferences.' : 'Kelola akun, perangkat, dan pengaturan halamanmu.'}</p>
+        <p className="workspace-page-subtitle">{lang === 'en' ? 'Manage your profile, account, privacy, devices, and security in one place.' : 'Kelola profil, akun, privasi, perangkat, dan keamanan di satu tempat.'}</p>
       </header>
 
       {/* Mobile: satu kolom. Desktop: kartu akun menempel di kiri, pengaturan di kanan. */}

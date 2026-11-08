@@ -45,7 +45,7 @@ test.describe('one consistent navigation across every page', () => {
         expect(current).toBe(id);
       }
       const settings = width >= 1024
-        ? page.locator('.sidebar4-settings')
+        ? page.locator('.sidebar4-settings.sidebar4-account-entry')
         : page.locator('.panel3-topbar .panel3-settings-shortcut');
       await expect(settings).toBeVisible();
       await settings.click();
