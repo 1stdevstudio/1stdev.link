@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Home, Link2, User, Scissors, BarChart2, Share2, Plus, LayoutList, X, CircleUser, Save } from 'lucide-react';
+import { Home, Link2, User, Scissors, BarChart2, Share2, Plus, LayoutList, X, CircleUser, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
 import { AuthSession } from '../types';
 import { useI18n } from '../i18n/context';
 
@@ -15,6 +15,8 @@ interface AppShellProps {
   onOpenAddBlock: () => void;
   children: React.ReactNode;
   previewColumn?: React.ReactNode;
+  saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  onRetrySave?: () => void;
 }
 
 const Logo: React.FC = () => (
@@ -99,6 +101,8 @@ export const AppShell: React.FC<AppShellProps> = ({
   onOpenAddBlock,
   children,
   previewColumn,
+  saveStatus = 'idle',
+  onRetrySave,
 }) => {
   const { tx } = useI18n();
   const [createOpen, setCreateOpen] = useState<'top' | 'dock' | null>(null);
@@ -129,9 +133,9 @@ export const AppShell: React.FC<AppShellProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--tx)]">
-      <header className="appbar">
-        <div className="appbar-in">
+    <div className="panel3 min-h-screen bg-[var(--bg)] text-[var(--tx)]">
+      <header className="appbar panel3-appbar">
+        <div className="appbar-in panel3-topbar">
           <button
             type="button"
             className="shrink-0 min-h-[44px] rounded-[var(--r2)] text-left"
@@ -157,11 +161,19 @@ export const AppShell: React.FC<AppShellProps> = ({
             ))}
           </nav>
 
-          <div className="workspace-current" aria-live="polite">
-            {tabs.find((tab) => tab.id === currentTab)?.label || tx('Pengaturan', 'Settings')}
+          <div className="workspace-current panel3-page-crumb" aria-live="polite">
+            <span className="panel3-crumb-overline">{tx('WORKSPACE', 'WORKSPACE')} <ChevronRight size={12} aria-hidden="true" /> {tx('PANEL KONTROL', 'CONTROL PANEL')}</span>
+            <strong>{tabs.find((tab) => tab.id === currentTab)?.label || tx('Pengaturan', 'Settings')}</strong>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="panel3-top-actions flex items-center gap-2 shrink-0">
+            {saveStatus !== 'idle' && (
+              <div role="status" aria-live="polite" className={'panel3-save-status is-' + saveStatus}>
+                {saveStatus === 'saving' && <><LoaderCircle size={15} className="panel3-saving-spinner" aria-hidden="true"/><span>{tx('Menyimpan…', 'Saving…')}</span></>}
+                {saveStatus === 'saved' && <><CheckCircle2 size={15} aria-hidden="true"/><span>{tx('Tersimpan', 'Saved')}</span></>}
+                {saveStatus === 'error' && <button type="button" onClick={onRetrySave} aria-label={tx('Gagal menyimpan, coba lagi', 'Save failed, retry')}><AlertCircle size={15} aria-hidden="true"/><span>{tx('Ulangi simpan', 'Retry save')}</span></button>}
+              </div>
+            )}
             {/* Tombol Buat (desktop) */}
             <div className="relative hidden lg:block">
               <button
@@ -221,15 +233,19 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
       </header>
 
-      <div className="workspace-frame">
-        <aside className="workspace-sidebar" aria-label={tx('Navigasi workspace', 'Workspace navigation')}>
+      <div className="workspace-frame panel3-frame">
+        <aside className="workspace-sidebar panel3-sidebar" aria-label={tx('Navigasi workspace', 'Workspace navigation')}>
+          <div className="panel3-sidebar-identity" aria-hidden="true">
+            <span className="panel3-sidebar-symbol"><Link2 size={19} strokeWidth={2.1}/></span>
+            <span><strong>Workspace 3.0</strong><small>{tx('Ruang kerjamu', 'Your creative space')}</small></span>
+          </div>
           <nav className="workspace-nav" aria-label={tx('Menu utama', 'Main menu')}>
             <span className="workspace-nav-label">{tx('Workspace', 'Workspace')}</span>
             {tabs.map(({ id, label, icon: Icon }) => (
               <button
                 type="button"
                 key={id}
-                className="workspace-nav-item"
+                className="workspace-nav-item panel3-nav-item"
                 aria-current={currentTab === id ? 'page' : undefined}
                 onClick={() => onTabChange(id)}
               >
@@ -237,9 +253,10 @@ export const AppShell: React.FC<AppShellProps> = ({
                 <span>{label}</span>
               </button>
             ))}
+            <span className="workspace-nav-label panel3-settings-label">{tx('AKUN', 'ACCOUNT')}</span>
             <button
               type="button"
-              className="workspace-nav-item"
+              className="workspace-nav-item panel3-nav-item"
               aria-current={currentTab === 'account' ? 'page' : undefined}
               onClick={() => onTabChange('account')}
             >
@@ -248,8 +265,15 @@ export const AppShell: React.FC<AppShellProps> = ({
             </button>
           </nav>
           <div className="workspace-sidebar-foot">
+            <div className="panel3-session-heading">
+              <span className="panel3-session-avatar">{(session.display_name || session.handle || '1').charAt(0).toUpperCase()}</span>
+              <span>
+                <strong>{session.display_name || session.handle || tx('Workspace tamu', 'Guest workspace')}</strong>
+                <small>{session.is_guest ? tx('Akun sementara', 'Guest account') : tx('Akun tersimpan', 'Saved account')}</small>
+              </span>
+            </div>
             <p className="text-[12px] font-semibold text-[var(--tx)]">
-              {session.is_guest ? tx('Akun sementara', 'Guest workspace') : tx('Workspace aktif', 'Active workspace')}
+              {session.is_guest ? tx('Jaga halamanmu tetap aman', 'Secure your page') : tx('Semua siap digunakan', 'Everything is ready')}
             </p>
             <p className="text-[12px] text-[var(--tx2)] mt-1 leading-relaxed break-words">
               {session.is_guest
@@ -265,12 +289,20 @@ export const AppShell: React.FC<AppShellProps> = ({
         </aside>
         <div className={`shell-body ${showPreview ? 'with-preview' : ''}`}>
           <main className="main-area min-w-0">{children}</main>
-          {showPreview && <aside className="preview-col">{previewColumn}</aside>}
+          {showPreview && (
+            <aside className="preview-col panel3-preview" aria-label={tx('Pratinjau halaman publik', 'Public page preview')}>
+              <div className="panel3-preview-heading">
+                <span className="panel3-preview-live"><i aria-hidden="true" /> {tx('PRATINJAU LANGSUNG', 'LIVE PREVIEW')}</span>
+                <span className="panel3-preview-device">{tx('Tampilan seluler', 'Mobile view')}</span>
+              </div>
+              {previewColumn}
+            </aside>
+          )}
         </div>
       </div>
 
       {/* Dock melayang (mobile / tablet) */}
-      <nav className="dock" aria-label={tx('Navigasi bawah', 'Bottom navigation')}>
+      <nav className="dock panel3-dock" aria-label={tx('Navigasi bawah', 'Bottom navigation')}>
         {dockItem(tabs[0])}
         {dockItem(tabs[1])}
         <div className="relative">

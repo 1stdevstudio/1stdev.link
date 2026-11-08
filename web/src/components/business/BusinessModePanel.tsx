@@ -61,7 +61,7 @@ export function BusinessModePanel({
   };
 
   return (
-    <section className="business-mode-panel" aria-label="Tujuan dan mode halaman">
+    <section className="business-mode-panel panel3-business" aria-label="Tujuan dan mode halaman">
       <div className="business-mode-heading">
         <Store size={18} strokeWidth={1.75} className="text-[var(--ac)]" />
         <h2>{currentPurpose === 'creator' ? tx('Halaman kreator', 'Creator page') : currentPurpose === 'affiliate' ? tx('Rekomendasi affiliate', 'Affiliate recommendations') : tx('Etalase usaha', 'Business page')}</h2>

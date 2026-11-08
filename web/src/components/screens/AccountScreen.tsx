@@ -91,7 +91,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
   );
 
   return (
-    <div className="acct flex flex-col gap-4">
+    <div className="acct panel3-account flex flex-col gap-5">
       <header className="workspace-page-head">
         <p className="workspace-eyebrow">{lang === 'en' ? 'PREFERENCES & SECURITY' : 'PREFERENSI & KEAMANAN'}</p>
         <h1 className="workspace-page-title">{s.title}</h1>

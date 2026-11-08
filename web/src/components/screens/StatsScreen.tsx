@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BarChart3, Download, RotateCw, ShieldCheck } from 'lucide-react';
+import { BarChart3, Download, RotateCw, ShieldCheck, Plus } from 'lucide-react';
 import { LinkItem } from '../../types';
 import { api } from '../../api';
 import { isContentBlock } from '../../../../shared/business';
@@ -7,6 +7,7 @@ import { useI18n } from '../../i18n/context';
 
 interface StatsScreenProps {
   links: LinkItem[];
+  onOpenAddLink: () => void;
 }
 
 type Range = '7d' | '30d';
@@ -36,7 +37,7 @@ interface Agg {
   total: number;
 }
 
-export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
+export const StatsScreen: React.FC<StatsScreenProps> = ({ links, onOpenAddLink }) => {
   const { lang } = useI18n();
   const s = TX[lang === 'en' ? 'en' : 'id'];
   const [range, setRange] = useState<Range>('7d');
@@ -111,12 +112,19 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
 
   if (agg && agg.total === 0 && agg.active === 0 && redirectLinks.length === 0) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="panel3-stats flex flex-col gap-5">
         {header}
-        <div className="card empty">
-          <BarChart3 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
-          <h3 className="text-[16px] font-semibold">{s.emptyT}</h3>
+        <div className="card empty panel3-stats-empty">
+          <span className="panel3-stats-empty-icon"><BarChart3 size={29} strokeWidth={1.75} aria-hidden="true" /></span>
+          <h3 className="text-[20px] font-semibold">{s.emptyT}</h3>
           <p className="small muted">{s.emptyD}</p>
+          <button type="button" className="btn btn-p btn-sm" onClick={onOpenAddLink}>
+            <Plus size={17} strokeWidth={2} aria-hidden="true"/>
+            {lang === 'en' ? 'Create your first short link' : 'Buat link pendek pertama'}
+          </button>
+          <p className="panel3-stats-empty-note">{lang === 'en'
+            ? 'Clicks appear automatically after someone opens your shared short link.'
+            : 'Klik akan tercatat otomatis setelah orang membuka link pendek yang kamu bagikan.'}</p>
         </div>
       </div>
     );
@@ -131,10 +139,10 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
   const pickedDay = picked !== null && agg ? agg.byDate[picked] : null;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="panel3-stats flex flex-col gap-5">
       {header}
 
-      <div className="kpis kpis-4">
+      <div className="kpis kpis-4 panel3-stats-metrics">
         <div className="kpi"><span>{s.clicks}</span><b>{agg ? agg.total.toLocaleString() : '–'}</b></div>
         <div className="kpi"><span>{s.active}</span><b>{agg ? agg.active : '–'}</b></div>
         <div className="kpi"><span>{s.countries}</span><b>{agg ? agg.byCountry.length : '–'}</b></div>
@@ -159,7 +167,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
         ) : agg.total === 0 ? (
           <p className="small muted py-8 text-center">{s.none}</p>
         ) : (
-          <div className="chart" role="list">
+          <div className="chart panel3-chart" role="list">
             {agg.byDate.map((d, i) => (
               <button
                 key={d.date}

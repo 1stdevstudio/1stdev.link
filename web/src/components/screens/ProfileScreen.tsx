@@ -349,19 +349,19 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   const tabs: { id: BuilderTab; label: string; icon: React.ElementType; count?: number; mobileOnly?: boolean }[] = [
     { id: 'content', label: tx('Isi', 'Content'), icon: LayoutList, count: bioLinks.length },
-    { id: 'design', label: tx('Tampilan', 'Design'), icon: Palette },
+    { id: 'design', label: tx('Desain', 'Design'), icon: Palette },
     { id: 'preview', label: tx('Pratinjau', 'Preview'), icon: Smartphone, mobileOnly: true },
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="panel3-builder flex flex-col gap-4">
       <header className="workspace-page-head">
         <p className="workspace-eyebrow">{tx('STUDIO HALAMAN', 'PAGE STUDIO')}</p>
         <h1 className="workspace-page-title">{tx('Halaman Saya', 'My Page')}</h1>
         <p className="workspace-page-subtitle">{tx('Atur konten dan tampilan halaman, lalu lihat hasilnya secara langsung.', 'Customize your content and design, then preview the result live.')}</p>
       </header>
       {/* Tab builder */}
-      <div className="studio-tabs" role="tablist" aria-label={tx('Bagian editor halaman', 'Page editor sections')}>
+      <div className="studio-tabs panel3-builder-tabs" role="tablist" aria-label={tx('Bagian editor halaman', 'Page editor sections')}>
         {tabs.map(({ id, label, icon: Icon, count, mobileOnly }) => (
           <button
             key={id}
@@ -381,7 +381,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       </div>
 
       {/* Studio hero: identitas + aksi utama */}
-      <section className="studio-hero">
+      <section className="studio-hero panel3-builder-hero">
         <div className="flex items-center gap-4 min-w-0">
           <button
             type="button"

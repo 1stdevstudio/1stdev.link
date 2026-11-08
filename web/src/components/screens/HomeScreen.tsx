@@ -199,8 +199,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   ];
 
   return (
-    <div className="flex flex-col gap-4">
-      <header className="workspace-page-head">
+    <div className="panel3-home flex flex-col gap-5">
+      <header className="workspace-page-head panel3-home-heading">
         <div className="min-w-0">
           <p className="workspace-eyebrow">{tx('Ringkasan workspace', 'Workspace overview')}</p>
           <h1 className="workspace-page-title truncate">{profile.display_name || tx('Halaman Baru', 'New Page')}</h1>
@@ -208,14 +208,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       </header>
 
-      <p className="free-strip">
+      <p className="free-strip panel3-free-strip">
         <b>{t('heroFreeHeadline')}</b> {t('heroFreeSub')}
       </p>
 
       {/* Grid: Hero URL Halaman + Panduan Aksi Prioritas Tunggal */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <div className="panel3-overview-grid grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         {/* Bio Link Hero */}
-        <section className="card home-hero flex flex-col justify-between">
+        <section className="card home-hero panel3-public-hero flex flex-col justify-between">
           <div className="flex items-center gap-3">
             {profile.avatar_url ? (
               <img
@@ -257,7 +257,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </section>
 
         {/* Single Purpose-Specific Next-Action Guide */}
-        <section className="card flex flex-col justify-between">
+        <section className="card panel3-next-action flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="text-[11px] font-semibold text-[var(--ac)] uppercase tracking-wider">
@@ -299,7 +299,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* KPIs: Shortlink dihitung dengan benar via !isContentBlock */}
-      <div className="kpis kpis-4">
+      <div className="panel3-section-heading">
+        <h2>{tx('Ringkasan performa', 'Performance snapshot')}</h2>
+        <span>{tx('Data aktual dari link milikmu', 'Your actual link activity')}</span>
+      </div>
+      <div className="kpis kpis-4 panel3-metrics">
         <div className="kpi">
           <span>{tx('Total klik link', 'Total link clicks')}</span>
           <b>{totalClicks.toLocaleString()}</b>
@@ -319,7 +323,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* Tombol aksi cepat */}
-      <div className="quick">
+      <div className="panel3-section-heading">
+        <h2>{tx('Aksi cepat', 'Quick actions')}</h2>
+        <span>{tx('Lakukan semuanya dari sini', 'Everything starts here')}</span>
+      </div>
+      <div className="quick panel3-quick-actions">
         {quickActions.map((a) => (
           <button key={a.label} type="button" className="quick-btn" onClick={a.act}>
             <span className="text-[var(--ac)]">{a.icon}</span>
@@ -329,7 +337,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* Statistik Shortlink & Terbaru */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="panel3-home-bottom grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="card">
           <div className="flex justify-between items-center mb-3">
             <h3 className="text-[15px] font-semibold">
