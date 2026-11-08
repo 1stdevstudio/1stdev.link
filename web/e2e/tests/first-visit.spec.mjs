@@ -22,9 +22,11 @@ test.describe('first-visit design baseline (no saved session)', () => {
           docWidth: Math.max(root.scrollWidth, document.body.scrollWidth),
           shellRight: shell?.getBoundingClientRect().right ?? Infinity,
           background: section ? getComputedStyle(section).backgroundColor : '',
+          bodyBackground: getComputedStyle(document.body).backgroundColor,
         };
       });
       expect(visual.background).toBe('rgb(247, 249, 247)');
+      expect(visual.bodyBackground, 'the HTML body must not paint the old dark theme').toBe('rgb(247, 249, 247)');
       expect(visual.docWidth, 'document must not scroll horizontally').toBeLessThanOrEqual(visual.viewport + 2);
       expect(visual.shellRight, 'welcome layout must stay inside viewport').toBeLessThanOrEqual(visual.viewport + 2);
 
