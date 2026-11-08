@@ -923,7 +923,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
           </div>
 
-          <details className="profile-settings-card profile-settings-advanced" id="profile-settings-effects" defaultOpen={activeBgFx.length > 0}>
+          <details className="profile-settings-card profile-settings-advanced" id="profile-settings-effects">
             <summary className="profile-settings-card-heading">
               <span className="profile-settings-number">04</span>
               <span className="profile-settings-advanced-copy"><strong>{tx('Efek tambahan', 'Additional effects')}</strong><small>{tx('Aurora dan tekstur latar, opsional.', 'Optional aurora and background texture.')}</small></span>
