@@ -193,7 +193,7 @@
   transform: none;
 }
 
-/* One grouped shortcut navigation; rows are individually clickable, not stacked cards. */
+/* Share and profile/settings: two distinct destinations in one grouped panel. */
 .panel3 .sidebar4-shortcuts {
   flex: 0 0 auto;
   margin-top: auto;
@@ -245,11 +245,11 @@
   outline: 2px solid #18765d;
   outline-offset: -3px;
 }
-.panel3 .sidebar4-shortcuts-list > .sidebar4-settings[aria-current='page'] {
+.panel3 .sidebar4-shortcuts-list > .sidebar4-account-entry[aria-current='page'] {
   background: #e4f3e9;
   box-shadow: inset 3px 0 0 #18765d;
 }
-.panel3 .sidebar4-shortcuts-list > .sidebar4-settings[aria-current='page']:hover {
+.panel3 .sidebar4-shortcuts-list > .sidebar4-account-entry[aria-current='page']:hover {
   background: #dbeee1;
 }
 .panel3 .sidebar4-share-icon {
@@ -315,21 +315,15 @@
   font-size: 9px;
   line-height: 1.4;
 }
-.panel3 .sidebar4-account-indicator {
-  flex: 0 0 8px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #33976b;
-  box-shadow: 0 0 0 4px #e2f2e7;
-}
-.panel3 .sidebar4-account-indicator.is-guest {
-  background: #c99742;
-  box-shadow: 0 0 0 4px #fbf1dd;
-}
 .panel3 .sidebar4-account-next {
   flex: 0 0 auto;
-  color: #799f86;
+  color: #3f8060;
+}
+.panel3 .sidebar4-shortcuts-list .sidebar4-account-entry {
+  min-height: 69px;
+}
+.panel3 .sidebar4-shortcuts-list .sidebar4-account-entry .sidebar4-account-copy small {
+  overflow-wrap: anywhere;
 }
 /* Compact laptop heights: sidebar remains scrollable and every action reachable. */
 @media (min-width: 1024px) and (max-height: 820px) {

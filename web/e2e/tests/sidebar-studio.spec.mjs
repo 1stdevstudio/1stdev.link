@@ -23,7 +23,7 @@ async function openWorkspace(page) {
 
 test.describe('Studio sidebar redesign', () => {
   for (const [width, height] of [[1024, 768], [1280, 800], [1440, 900], [1920, 1080]]) {
-    test('visual, four primary destinations and settings shortcut at ' + width + '×' + height, async ({ page }, testInfo) => {
+    test('visual, four destinations and unified profile/settings shortcut at ' + width + '×' + height, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height });
       await openWorkspace(page);
       const sidebar = page.locator('.sidebar4');
@@ -34,10 +34,10 @@ test.describe('Studio sidebar redesign', () => {
       await expect(sidebar.locator('.sidebar4-nav-links > button[data-nav-id]')).toHaveCount(4);
       const shortcuts = sidebar.locator('.sidebar4-shortcuts-list');
       await expect(shortcuts).toBeVisible();
-      await expect(shortcuts.locator(':scope > button')).toHaveCount(3);
-      await expect(sidebar.locator('.sidebar4-settings')).toBeVisible();
+      await expect(shortcuts.locator(':scope > button')).toHaveCount(2);
       await expect(sidebar.locator('.sidebar4-share')).toBeVisible();
-      await expect(sidebar.locator('.sidebar4-account-entry')).toBeVisible();
+      await expect(sidebar.locator('.sidebar4-settings.sidebar4-account-entry')).toBeVisible();
+      await expect(sidebar.locator('button[data-nav-id="account"]')).toHaveCount(1);
       const groupedPanel = await shortcuts.evaluate(el => ({
         radius: getComputedStyle(el).borderRadius,
         border: getComputedStyle(el).borderTopStyle,
@@ -87,31 +87,32 @@ test.describe('Studio sidebar redesign', () => {
       await expect(page.getByRole('dialog')).toHaveCount(0);
 
       await sidebar.locator('.sidebar4-account-entry').click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      await expect(page.locator('.panel3-account')).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Pengaturan Akun & Profil' })).toBeVisible();
     });
   }
 
-  test('all three shortcut rows are functional with mouse and keyboard', async ({ page }) => {
+  test('share and unified account/settings rows are functional with mouse and keyboard', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await openWorkspace(page);
     const sidebar = page.locator('.sidebar4');
     const shortcuts = sidebar.locator('.sidebar4-shortcuts-list');
-    await expect(shortcuts.locator(':scope > button')).toHaveCount(3);
+    await expect(shortcuts.locator(':scope > button')).toHaveCount(2);
 
     await sidebar.locator('.sidebar4-share').click({ position: { x: 26, y: 24 } });
     await expect(page.getByRole('dialog')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
 
-    const settings = shortcuts.locator('.sidebar4-settings');
+    const settings = shortcuts.locator('.sidebar4-account-entry');
     await settings.focus();
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/#account$/);
     await expect(page.locator('.panel3-account')).toBeVisible();
+    await expect(settings).toHaveAttribute('aria-current', 'page');
 
-    const guestAccount = shortcuts.locator('.sidebar4-account-entry');
-    await guestAccount.focus();
-    await page.keyboard.press('Enter');
+    // Guest can save from the consolidated account settings screen.
+    await page.locator('.panel3-account').getByRole('button', { name: 'Simpan akun' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
   });
 
@@ -135,7 +136,9 @@ test.describe('Studio sidebar redesign', () => {
     await openWorkspace(page);
     const sidebar = page.locator('.sidebar4');
     await expect(sidebar).toBeVisible();
-    await sidebar.getByRole('button', { name: 'Simpan akun' }).click();
+    await sidebar.locator('.sidebar4-account-entry').click();
+    await expect(page.locator('.panel3-account')).toBeVisible();
+    await page.locator('.panel3-account').getByRole('button', { name: 'Simpan akun' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, ArrowUpRight, Send, Save, Sparkles, Settings2 } from 'lucide-react';
+import { ArrowUpRight, Send, Sparkles, Settings2 } from 'lucide-react';
 import type { AuthSession } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { WORKSPACE_NAV, type TabType } from './workspaceNav';
@@ -10,7 +10,6 @@ interface StudioSidebarProps {
   session: AuthSession;
   currentTab: TabType;
   onTabChange: (tab: TabType) => void;
-  onOpenSaveAccount: () => void;
   onOpenShare: () => void;
 }
 
@@ -19,7 +18,6 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
   session,
   currentTab,
   onTabChange,
-  onOpenSaveAccount,
   onOpenShare,
 }) => {
   const { tx } = useI18n();
@@ -58,7 +56,7 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         </div>
       </nav>
 
-      <section className="sidebar4-shortcuts" aria-label={tx('Pintasan dan akun', 'Shortcuts and account')}>
+      <section className="sidebar4-shortcuts" aria-label={tx('Pintasan dan pengaturan profil', 'Shortcuts and profile settings')}>
         <div className="sidebar4-tools-heading">{tx('PINTASAN', 'SHORTCUTS')}</div>
         <nav className="sidebar4-shortcuts-list" aria-label={tx('Aksi cepat', 'Quick actions')}>
           <button type="button" className="sidebar4-share" onClick={onOpenShare}>
@@ -72,30 +70,19 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
           <button
             type="button"
             data-nav-id="account"
-            className="sidebar4-settings"
+            className="sidebar4-account-entry sidebar4-settings"
             aria-current={currentTab === 'account' ? 'page' : undefined}
+            aria-label={tx('Pengaturan akun dan profil', 'Account and profile settings')}
             onClick={() => onTabChange('account')}
-          >
-            <span className="sidebar4-share-icon"><Settings2 size={19} strokeWidth={1.9} aria-hidden="true" /></span>
-            <span className="sidebar4-share-copy">
-              <strong>{tx('Pengaturan', 'Settings')}</strong>
-              <small>{tx('Akun, privasi, dan keamanan', 'Account, privacy, and security')}</small>
-            </span>
-            <ArrowRight className="sidebar4-share-arrow" size={18} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className="sidebar4-account-entry"
-            onClick={session.is_guest ? onOpenSaveAccount : () => onTabChange('account')}
-            aria-label={session.is_guest ? tx('Simpan akun', 'Save account') : tx('Kelola akun', 'Manage account')}
           >
             <span className="sidebar4-account-avatar" aria-hidden="true">{initial}</span>
             <span className="sidebar4-account-copy">
               <strong title={displayName}>{displayName}</strong>
-              <small>{session.is_guest ? tx('Sesi sementara · Simpan akun', 'Temporary session · Save account') : tx('Akun tersimpan · Kelola akun', 'Saved account · Manage account')}</small>
+              <small>{session.is_guest
+                ? tx('Pengaturan profil · Akun sementara', 'Profile settings · Temporary account')
+                : tx('Pengaturan profil · Akun tersimpan', 'Profile settings · Saved account')}</small>
             </span>
-            <span className={'sidebar4-account-indicator' + (session.is_guest ? ' is-guest' : '')} title={session.is_guest ? tx('Sesi tamu', 'Guest session') : tx('Akun tersimpan', 'Saved account')} aria-hidden="true" />
-            {session.is_guest ? <Save size={17} className="sidebar4-account-next" aria-hidden="true" /> : <ArrowRight size={17} className="sidebar4-account-next" aria-hidden="true" />}
+            <Settings2 size={18} className="sidebar4-account-next" aria-hidden="true" />
           </button>
         </nav>
       </section>
