@@ -12,6 +12,16 @@ test.describe('first-visit design baseline (no saved session)', () => {
       await expect(chooser).toBeVisible();
       await expect(page.getByRole('heading', { name: 'Kamu ingin membuat apa?' })).toBeVisible();
       await expect(page.locator('.welcome-choice')).toHaveCount(4);
+      await expect(page.locator('#start-title')).toContainText('Bukan sekadar');
+      await expect(page.locator('.start-browser')).toBeVisible();
+      await expect(page.locator('.start-highlights')).toBeVisible();
+      await expect(page.locator('.start-chooser')).toBeVisible();
+
+      const gridColumns = await page.locator('.start-choice-grid').evaluate((el) =>
+        getComputedStyle(el).gridTemplateColumns.split(' ').length
+      );
+      expect(gridColumns, 'the goal cards must adapt to viewport width')
+        .toBe(width <= 390 ? 1 : width < 950 ? 2 : 4);
 
       const visual = await page.evaluate(() => {
         const root = document.documentElement;
