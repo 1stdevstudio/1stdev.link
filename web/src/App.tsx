@@ -542,7 +542,7 @@ export const App: React.FC = () => {
           />
         )}
 
-        {currentTab === 'stats' && <StatsScreen links={links} />}
+        {currentTab === 'stats' && <StatsScreen links={links} onOpenAddLink={() => { setAddLinkDefaultBlock('link'); setActiveSheet('add_link'); }} />}
 
         {currentTab === 'account' && (
           <AccountScreen

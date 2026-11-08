@@ -775,3 +775,30 @@
 @media (prefers-reduced-motion: reduce) {
   .panel3 *, .panel3 *::before, .panel3 *::after, .panel3-sheet, .panel3-scrim { animation: none !important; transition: none !important; }
 }
+
+/* Final polish after review of real Chromium screenshots. */
+.panel3 .panel3-stats-empty {
+  min-height: clamp(280px, 43vh, 400px);
+  justify-content: center;
+  background: radial-gradient(circle at top, #eaf6ed, #fff 64%);
+  border: 1px solid #dbe9de;
+  text-align: center;
+}
+.panel3-stats-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  flex: 0 0 62px;
+  border-radius: 19px;
+  background: #e1f2e7;
+  color: #18765d;
+}
+.panel3 .panel3-stats-empty > .small { max-width: 45ch; line-height: 1.6; }
+.panel3 .panel3-stats-empty .btn { min-height: 43px; margin-top: 7px; }
+.panel3-stats-empty-note { max-width: 44ch; color: #7c9282; font-size: 11px; line-height: 1.6; }
+@media (max-width: 639px) {
+  .panel3 .panel3-top-actions .save-account .save-account-icon { display: block; }
+  .panel3 .panel3-top-actions .save-account .save-account-label { display: none; }
+  .panel3 .panel3-stats-empty { min-height: 265px; padding: 28px 18px; }
+}

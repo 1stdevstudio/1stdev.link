@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { BarChart3, Download, RotateCw, ShieldCheck } from 'lucide-react';
+import { BarChart3, Download, RotateCw, ShieldCheck, Plus } from 'lucide-react';
 import { LinkItem } from '../../types';
 import { api } from '../../api';
 import { isContentBlock } from '../../../../shared/business';
@@ -7,6 +7,7 @@ import { useI18n } from '../../i18n/context';
 
 interface StatsScreenProps {
   links: LinkItem[];
+  onOpenAddLink: () => void;
 }
 
 type Range = '7d' | '30d';
@@ -36,7 +37,7 @@ interface Agg {
   total: number;
 }
 
-export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
+export const StatsScreen: React.FC<StatsScreenProps> = ({ links, onOpenAddLink }) => {
   const { lang } = useI18n();
   const s = TX[lang === 'en' ? 'en' : 'id'];
   const [range, setRange] = useState<Range>('7d');
@@ -113,10 +114,17 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
     return (
       <div className="panel3-stats flex flex-col gap-5">
         {header}
-        <div className="card empty">
-          <BarChart3 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
-          <h3 className="text-[16px] font-semibold">{s.emptyT}</h3>
+        <div className="card empty panel3-stats-empty">
+          <span className="panel3-stats-empty-icon"><BarChart3 size={29} strokeWidth={1.75} aria-hidden="true" /></span>
+          <h3 className="text-[20px] font-semibold">{s.emptyT}</h3>
           <p className="small muted">{s.emptyD}</p>
+          <button type="button" className="btn btn-p btn-sm" onClick={onOpenAddLink}>
+            <Plus size={17} strokeWidth={2} aria-hidden="true"/>
+            {lang === 'en' ? 'Create your first short link' : 'Buat link pendek pertama'}
+          </button>
+          <p className="panel3-stats-empty-note">{lang === 'en'
+            ? 'Clicks appear automatically after someone opens your shared short link.'
+            : 'Klik akan tercatat otomatis setelah orang membuka link pendek yang kamu bagikan.'}</p>
         </div>
       </div>
     );
