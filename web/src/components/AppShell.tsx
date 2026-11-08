@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link2, Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
 import { WORKSPACE_NAV } from './navigation/workspaceNav';
 import { WorkspaceNavButton } from './navigation/WorkspaceNavButton';
+import { StudioSidebar } from './navigation/StudioSidebar';
 import type { TabType } from './navigation/workspaceNav';
 import { AuthSession } from '../types';
 import { useI18n } from '../i18n/context';
@@ -192,50 +193,13 @@ export const AppShell: React.FC<AppShellProps> = ({
       </header>
 
       <div className="workspace-frame panel3-frame">
-        <aside className="workspace-sidebar panel3-sidebar" aria-label={tx('Navigasi workspace', 'Workspace navigation')}>
-          <div className="panel3-sidebar-identity" aria-hidden="true">
-            <span className="panel3-sidebar-symbol"><Link2 size={19} strokeWidth={2.1}/></span>
-            <span><strong>Workspace 3.0</strong><small>{tx('Ruang kerjamu', 'Your creative space')}</small></span>
-          </div>
-          <nav className="workspace-nav" aria-label={tx('Menu utama', 'Main menu')}>
-            <span className="workspace-nav-label">{tx('Workspace', 'Workspace')}</span>
-            {WORKSPACE_NAV.map((item) => (
-              <React.Fragment key={item.id}>
-                {item.id === 'account' && (
-                  <span className="workspace-nav-label panel3-settings-label">{tx('AKUN', 'ACCOUNT')}</span>
-                )}
-                <WorkspaceNavButton
-                  item={item}
-                  currentTab={currentTab}
-                  onTabChange={navigate}
-                  placement="sidebar"
-                />
-              </React.Fragment>
-            ))}
-          </nav>
-          <div className="workspace-sidebar-foot">
-            <div className="panel3-session-heading">
-              <span className="panel3-session-avatar">{(session.display_name || session.handle || '1').charAt(0).toUpperCase()}</span>
-              <span>
-                <strong>{session.display_name || session.handle || tx('Workspace tamu', 'Guest workspace')}</strong>
-                <small>{session.is_guest ? tx('Akun sementara', 'Guest account') : tx('Akun tersimpan', 'Saved account')}</small>
-              </span>
-            </div>
-            <p className="text-[12px] font-semibold text-[var(--tx)]">
-              {session.is_guest ? tx('Jaga halamanmu tetap aman', 'Secure your page') : tx('Semua siap digunakan', 'Everything is ready')}
-            </p>
-            <p className="text-[12px] text-[var(--tx2)] mt-1 leading-relaxed break-words">
-              {session.is_guest
-                ? tx('Simpan akun agar halaman tetap aman.', 'Save your account to keep your page safe.')
-                : tx('Semua fitur gratis, tanpa iklan.', 'Every feature is free, without ads.')}
-            </p>
-            {session.is_guest && (
-              <button type="button" className="btn btn-p btn-sm mt-3 w-full" onClick={onOpenSaveAccount}>
-                <Save size={16} strokeWidth={1.8} /> {tx('Simpan akun', 'Save account')}
-              </button>
-            )}
-          </div>
-        </aside>
+        <StudioSidebar
+          session={session}
+          currentTab={currentTab}
+          onTabChange={navigate}
+          onOpenSaveAccount={onOpenSaveAccount}
+          onOpenShare={onOpenShare}
+        />
         <div className={`shell-body ${showPreview ? 'with-preview' : ''}`}>
           <main className="main-area min-w-0">{children}</main>
           {showPreview && (

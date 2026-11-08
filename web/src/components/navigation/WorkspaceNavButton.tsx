@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronRight } from 'lucide-react';
 import { useI18n } from '../../i18n/context';
 import type { TabType, WorkspaceNavItem } from './workspaceNav';
 
@@ -27,8 +28,13 @@ export const WorkspaceNavButton: React.FC<WorkspaceNavButtonProps> = ({
         : 'dock-btn' + (isActive ? ' on' : '')}
       onClick={() => onTabChange(item.id)}
     >
-      <Icon size={placement === 'sidebar' ? 19 : 20} strokeWidth={isActive ? 2.15 : 1.75} aria-hidden="true" />
-      <span>{label}</span>
+      {placement === 'sidebar' ? (
+        <span className="sidebar4-nav-icon"><Icon size={19} strokeWidth={isActive ? 2.2 : 1.85} aria-hidden="true" /></span>
+      ) : (
+        <Icon size={20} strokeWidth={isActive ? 2.15 : 1.75} aria-hidden="true" />
+      )}
+      <span className="sidebar4-nav-text">{label}</span>
+      {placement === 'sidebar' && <ChevronRight className="sidebar4-nav-arrow" size={16} aria-hidden="true" />}
     </button>
   );
 };

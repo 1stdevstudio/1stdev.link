@@ -9,6 +9,7 @@ import './styles/welcome-v3.css';
 // Isolated full workspace refresh. Public bio themes and marketing stay untouched.
 import './styles/panel-v3.css';
 import './styles/navigation-unified.css';
+import './styles/sidebar-studio.css';
 import { ConfirmProvider } from './components/ConfirmDialog';
 
 /**
