@@ -26,6 +26,10 @@ import { AddBlockSheet } from './components/sheets/AddBlockSheet';
 import { EditBlockSheet, BlockPatch } from './components/sheets/EditBlockSheet';
 import { EditProfileSheet } from './components/sheets/EditProfileSheet';
 import { ShareSheet } from './components/sheets/ShareSheet';
+import type { QrTarget } from './components/qr/QrStudioSheet';
+// Lazy-load QR rendering and decoding; never burden the landing page bundle.
+const QrStudioSheet = React.lazy(() => import('./components/qr/QrStudioSheet')
+  .then((module) => ({ default: module.QrStudioSheet })));
 import { SaveAccountSheet } from './components/sheets/SaveAccountSheet';
 import { LoginSheet } from './components/sheets/LoginSheet';
 import { DeviceTransferSheet } from './components/sheets/DeviceTransferSheet';
@@ -36,6 +40,7 @@ type SheetType =
   | 'add_block'
   | 'edit_profile'
   | 'share'
+  | 'qr_studio'
   | 'save_account'
   | 'login'
   | 'device_transfer'
@@ -98,10 +103,21 @@ export const App: React.FC = () => {
     setBusinessEditor(null);
     setEditingLink(null);
     setActiveSheet(null);
+    setQrTarget(null);
   };
 
   // Sheet Controls
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
+  const [qrTarget, setQrTarget] = useState<QrTarget | null>(null);
+  const qrBase = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/$/, '');
+  const openQrForProfile = () => {
+    setQrTarget({ url: qrBase + '/@' + profileRef.current.handle, title: '@' + profileRef.current.handle, type: 'profile' });
+    setActiveSheet('qr_studio');
+  };
+  const openQrForLink = (link: LinkItem) => {
+    setQrTarget({ url: qrBase + '/' + link.slug, title: link.title || link.slug, type: 'link' });
+    setActiveSheet('qr_studio');
+  };
   const [addLinkDefaultBlock, setAddLinkDefaultBlock] = useState<BioBlockType>('link');
   const [showLegal, setShowLegal] = useState<'terms' | 'privacy' | null>(null);
 
@@ -539,6 +555,8 @@ export const App: React.FC = () => {
             onToggleActive={handleToggleLinkActive}
             onDeleteLink={handleDeleteLink}
             onToast={showToast}
+            onOpenQr={openQrForLink}
+            onOpenProfileQr={openQrForProfile}
           />
         )}
 
@@ -608,7 +626,19 @@ export const App: React.FC = () => {
         onClose={() => setActiveSheet(null)}
         handle={profile.handle}
         onToast={showToast}
+        onCustomizeQr={openQrForProfile}
       />
+
+      {activeSheet === 'qr_studio' && qrTarget && (
+        <React.Suspense fallback={null}>
+          <QrStudioSheet
+            isOpen
+            target={qrTarget}
+            onClose={() => setActiveSheet(null)}
+            onToast={showToast}
+          />
+        </React.Suspense>
+      )}
 
       <SaveAccountSheet
         isOpen={activeSheet === 'save_account'}

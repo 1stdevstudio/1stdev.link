@@ -6,10 +6,11 @@ interface SheetProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  className?: string;
   children: React.ReactNode;
 }
 
-export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }) => {
+export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, className, children }) => {
   const { tx } = useI18n();
   const sheetRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
@@ -57,7 +58,7 @@ export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }
       />
       <div
         ref={sheetRef}
-        className="sheet panel3-sheet"
+        className={"sheet panel3-sheet" + (className ? " " + className : "")}
         role="dialog"
         aria-modal="true"
         aria-label={title}

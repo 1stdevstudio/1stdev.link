@@ -10,6 +10,7 @@ import './styles/welcome-v3.css';
 import './styles/panel-v3.css';
 import './styles/navigation-unified.css';
 import './styles/sidebar-studio.css';
+import './styles/qr-studio.css';
 import { ConfirmProvider } from './components/ConfirmDialog';
 
 /**

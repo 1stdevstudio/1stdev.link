@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Sheet } from '../Sheet';
-import { MessageCircle, User, QrCode, Share2, Check, Download } from 'lucide-react';
+import { MessageCircle, User, QrCode, Share2, Check, Download, SlidersHorizontal } from 'lucide-react';
 import { useI18n } from '../../i18n/context';
 
 interface ShareSheetProps {
@@ -8,6 +8,7 @@ interface ShareSheetProps {
   onClose: () => void;
   handle: string;
   onToast: (msg: string) => void;
+  onCustomizeQr: () => void;
 }
 
 export const ShareSheet: React.FC<ShareSheetProps> = ({
@@ -15,6 +16,7 @@ export const ShareSheet: React.FC<ShareSheetProps> = ({
   onClose,
   handle,
   onToast,
+  onCustomizeQr,
 }) => {
   const { tx } = useI18n();
   const [copied, setCopied] = useState(false);
@@ -139,6 +141,10 @@ export const ShareSheet: React.FC<ShareSheetProps> = ({
           )}
         </div>
 
+        <button type="button" className="btn btn-p btn-sm gap-2" onClick={onCustomizeQr}>
+          <SlidersHorizontal size={17} strokeWidth={1.8} aria-hidden="true" />
+          {tx('Desain QR sendiri', 'Customize QR')}
+        </button>
         <button type="button" className="btn btn-g btn-sm gap-2" disabled={downloading} onClick={() => handleDownloadQr('svg')}><Download size={16} strokeWidth={1.75} />{tx('Unduh SVG untuk cetak', 'Download SVG for print')}</button>
 
         {/* URL Row with Copy */}
