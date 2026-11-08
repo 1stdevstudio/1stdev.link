@@ -1,0 +1,65 @@
+name: UI Browser QA
+
+on:
+  pull_request:
+    paths:
+      - "web/**"
+      - "shared/**"
+      - ".github/workflows/ui-qa.yml"
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "shared/**"
+      - ".github/workflows/ui-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    name: Chromium responsive and UX flows
+    runs-on: ubuntu-24.04
+    # Pin the OS supported by Playwright 1.56.1; ubuntu-latest moved to 26.04.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Typecheck and build frontend
+        working-directory: web
+        run: npm run build
+
+      # Keep E2E dependencies isolated: no production lockfile or backend
+      # credentials are modified. Exact Playwright version is pinned.
+      - name: Install browser QA runner
+        working-directory: web/e2e
+        run: npm install --no-package-lock --no-audit --no-fund
+
+      - name: Install Chromium runtime
+        working-directory: web/e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser tests in local mock mode
+        working-directory: web/e2e
+        run: npm test
+
+      - name: Save screenshots, traces and HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-qa-evidence
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            web/e2e/test-results/
+            web/e2e/playwright-report/
