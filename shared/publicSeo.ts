@@ -8,13 +8,12 @@ import { hasBusinessContent, isBusinessBlock, isContentBlock, validateBusinessDa
  */
 
 export const SITE = {
-  name: '1stdev.link by 1stdev.space',
+  name: '1stdev.link',
   publisher: '1stdev.space',
   publisherUrl: 'https://1stdev.space',
-  ogImage: '/og.png',
-  themeColor: '#0e1f1b',
-  favicon:
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e9be54' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/></svg>",
+  ogImage: '/og.png?v=20261109',
+  themeColor: '#18765D',
+  favicon: "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20112%20112%22%3E%3Cpath%20fill%3D%22%230DAD62%22%20d%3D%22M27%2025c0-4%202-7%206-9L78%201c11-4%2019%202%2019%2013v50c0%208-3%2013-10%2017l-10%206V34c0-11-7-16-16-12L27%2039z%22%2F%3E%3Cpath%20fill%3D%22%2391D6AE%22%20d%3D%22M26%2034c0-3%202-6%205-7L70%2012c10-4%2018%202%2018%2013v41c0%207-4%2012-10%2015l-9%205V37c0-9-7-14-16-10L26%2041z%22%2F%3E%3Cpath%20fill%3D%22%23064A36%22%20d%3D%22M14%2050%2056%2032c10-4%2018%202%2018%2013v38c0%208-4%2013-11%2017l-29%2012c-8%204-14%200-14-8V72L9%2077C2%2080%200%2076%200%2069V63c0-6%204-10%2014-13z%22%2F%3E%3C%2Fsvg%3E",
 };
 
 export function escapeHtml(str: string): string {
@@ -89,7 +88,7 @@ export function renderRobotsTxt(baseUrl: string): string {
   return [
     '# 1stdev.link by 1stdev.space',
     '# Halaman profil publik (/@handle) dan halaman utama boleh diindeks.',
-    '# Kebijakan crawler pelatihan AI diatur di level zona 1stnear.com.',
+    '# Aturan pengindeksan dan akses halaman publik 1stdev.link.',
     '',
     'User-agent: *',
     'Allow: /',
@@ -256,12 +255,14 @@ export function renderBioSeoHead({ profile, links, baseUrl, lang, themeColor, so
     `<meta property="og:title" content="${title}">`,
     `<meta property="og:description" content="${desc}">`,
     `<meta property="og:image" content="${e(image)}">`,
+    `<meta property="og:image:secure_url" content="${e(image)}">`,
     `<meta property="og:image:alt" content="${title}">`,
     `<meta property="profile:username" content="${e(rawHandle)}">`,
     `<meta name="twitter:card" content="${avatar ? 'summary' : 'summary_large_image'}">`,
     `<meta name="twitter:title" content="${title}">`,
     `<meta name="twitter:description" content="${desc}">`,
     `<meta name="twitter:image" content="${e(image)}">`,
+    `<meta name="twitter:image:alt" content="${title}">`,
     `<script type="application/ld+json">${safeJsonLd(ld)}</script>`,
   ].join('\n  ');
 }

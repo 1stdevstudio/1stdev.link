@@ -12,7 +12,7 @@ Fakta utama:
 - Link pendek: https://1stdev.link/kode, dengan statistik klik per hari dan per negara.
 - Arahkan per perangkat: link pendek bisa punya tujuan berbeda untuk iPhone/iOS dan Android (lewat API).
 - Privasi: halaman profil tanpa pelacak pihak ketiga dan tanpa cookie iklan. Statistik dihitung agregat (jumlah klik per hari dan negara), tanpa profil pengunjung. Klik dari bot dan pratinjau link tidak dihitung.
-- Kecepatan: halaman profil dirender di server pada jaringan edge global, dekat dengan pengunjung.
+- Pengalaman: halaman profil dibuat agar mudah dibuka dan dibagikan melalui browser serta aplikasi chat.
 - Pembuat: 1stdev.space (https://1stdev.space).
 
 ## Halaman utama

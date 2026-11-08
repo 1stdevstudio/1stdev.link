@@ -49,8 +49,8 @@ Bisa, lewat API: link pendek dapat punya ios_url dan android_url. Pengunjung dia
 ### Apakah ada API untuk developer?
 Ada. REST API untuk membuat link pendek, mengelola blok bio, dan membaca statistik. Dokumentasi: https://1stdev.link/docs
 
-### Seberapa cepat halaman profil dimuat?
-Halaman profil dirender di server pada jaringan edge global dan disimpan di cache dekat pengunjung, sehingga terbuka cepat bahkan di koneksi seluler.
+### Bagaimana tampilan halaman profil saat dibagikan?
+Halaman profil menampilkan judul, deskripsi, dan gambar pratinjau yang sesuai konten publik akun saat tautan dibagikan melalui aplikasi chat.
 
 ### Apakah link yang berbahaya diblokir?
 Ya. Setiap tujuan link diperiksa: alamat internal/privat dan skema berbahaya ditolak untuk mencegah penyalahgunaan.
