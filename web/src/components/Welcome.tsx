@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link2, Sparkles, Store, ShoppingBag, Scissors, Check, ArrowRight, ArrowUpRight } from 'lucide-react';
+import { Link2, Sparkles, Store, ShoppingBag, Scissors, Check, ArrowRight, ArrowUpRight, BarChart3, Globe2, Layers3 } from 'lucide-react';
 import { useI18n } from '../i18n/context';
 
 type WelcomeChoice = 'creator' | 'business' | 'affiliate' | 'links';
@@ -63,124 +63,168 @@ export const Welcome: React.FC<WelcomeProps> = ({
     },
   ];
 
+  const selectedTitle = choice === 'links'
+    ? tx('Link pendek', 'Short links')
+    : options.find((option) => option.id === choice)?.title || options[0].title;
+
   return (
-    <section id="welcome" aria-label={tx('Mulai menggunakan 1stdev.link', 'Get started with 1stdev.link')} className="welcome-screen">
-      <div className="welcome-shell">
-        <header className="welcome-topbar">
-          <a href="/" className="welcome-brand" aria-label="1stdev.link">
-            <span className="welcome-brand-mark"><Link2 size={20} strokeWidth={2} /></span>
-            <span className="welcome-brand-text">
-              <strong>1stdev.link</strong>
-              <small>by 1stdev.space</small>
-            </span>
+    <section
+      id="welcome"
+      className="welcome-screen start-screen"
+      aria-label={tx('Mulai menggunakan 1stdev.link', 'Get started with 1stdev.link')}
+    >
+      <div className="welcome-shell start-shell">
+        <header className="start-header">
+          <a href="/" className="start-logo" aria-label="1stdev.link">
+            <span className="start-logo-symbol" aria-hidden="true"><Link2 size={21} strokeWidth={2.2} /></span>
+            <span className="start-logo-type"><strong>1stdev<span>.link</span></strong><small>by 1stdev.space</small></span>
           </a>
-          <button type="button" className="welcome-top-login" onClick={onOpenLogin}>
-            {tx('Masuk', 'Log in')} <ArrowUpRight size={17} strokeWidth={1.8} aria-hidden="true" />
-          </button>
+          <nav className="start-nav" aria-label={tx('Navigasi halaman depan', 'Homepage navigation')}>
+            <a href="#start-highlights">{tx('Keunggulan', 'Benefits')}</a>
+            <a href="#start-goals">{tx('Buat halaman', 'Create a page')}</a>
+            <button type="button" className="start-login" onClick={onOpenLogin}>
+              {tx('Masuk', 'Log in')} <ArrowUpRight size={17} strokeWidth={2} aria-hidden="true"/>
+            </button>
+          </nav>
         </header>
 
-        <main className="welcome-layout">
-          <div className="welcome-story">
-            <span className="welcome-eyebrow">
-              <span className="welcome-pulse" aria-hidden="true" />
-              {tx('SEMUA KEBUTUHAN DIGITAL DALAM SATU LINK', 'YOUR DIGITAL SPACE IN ONE LINK')}
-            </span>
-            <h1 className="welcome-headline">
-              {tx('Satu link untuk', 'One link for')}
-              <span>{tx('semua yang penting.', 'everything that matters.')}</span>
-            </h1>
-            <p className="welcome-lead">
-              {tx(
-                'Buat halaman yang mencerminkan dirimu atau bisnismu. Kumpulkan karya, produk, dan tautan penting dalam satu tempat yang mudah dibagikan.',
-                'Create a page for yourself or your business. Bring your work, products, and important links together in one place that is easy to share.'
-              )}
-            </p>
-
-            <div className="welcome-highlights">
-              <span><Check size={16} aria-hidden="true" /> {tx('Gratis & tanpa iklan', 'Free & ad-free')}</span>
-              <span><Check size={16} aria-hidden="true" /> {tx('Siap dalam hitungan menit', 'Ready in minutes')}</span>
-            </div>
-
-            <div className="welcome-story-card" aria-hidden="true">
-              <div className="welcome-story-card-top">
-                <span className="welcome-story-avatar"><Sparkles size={19} strokeWidth={1.9} /></span>
-                <div><strong>{tx('Studio Kreatif', 'Creative Studio')}</strong><small>1stdev.link/@studio</small></div>
-                <span className="welcome-story-online"><span /> LIVE</span>
+        <main className="start-main">
+          <section className="start-hero" aria-labelledby="start-title">
+            <div className="start-hero-copy">
+              <p className="start-kicker"><span className="start-kicker-dot" aria-hidden="true" /> {tx('RUANG DIGITAL UNTUK IDE BESAR', 'ONE SPACE FOR BIG IDEAS')}</p>
+              <h1 id="start-title" className="start-title">
+                {tx('Bukan sekadar', 'More than just')}
+                <span>{tx('satu link.', 'one link.')}</span>
+              </h1>
+              <p className="start-description">
+                {tx('Tampilkan karya, jual produk, bagikan rekomendasi, atau buat tautan pendek. Semua dalam satu halaman yang mudah dikelola dan siap dibagikan.', 'Show your work, sell products, share recommendations, or shorten URLs. Everything in one easy-to-manage page, ready to share.')}
+              </p>
+              <div className="start-hero-actions">
+                <a className="start-primary-action" href="#start-goals">
+                  {tx('Buat halaman gratis', 'Create your free page')}
+                  <ArrowUpRight size={19} strokeWidth={2} aria-hidden="true"/>
+                </a>
+                <a className="start-text-action" href="#start-highlights">
+                  {tx('Lihat keunggulan', 'Explore the benefits')} <ArrowRight size={16} aria-hidden="true"/>
+                </a>
               </div>
-              <div className="welcome-story-card-links">
-                <span><ArrowUpRight size={16} /> {tx('Karya pilihan', 'Featured work')} <ArrowRight size={15} /></span>
-                <span><Store size={16} /> {tx('Produk & layanan', 'Products & services')} <ArrowRight size={15} /></span>
-                <span><Link2 size={16} /> {tx('Semua tautan', 'All links')} <ArrowRight size={15} /></span>
+              <div className="start-assurance" aria-label={tx('Keunggulan layanan', 'Service benefits')}>
+                <span><Check size={15} aria-hidden="true"/> {tx('100% gratis', '100% free')}</span>
+                <span><Check size={15} aria-hidden="true"/> {tx('Tanpa iklan', 'Ad-free')}</span>
+                <span><Check size={15} aria-hidden="true"/> {tx('Mulai tanpa daftar', 'Start without signing up')}</span>
               </div>
-              <p>{tx('Contoh tampilan halaman publik', 'Example public page preview')}</p>
-            </div>
-          </div>
-
-          <div className="welcome-chooser" aria-labelledby="welcome-chooser-title">
-            <div className="welcome-chooser-heading">
-              <span className="welcome-step-label">{tx('LANGKAH 01 / 02', 'STEP 01 / 02')}</span>
-              <h2 id="welcome-chooser-title">{tx('Kamu ingin membuat apa?', 'What would you like to create?')}</h2>
-              <p>{tx('Pilih tujuan utamamu. Semua fitur bisa diubah dan ditambah nanti.', 'Choose your main goal. You can customize everything later.')}</p>
             </div>
 
-            <div className="welcome-choice-list" role="group" aria-label={tx('Pilih tujuan halaman', 'Choose page goal')}>
-              {options.map((opt) => {
+            <div className="start-visual" aria-label={tx('Contoh halaman publik yang bisa dibuat', 'Example of a public page you can create')}>
+              <div className="start-orbit start-orbit-one" aria-hidden="true"/>
+              <div className="start-orbit start-orbit-two" aria-hidden="true"/>
+              <div className="start-browser" aria-hidden="true">
+                <div className="start-browser-bar">
+                  <span className="start-browser-dots"><i/><i/><i/></span>
+                  <span className="start-browser-url"><Globe2 size={12} /> 1stdev.link/@studio</span>
+                  <span className="start-browser-menu">•••</span>
+                </div>
+                <div className="start-profile-mock">
+                  <div className="start-profile-cover">
+                    <div className="start-cover-shape start-shape-one"/>
+                    <div className="start-cover-shape start-shape-two"/>
+                    <span className="start-cover-label">{tx('KARYA • PRODUK • CERITA', 'WORK • PRODUCTS • STORIES')}</span>
+                  </div>
+                  <div className="start-profile-body">
+                    <div className="start-avatar">S<span>✳</span></div>
+                    <div className="start-profile-heading">
+                      <strong>{tx('Studio Kreatif', 'Creative Studio')}</strong>
+                      <span>@studio · <span className="start-profile-availability">{tx('Tersedia untuk kolaborasi', 'Open for collaborations')}</span></span>
+                    </div>
+                    <p>{tx('Satu tempat untuk ide, karya, dan hal-hal yang kami suka.', 'A home for ideas, work, and everything we love.')}</p>
+                    <div className="start-profile-links">
+                      <span><Layers3 size={17} /> {tx('Lihat portofolio', 'View portfolio')} <ArrowUpRight size={17}/></span>
+                      <span><Store size={17} /> {tx('Produk & layanan', 'Products & services')} <ArrowUpRight size={17}/></span>
+                      <span><Link2 size={17} /> {tx('Semua tautan penting', 'All important links')} <ArrowUpRight size={17}/></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="start-preview-badge"><span className="start-preview-badge-icon"><BarChart3 size={18}/></span><span><strong>{tx('Siap dibagikan', 'Ready to share')}</strong><small>{tx('Kreasikan halamanmu sendiri', 'Make your page your own')}</small></span></div>
+              <span className="start-preview-caption">{tx('ILUSTRASI HALAMAN • BUKAN DATA PENGGUNA', 'PAGE ILLUSTRATION • NOT USER DATA')}</span>
+            </div>
+          </section>
+
+          <section className="start-highlights" id="start-highlights" aria-label={tx('Keunggulan platform', 'Platform benefits')}>
+            <div className="start-highlight"><span className="start-highlight-icon"><Layers3 size={20} strokeWidth={1.8}/></span><span><strong>{tx('Semua jadi satu', 'Everything together')}</strong><small>{tx('Konten, produk, dan link', 'Content, products and links')}</small></span></div>
+            <div className="start-highlight"><span className="start-highlight-icon"><Sparkles size={20} strokeWidth={1.8}/></span><span><strong>{tx('Tampilan fleksibel', 'Make it yours')}</strong><small>{tx('Sesuaikan dengan identitasmu', 'Match your identity')}</small></span></div>
+            <div className="start-highlight"><span className="start-highlight-icon"><BarChart3 size={20} strokeWidth={1.8}/></span><span><strong>{tx('Pantau performa', 'Track performance')}</strong><small>{tx('Lihat statistik klik link', 'Understand your link clicks')}</small></span></div>
+          </section>
+
+          <section className="welcome-chooser start-chooser" id="start-goals" aria-labelledby="welcome-chooser-title">
+            <div className="start-chooser-head">
+              <div className="start-chooser-intro">
+                <p className="start-step-label">{tx('MULAI DARI SINI / 01', 'START HERE / 01')}</p>
+                <h2 id="welcome-chooser-title">{tx('Kamu ingin membuat apa?', 'What would you like to create?')}</h2>
+              </div>
+              <p>{tx('Pilih sesuai kebutuhanmu. Kamu selalu bisa menambahkan fitur lain nanti.', 'Choose what fits your needs. You can always add more features later.')}</p>
+            </div>
+
+            <div className="welcome-choice-list start-choice-grid" role="group" aria-label={tx('Pilih tujuan halaman', 'Choose page goal')}>
+              {options.map((opt, index) => {
                 const Icon = opt.icon;
                 const selected = choice === opt.id;
                 return (
                   <button
                     key={opt.id}
                     type="button"
-                    className={'welcome-choice' + (selected ? ' is-selected' : '')}
+                    className={'welcome-choice start-choice' + (selected ? ' is-selected' : '')}
                     aria-pressed={selected}
                     onClick={() => setChoice(opt.id)}
                   >
-                    <span className="welcome-choice-icon"><Icon size={21} strokeWidth={1.8} aria-hidden="true" /></span>
-                    <span className="welcome-choice-copy">
-                      <strong>{opt.title}</strong>
-                      <small>{opt.desc}</small>
+                    <span className="start-choice-top">
+                      <span className="start-choice-icon"><Icon size={22} strokeWidth={1.8} aria-hidden="true"/></span>
+                      <span className="start-choice-indicator" aria-hidden="true">{selected ? <Check size={16} strokeWidth={2.6}/> : String(index + 1).padStart(2, '0')}</span>
                     </span>
-                    <span className="welcome-choice-indicator" aria-hidden="true">{selected && <Check size={14} strokeWidth={2.6} />}</span>
+                    <span className="start-choice-copy"><strong>{opt.title}</strong><small>{opt.desc}</small></span>
+                    <span className="start-choice-bottom">{tx('Buat halaman', 'Create page')} <ArrowUpRight size={16} aria-hidden="true"/></span>
                   </button>
                 );
               })}
-
               <button
                 type="button"
-                className={'welcome-choice welcome-choice-short' + (choice === 'links' ? ' is-selected' : '')}
+                className={'welcome-choice start-choice' + (choice === 'links' ? ' is-selected' : '')}
                 aria-pressed={choice === 'links'}
                 onClick={() => setChoice('links')}
               >
-                <span className="welcome-choice-icon"><Scissors size={20} strokeWidth={1.8} aria-hidden="true" /></span>
-                <span className="welcome-choice-copy">
-                  <strong>{tx('Pendekkan link saja', 'Shorten links only')}</strong>
-                  <small>{tx('URL ringkas dengan statistik klik, tanpa halaman bio.', 'Short URLs with click stats, without a bio page.')}</small>
+                <span className="start-choice-top">
+                  <span className="start-choice-icon"><Scissors size={22} strokeWidth={1.8} aria-hidden="true"/></span>
+                  <span className="start-choice-indicator" aria-hidden="true">{choice === 'links' ? <Check size={16} strokeWidth={2.6}/> : '04'}</span>
                 </span>
-                <span className="welcome-choice-indicator" aria-hidden="true">{choice === 'links' && <Check size={14} strokeWidth={2.6} />}</span>
+                <span className="start-choice-copy"><strong>{tx('Pendekkan link saja', 'Shorten links only')}</strong><small>{tx('URL singkat dengan statistik klik, tanpa membuat halaman bio.', 'Short URLs and click stats, without creating a bio page.')}</small></span>
+                <span className="start-choice-bottom">{tx('Buat link pendek', 'Shorten a URL')} <ArrowUpRight size={16} aria-hidden="true"/></span>
               </button>
             </div>
 
-            <button type="button" className="welcome-continue" disabled={loading} onClick={handleStart}>
-              <span>{loading ? tx('Membuat sesi...', 'Starting session...') : tx('Mulai sekarang — Gratis', 'Get started — Free')}</span>
-              <ArrowRight size={19} strokeWidth={2} aria-hidden="true" />
-            </button>
+            <div className="start-chooser-bottom">
+              <div className="start-selected-text">
+                <span className="start-selected-dot" aria-hidden="true"/>
+                <span>{tx('Pilihanmu:', 'Selected:')} <strong>{selectedTitle}</strong></span>
+              </div>
+              <button className="start-continue" type="button" disabled={loading} onClick={handleStart}>
+                <span>{loading ? tx('Membuat sesi...', 'Starting session...') : tx('Mulai sekarang — Gratis', 'Get started — Free')}</span><ArrowRight size={19} strokeWidth={2} aria-hidden="true"/>
+              </button>
+            </div>
+          </section>
 
-            <p className="welcome-returning">
-              {tx('Sudah punya halaman?', 'Already have a page?')}{' '}
-              <button type="button" onClick={onOpenLogin}>{tx('Masuk ke akun', 'Log in to your account')}</button>
-            </p>
-            <p className="welcome-legal">
-              {tx('Dengan melanjutkan, kamu menyetujui', 'By continuing, you agree to the')}{' '}
-              <button type="button" onClick={() => onOpenLegal('terms')}>{tx('Ketentuan Layanan', 'Terms of Service')}</button>
-              {' '}{tx('dan', 'and')}{' '}
-              <button type="button" onClick={() => onOpenLegal('privacy')}>{tx('Kebijakan Privasi', 'Privacy Policy')}</button>.
-            </p>
+          <div className="start-returning">
+            {tx('Sudah punya halaman?', 'Already have a page?')}{' '}
+            <button type="button" onClick={onOpenLogin}>{tx('Masuk ke akun', 'Log in to your account')} <ArrowUpRight size={15} aria-hidden="true"/></button>
           </div>
         </main>
 
-        <footer className="welcome-footer">
+        <footer className="start-footer">
           <span>© 2026 1stdev.link · by 1stdev.space</span>
-          <span>{tx('Buat halamanmu. Bagikan duniamu.', 'Create your page. Share your world.')}</span>
+          <span>{tx('Dengan melanjutkan, kamu menyetujui', 'By continuing, you agree to the')}{' '}
+            <button type="button" onClick={() => onOpenLegal('terms')}>{tx('Ketentuan Layanan', 'Terms of Service')}</button>
+            {' '}{tx('dan', 'and')}{' '}
+            <button type="button" onClick={() => onOpenLegal('privacy')}>{tx('Kebijakan Privasi', 'Privacy Policy')}</button>.
+          </span>
         </footer>
       </div>
     </section>
