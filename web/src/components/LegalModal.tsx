@@ -21,7 +21,12 @@ export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', on
   return <Sheet isOpen onClose={onClose} title={tab === 'terms' ? tx('Ketentuan Layanan', 'Terms of Service') : tx('Kebijakan Privasi', 'Privacy Policy')}>
     <div ref={start} className="text-xs text-[var(--tx3)]">1stdev.link · {tx('Terakhir diperbarui', 'Last updated')} {LEGAL_VERSION}</div>
     <nav aria-label={tx('Dokumen hukum', 'Legal documents')} className="flex gap-2">
-      {(['terms', 'privacy'] as const).map(value => <button key={value} type="button" aria-pressed={tab === value} onClick={() => setTab(value)} className={`min-h-11 flex-1 rounded-xl px-3 py-2 text-[13px] font-medium ${tab === value ? 'bg-[var(--ac)] text-[var(--bg)]' : 'bg-[var(--s2)] text-[var(--tx2)]'}`}>{value === 'terms' ? tx('Ketentuan', 'Terms') : tx('Privasi', 'Privacy')}</button>)}
+      {(['terms', 'privacy'] as const).map(value => <button key={value} type="button" aria-pressed={tab === value} onClick={() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('legal', value);
+        window.history.replaceState(null, '', url);
+        setTab(value);
+      }} className={`min-h-11 flex-1 rounded-xl px-3 py-2 text-[13px] font-medium ${tab === value ? 'bg-[var(--ac)] text-[var(--bg)]' : 'bg-[var(--s2)] text-[var(--tx2)]'}`}>{value === 'terms' ? tx('Ketentuan', 'Terms') : tx('Privasi', 'Privacy')}</button>)}
     </nav>
     <button type="button" onClick={copyLink} className="self-start inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--s2)] px-3 text-[13px] font-semibold text-[var(--tx)]">
       {copied ? <Check size={15} /> : <Copy size={15} />}{copied ? tx('Tautan disalin', 'Link copied') : tx('Salin tautan dokumen', 'Copy document link')}
