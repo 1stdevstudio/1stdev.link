@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Home, Link2, User, Scissors, BarChart2, Share2, Plus, LayoutList, X, CircleUser, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
+import { Link2, Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight } from 'lucide-react';
+import { WORKSPACE_NAV } from './navigation/workspaceNav';
+import { WorkspaceNavButton } from './navigation/WorkspaceNavButton';
+import type { TabType } from './navigation/workspaceNav';
 import { AuthSession } from '../types';
 import { useI18n } from '../i18n/context';
 
-export type TabType = 'home' | 'profile' | 'links' | 'stats' | 'account';
+export type { TabType } from './navigation/workspaceNav';
 
 interface AppShellProps {
   currentTab: TabType;
@@ -105,31 +108,12 @@ export const AppShell: React.FC<AppShellProps> = ({
   onRetrySave,
 }) => {
   const { tx } = useI18n();
-  const [createOpen, setCreateOpen] = useState<'top' | 'dock' | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const showPreview = currentTab === 'profile' && !!previewColumn;
-
-  // 4 destinasi utama + nama tab profil diubah menjadi "Halaman"
-  const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
-    { id: 'home', label: tx('Beranda', 'Home'), icon: Home },
-    { id: 'profile', label: tx('Halaman', 'Page'), icon: User },
-    { id: 'links', label: tx('Link', 'Links'), icon: Scissors },
-    { id: 'stats', label: tx('Statistik', 'Stats'), icon: BarChart2 },
-  ];
-
-  const dockItem = ({ id, label, icon: Icon }: (typeof tabs)[number]) => {
-    const on = currentTab === id;
-    return (
-      <button
-        key={id}
-        type="button"
-        aria-current={on ? 'page' : undefined}
-        className={`dock-btn ${on ? 'on' : ''}`}
-        onClick={() => onTabChange(id)}
-      >
-        <Icon size={20} strokeWidth={on ? 2 : 1.75} />
-        <span>{label}</span>
-      </button>
-    );
+  const activeNav = WORKSPACE_NAV.find((item) => item.id === currentTab);
+  const navigate = (tab: TabType) => {
+    setCreateOpen(false);
+    onTabChange(tab);
   };
 
   return (
@@ -139,31 +123,15 @@ export const AppShell: React.FC<AppShellProps> = ({
           <button
             type="button"
             className="shrink-0 min-h-[44px] rounded-[var(--r2)] text-left"
-            onClick={() => onTabChange('home')}
+            onClick={() => navigate('home')}
             aria-label="1stdev.link"
           >
             <Logo />
           </button>
 
-          {/* Tab navigasi desktop */}
-          <nav className="tabs-top" aria-label={tx('Navigasi utama', 'Main navigation')}>
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                aria-current={currentTab === id ? 'page' : undefined}
-                className={currentTab === id ? 'on' : ''}
-                onClick={() => onTabChange(id)}
-              >
-                <Icon size={16} strokeWidth={1.75} />
-                {label}
-              </button>
-            ))}
-          </nav>
-
           <div className="workspace-current panel3-page-crumb" aria-live="polite">
             <span className="panel3-crumb-overline">{tx('WORKSPACE', 'WORKSPACE')} <ChevronRight size={12} aria-hidden="true" /> {tx('PANEL KONTROL', 'CONTROL PANEL')}</span>
-            <strong>{tabs.find((tab) => tab.id === currentTab)?.label || tx('Pengaturan', 'Settings')}</strong>
+            <strong>{activeNav ? tx(activeNav.labelId, activeNav.labelEn) : tx('Beranda', 'Home')}</strong>
           </div>
 
           <div className="panel3-top-actions flex items-center gap-2 shrink-0">
@@ -175,21 +143,21 @@ export const AppShell: React.FC<AppShellProps> = ({
               </div>
             )}
             {/* Tombol Buat (desktop) */}
-            <div className="relative hidden lg:block">
+            <div className="relative panel3-create-wrap">
               <button
                 type="button"
                 className="btn btn-p btn-sm gap-1.5"
                 aria-haspopup="menu"
-                aria-expanded={createOpen === 'top'}
-                onClick={() => setCreateOpen(createOpen === 'top' ? null : 'top')}
+                aria-expanded={createOpen}
+                onClick={() => setCreateOpen(!createOpen)}
               >
                 <Plus size={16} strokeWidth={2} />
                 {tx('Buat', 'Create')}
               </button>
-              {createOpen === 'top' && (
+              {createOpen && (
                 <CreateMenu
                   className="create-top"
-                  onClose={() => setCreateOpen(null)}
+                  onClose={() => setCreateOpen(false)}
                   onAddBlock={onOpenAddBlock}
                   onAddLink={onOpenAddLink}
                 />
@@ -219,16 +187,6 @@ export const AppShell: React.FC<AppShellProps> = ({
               <Share2 size={18} strokeWidth={1.75} />
             </button>
 
-            {/* Akun pengguna */}
-            <button
-              type="button"
-              className={`iconbtn ${currentTab === 'account' ? 'text-[var(--ac)]' : ''}`}
-              aria-current={currentTab === 'account' ? 'page' : undefined}
-              onClick={() => onTabChange('account')}
-              aria-label={tx('Akun', 'Account')}
-            >
-              <CircleUser size={20} strokeWidth={1.75} />
-            </button>
           </div>
         </div>
       </header>
@@ -241,28 +199,19 @@ export const AppShell: React.FC<AppShellProps> = ({
           </div>
           <nav className="workspace-nav" aria-label={tx('Menu utama', 'Main menu')}>
             <span className="workspace-nav-label">{tx('Workspace', 'Workspace')}</span>
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                type="button"
-                key={id}
-                className="workspace-nav-item panel3-nav-item"
-                aria-current={currentTab === id ? 'page' : undefined}
-                onClick={() => onTabChange(id)}
-              >
-                <Icon size={19} strokeWidth={1.8} aria-hidden="true" />
-                <span>{label}</span>
-              </button>
+            {WORKSPACE_NAV.map((item) => (
+              <React.Fragment key={item.id}>
+                {item.id === 'account' && (
+                  <span className="workspace-nav-label panel3-settings-label">{tx('AKUN', 'ACCOUNT')}</span>
+                )}
+                <WorkspaceNavButton
+                  item={item}
+                  currentTab={currentTab}
+                  onTabChange={navigate}
+                  placement="sidebar"
+                />
+              </React.Fragment>
             ))}
-            <span className="workspace-nav-label panel3-settings-label">{tx('AKUN', 'ACCOUNT')}</span>
-            <button
-              type="button"
-              className="workspace-nav-item panel3-nav-item"
-              aria-current={currentTab === 'account' ? 'page' : undefined}
-              onClick={() => onTabChange('account')}
-            >
-              <CircleUser size={19} strokeWidth={1.8} aria-hidden="true" />
-              <span>{tx('Pengaturan', 'Settings')}</span>
-            </button>
           </nav>
           <div className="workspace-sidebar-foot">
             <div className="panel3-session-heading">
@@ -301,32 +250,17 @@ export const AppShell: React.FC<AppShellProps> = ({
         </div>
       </div>
 
-      {/* Dock melayang (mobile / tablet) */}
-      <nav className="dock panel3-dock" aria-label={tx('Navigasi bawah', 'Bottom navigation')}>
-        {dockItem(tabs[0])}
-        {dockItem(tabs[1])}
-        <div className="relative">
-          <button
-            type="button"
-            className={`dock-create ${createOpen === 'dock' ? 'open' : ''}`}
-            aria-haspopup="menu"
-            aria-expanded={createOpen === 'dock'}
-            aria-label={tx('Buat', 'Create')}
-            onClick={() => setCreateOpen(createOpen === 'dock' ? null : 'dock')}
-          >
-            {createOpen === 'dock' ? <X size={22} strokeWidth={2.2} /> : <Plus size={24} strokeWidth={2.2} />}
-          </button>
-          {createOpen === 'dock' && (
-            <CreateMenu
-              className="create-dock"
-              onClose={() => setCreateOpen(null)}
-              onAddBlock={onOpenAddBlock}
-              onAddLink={onOpenAddLink}
-            />
-          )}
-        </div>
-        {dockItem(tabs[2])}
-        {dockItem(tabs[3])}
+      {/* Exactly the same five destinations on mobile and desktop. */}
+      <nav className="dock panel3-dock" aria-label={tx('Navigasi utama', 'Main navigation')}>
+        {WORKSPACE_NAV.map((item) => (
+          <WorkspaceNavButton
+            key={item.id}
+            item={item}
+            currentTab={currentTab}
+            onTabChange={navigate}
+            placement="dock"
+          />
+        ))}
       </nav>
     </div>
   );

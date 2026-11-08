@@ -19,12 +19,8 @@ async function openGuestPanel(page) {
 
 async function goToScreen(page, key, width) {
   const nav = width >= 1024 ? page.locator('.panel3-sidebar') : page.locator('.panel3-dock');
-  if (key === 'account' && width < 1024) {
-    await page.getByRole('button', { name: 'Akun', exact: true }).click();
-  } else {
-    const labels = { home: 'Beranda', profile: 'Halaman', links: 'Link', stats: 'Statistik', account: 'Pengaturan' };
-    await nav.getByRole('button', { name: labels[key], exact: true }).click();
-  }
+  const labels = { home: 'Beranda', profile: 'Halaman', links: 'Link', stats: 'Statistik', account: 'Pengaturan' };
+  await nav.getByRole('button', { name: labels[key], exact: true }).click();
   const fragment = { home: '#home', profile: '#content', links: '#links', stats: '#stats', account: '#account' }[key];
   await expect(page).toHaveURL(new RegExp(fragment + '$'));
   await expect(page.locator('.workspace-page-title').first()).toBeVisible();
@@ -83,7 +79,7 @@ test.describe('Workspace 3.0 complete responsive panel', () => {
     await expect(page.locator('.panel3-dock')).toBeVisible();
     await goToScreen(page, 'account', 390);
     await expect(page.locator('.panel3-account')).toBeVisible();
-    await expect(page.locator('.panel3-topbar').getByRole('button', { name: 'Akun', exact: true })).toBeVisible();
-    await expect(page.locator('.panel3-dock')).toBeVisible();
+    await expect(page.locator('.panel3-dock').getByRole('button', { name: 'Pengaturan' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('.panel3-topbar').getByRole('button', { name: 'Buat', exact: true })).toBeVisible();
   });
 });

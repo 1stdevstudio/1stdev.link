@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link2, Sparkles, Store, ShoppingBag, Scissors, Check, ArrowRight, ArrowUpRight, BarChart3, Globe2, Layers3 } from 'lucide-react';
 import { useI18n } from '../i18n/context';
+import { SiteHeader } from './navigation/SiteHeader';
 
 type WelcomeChoice = 'creator' | 'business' | 'affiliate' | 'links';
 
@@ -74,19 +75,7 @@ export const Welcome: React.FC<WelcomeProps> = ({
       aria-label={tx('Mulai menggunakan 1stdev.link', 'Get started with 1stdev.link')}
     >
       <div className="welcome-shell start-shell">
-        <header className="start-header">
-          <a href="/" className="start-logo" aria-label="1stdev.link">
-            <span className="start-logo-symbol" aria-hidden="true"><Link2 size={21} strokeWidth={2.2} /></span>
-            <span className="start-logo-type"><strong>1stdev<span>.link</span></strong><small>by 1stdev.space</small></span>
-          </a>
-          <nav className="start-nav" aria-label={tx('Navigasi halaman depan', 'Homepage navigation')}>
-            <a href="#start-highlights">{tx('Keunggulan', 'Benefits')}</a>
-            <a href="#start-goals">{tx('Buat halaman', 'Create a page')}</a>
-            <button type="button" className="start-login" onClick={onOpenLogin}>
-              {tx('Masuk', 'Log in')} <ArrowUpRight size={17} strokeWidth={2} aria-hidden="true"/>
-            </button>
-          </nav>
-        </header>
+        <SiteHeader onOpenLogin={onOpenLogin} />
 
         <main className="start-main">
           <section className="start-hero" aria-labelledby="start-title">
