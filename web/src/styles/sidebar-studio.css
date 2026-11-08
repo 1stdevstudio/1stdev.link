@@ -193,7 +193,7 @@
   transform: none;
 }
 
-/* Share shortcut: clearly secondary to the five destinations. */
+/* Shortcuts live below the four primary destinations. */
 .panel3 .sidebar4-tools {
   flex: 0 0 auto;
   margin-top: 20px;
@@ -221,6 +221,26 @@
   transition: background .17s, border-color .17s;
 }
 .panel3 .sidebar4-share:hover { background: #fff; border-color: #bdd7c3; }
+.panel3 .sidebar4-tools { display: flex; flex-direction: column; gap: 8px; }
+.panel3 .sidebar4-settings {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 60px;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .74);
+  text-align: left;
+  color: #24563a;
+  transition: background .17s, box-shadow .17s;
+}
+.panel3 .sidebar4-settings:hover { background: #e7f3ea; }
+.panel3 .sidebar4-settings[aria-current='page'] {
+  background: #e2f2e7;
+  box-shadow: inset 3px 0 0 #18765d;
+}
+.panel3 .sidebar4-settings[aria-current='page'] .sidebar4-share-icon { background: #d0e8d7; }
 .panel3 .sidebar4-share-icon {
   display: grid;
   place-items: center;
@@ -310,7 +330,7 @@
   .panel3 .sidebar4 .panel3-nav-item { min-height: 44px; }
   .panel3 .sidebar4-nav-links { gap: 3px; }
   .panel3 .sidebar4-tools { margin-top: 13px; padding-top: 12px; }
-  .panel3 .sidebar4-share { min-height: 52px; }
+  .panel3 .sidebar4-share, .panel3 .sidebar4-settings { min-height: 52px; }
   .panel3 .sidebar4-account { padding: 10px; }
   .panel3 .sidebar4-account-action { margin-top: 8px; }
 }

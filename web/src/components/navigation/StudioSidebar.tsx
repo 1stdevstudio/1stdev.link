@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, ArrowUpRight, Send, Save, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Send, Save, Sparkles, Settings2 } from 'lucide-react';
 import type { AuthSession } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { WORKSPACE_NAV, type TabType } from './workspaceNav';
@@ -43,7 +43,7 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
       <nav className="workspace-nav sidebar4-nav" aria-label={tx('Menu utama', 'Main menu')}>
         <div className="sidebar4-nav-heading">
           <span>{tx('MENU UTAMA', 'MAIN MENU')}</span>
-          <span className="sidebar4-menu-count" aria-label={tx('Lima menu', 'Five menu items')}>05</span>
+          <span className="sidebar4-menu-count" aria-label={tx('Empat menu', 'Four menu items')}>04</span>
         </div>
         <div className="sidebar4-nav-links">
           {WORKSPACE_NAV.map((item) => (
@@ -67,6 +67,20 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
             <small>{tx('Kirim tautan profilmu', 'Send your profile link')}</small>
           </span>
           <ArrowUpRight className="sidebar4-share-arrow" size={17} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          data-nav-id="account"
+          className="sidebar4-settings"
+          aria-current={currentTab === 'account' ? 'page' : undefined}
+          onClick={() => onTabChange('account')}
+        >
+          <span className="sidebar4-share-icon"><Settings2 size={18} strokeWidth={1.9} aria-hidden="true" /></span>
+          <span className="sidebar4-share-copy">
+            <strong>{tx('Pengaturan', 'Settings')}</strong>
+            <small>{tx('Akun, privasi, dan keamanan', 'Account, privacy, and security')}</small>
+          </span>
+          <ArrowRight className="sidebar4-share-arrow" size={17} aria-hidden="true" />
         </button>
       </div>
 
