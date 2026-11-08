@@ -438,10 +438,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <ExternalLink size={16} strokeWidth={1.75} />
             <span>{tx('Buka', 'Open')}</span>
           </a>
-          <button type="button" className="btn btn-g btn-sm" onClick={onOpenEditProfile}>
-            <Pencil size={16} strokeWidth={1.75} />
-            <span>{tx('Ubah', 'Edit')}</span>
-          </button>
         </div>
 
         {isGuest && (
@@ -657,7 +653,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       )}
 
       {tab === 'design' && (
-        <section id="panel-design" role="tabpanel" aria-labelledby="tab-design" className="flex flex-col gap-6">
+        <section id="panel-design" role="tabpanel" aria-labelledby="tab-design" className="profile-settings-layout flex flex-col gap-4">
           <input
             ref={coverFileRef}
             type="file"
@@ -673,11 +669,107 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             onChange={handleBgSelect}
           />
 
-          <button type="button" className="block-add" onClick={onOpenEditProfile}>
-            <Pencil size={16} strokeWidth={1.75} />
-            <span>{tx('Ubah nama, foto, bio, dan handle', 'Edit name, photo, bio, and handle')}</span>
-          </button>
 
+          <div className="profile-design-intro">
+            <span className="profile-design-overline">{tx('PERSONALISASI HALAMAN', 'PAGE PERSONALIZATION')}</span>
+            <h2>{tx('Pengaturan Profil', 'Profile Settings')}</h2>
+            <p>{tx('Atur identitas, pilih tema, lalu sesuaikan gambar dan efek. Perubahan disimpan otomatis.', 'Edit your identity, choose a theme, then adjust images and effects. Changes save automatically.')}</p>
+            <nav className="profile-settings-jumps" aria-label={tx('Lompat ke pengaturan', 'Jump to settings')}>
+              {[
+                { target: 'profile-settings-identity', label: tx('Identitas', 'Identity') },
+                { target: 'profile-settings-theme', label: tx('Tema', 'Theme') },
+                { target: 'profile-settings-media', label: tx('Media', 'Media') },
+                { target: 'profile-settings-effects', label: tx('Efek', 'Effects') },
+              ].map((item) => (
+                <button key={item.target} type="button" onClick={() => document.getElementById(item.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>{item.label}</button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="profile-settings-card" id="profile-settings-identity">
+            <div className="profile-settings-card-heading">
+              <span className="profile-settings-number">01</span>
+              <div><h3>{tx('Identitas & foto profil', 'Identity & profile photo')}</h3><p>{tx('Nama, alamat profil, bio, dan bentuk foto.', 'Name, profile URL, bio, and photo shape.')}</p></div>
+            </div>
+            <button type="button" className="profile-settings-edit" onClick={onOpenEditProfile}>
+              <span className="profile-settings-edit-icon"><Pencil size={18} strokeWidth={1.8} aria-hidden="true" /></span>
+              <span className="profile-settings-edit-copy"><strong>{tx('Edit informasi profil', 'Edit profile information')}</strong><small>{tx('Ubah nama, foto, bio, dan handle', 'Change name, photo, bio, and handle')}</small></span>
+              <ArrowUp size={17} className="profile-settings-edit-arrow" aria-hidden="true" />
+            </button>
+          {/* Bentuk Foto Profil */}
+          <div className="flex flex-col gap-2.5">
+            <h3 className="sec-label">{tx('Bentuk foto profil', 'Profile photo shape')}</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {SHAPES.map((sh) => {
+                const active = (profile.avatar_shape || 'circle') === sh.id;
+                return (
+                  <button
+                    key={sh.id}
+                    type="button"
+                    className="shape-tile"
+                    aria-pressed={active}
+                    onClick={() => onUpdateAvatarShape(sh.id)}
+                  >
+                    <span className="shape-swatch" style={{ borderRadius: sh.radius }}>
+                      {profile.avatar_url ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" /> : null}
+                    </span>
+                    <span className="text-[13px] font-medium">{L(sh.label)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+
+          </div>
+
+          <div className="profile-settings-card" id="profile-settings-theme">
+            <div className="profile-settings-card-heading">
+              <span className="profile-settings-number">02</span>
+              <div><h3>{tx('Tema & warna', 'Theme & colors')}</h3><p>{tx('Pilih identitas visual untuk halaman publik.', 'Choose the visual style for your public page.')}</p></div>
+            </div>
+          {/* Preset Tema */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="sec-label">{tx('Tema', 'Theme')}</h3>
+              <span className="small muted">{tx('Tersimpan otomatis', 'Saved automatically')}</span>
+            </div>
+            <div className="theme-grid">
+              {THEMES.map((th) => {
+                const s = THEME_STYLES[th.id] || THEME_STYLES['1stnear'];
+                const active = currentTheme === th.id;
+                return (
+                  <button
+                    key={th.id}
+                    type="button"
+                    className="theme-tile"
+                    aria-pressed={active}
+                    onClick={() => onUpdateTheme(th.id)}
+                  >
+                    <span className="theme-phone" style={{ background: s.bg }}>
+                      <span className="theme-dot" style={{ background: s.featBg }} />
+                      <span className="theme-bar w-[55%]" style={{ background: s.text, opacity: 0.8 }} />
+                      <span className="theme-bar theme-btn" style={{ background: s.featBg }} />
+                      <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
+                      <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
+                    </span>
+                    <span className="flex items-center justify-between gap-1 px-0.5">
+                      <span className="text-[13px] font-medium text-[var(--tx)] truncate">{L(th.name)}</span>
+                      {active && <Check size={14} strokeWidth={2.5} className="text-[var(--ac)] shrink-0" />}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          </div>
+
+          <div className="profile-settings-card" id="profile-settings-media">
+            <div className="profile-settings-card-heading">
+              <span className="profile-settings-number">03</span>
+              <div><h3>{tx('Banner & latar halaman', 'Banner & page background')}</h3><p>{tx('Sesuaikan gambar cover dan wallpaper halaman.', 'Customize the cover image and page wallpaper.')}</p></div>
+            </div>
+            <div className="profile-settings-media">
           {/* Banner Cover Header */}
           <div className="flex flex-col gap-2.5">
             <div className="flex items-baseline justify-between gap-3">
@@ -697,7 +789,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             {coverUrl ? (
               <div className="relative rounded-[var(--r2)] overflow-hidden group h-28 bg-[var(--s1)]">
                 <img src={coverUrl} alt="Cover Preview" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"
                     disabled={uploadingCover}
@@ -725,6 +817,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               </button>
             )}
           </div>
+
 
           {/* Wallpaper Latar Belakang */}
           <div className="flex flex-col gap-2.5">
@@ -826,6 +919,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             )}
           </div>
 
+
+            </div>
+          </div>
+
+          <details className="profile-settings-card profile-settings-advanced" id="profile-settings-effects" defaultOpen={activeBgFx.length > 0}>
+            <summary className="profile-settings-card-heading">
+              <span className="profile-settings-number">04</span>
+              <span className="profile-settings-advanced-copy"><strong>{tx('Efek tambahan', 'Additional effects')}</strong><small>{tx('Aurora dan tekstur latar, opsional.', 'Optional aurora and background texture.')}</small></span>
+              <span className="profile-settings-expand">{tx('Atur efek', 'Configure')} <Sliders size={16} strokeWidth={1.7} aria-hidden="true" /></span>
+            </summary>
+            <div className="profile-settings-effects">
           {/* Efek Atmosfer */}
           <div className="flex flex-col gap-2.5">
             <h3 className="sec-label">{tx('Efek Atmosfer Latar', 'Background Atmosphere FX')}</h3>
@@ -868,64 +972,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
           </div>
 
-          {/* Bentuk Foto Profil */}
-          <div className="flex flex-col gap-2.5">
-            <h3 className="sec-label">{tx('Bentuk foto profil', 'Profile photo shape')}</h3>
-            <div className="grid grid-cols-3 gap-2">
-              {SHAPES.map((sh) => {
-                const active = (profile.avatar_shape || 'circle') === sh.id;
-                return (
-                  <button
-                    key={sh.id}
-                    type="button"
-                    className="shape-tile"
-                    aria-pressed={active}
-                    onClick={() => onUpdateAvatarShape(sh.id)}
-                  >
-                    <span className="shape-swatch" style={{ borderRadius: sh.radius }}>
-                      {profile.avatar_url ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" /> : null}
-                    </span>
-                    <span className="text-[13px] font-medium">{L(sh.label)}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
-          {/* Preset Tema */}
-          <div className="flex flex-col gap-2.5">
-            <div className="flex items-baseline justify-between gap-3">
-              <h3 className="sec-label">{tx('Tema', 'Theme')}</h3>
-              <span className="small muted">{tx('Tersimpan otomatis', 'Saved automatically')}</span>
             </div>
-            <div className="theme-grid">
-              {THEMES.map((th) => {
-                const s = THEME_STYLES[th.id] || THEME_STYLES['1stnear'];
-                const active = currentTheme === th.id;
-                return (
-                  <button
-                    key={th.id}
-                    type="button"
-                    className="theme-tile"
-                    aria-pressed={active}
-                    onClick={() => onUpdateTheme(th.id)}
-                  >
-                    <span className="theme-phone" style={{ background: s.bg }}>
-                      <span className="theme-dot" style={{ background: s.featBg }} />
-                      <span className="theme-bar w-[55%]" style={{ background: s.text, opacity: 0.8 }} />
-                      <span className="theme-bar theme-btn" style={{ background: s.featBg }} />
-                      <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
-                      <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
-                    </span>
-                    <span className="flex items-center justify-between gap-1 px-0.5">
-                      <span className="text-[13px] font-medium text-[var(--tx)] truncate">{L(th.name)}</span>
-                      {active && <Check size={14} strokeWidth={2.5} className="text-[var(--ac)] shrink-0" />}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          </details>
         </section>
       )}
 
