@@ -119,7 +119,28 @@ export const App: React.FC = () => {
     setActiveSheet('qr_studio');
   };
   const [addLinkDefaultBlock, setAddLinkDefaultBlock] = useState<BioBlockType>('link');
-  const [showLegal, setShowLegal] = useState<'terms' | 'privacy' | null>(null);
+  const readLegalParam = (): 'terms' | 'privacy' | null => {
+    const param = new URLSearchParams(window.location.search).get('legal');
+    return param === 'terms' || param === 'privacy' ? param : null;
+  };
+  const [showLegal, setShowLegal] = useState<'terms' | 'privacy' | null>(readLegalParam);
+  const openLegal = (tab: 'terms' | 'privacy') => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('legal', tab);
+    window.history.pushState(null, '', url);
+    setShowLegal(tab);
+  };
+  const closeLegal = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('legal');
+    window.history.replaceState(null, '', url);
+    setShowLegal(null);
+  };
+  useEffect(() => {
+    const handleBack = () => setShowLegal(readLegalParam());
+    window.addEventListener('popstate', handleBack);
+    return () => window.removeEventListener('popstate', handleBack);
+  }, []);
 
   // Toast Control
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -450,14 +471,14 @@ export const App: React.FC = () => {
           <LandingPage
             onStart={handleStartGuest}
             onOpenLogin={() => setActiveSheet('login')}
-            onOpenLegal={(tab) => setShowLegal(tab)}
+            onOpenLegal={openLegal}
             loading={startingGuest}
           />
         ) : (
           <Welcome
             onStart={handleStartGuest}
             onOpenLogin={() => setActiveSheet('login')}
-            onOpenLegal={(tab) => setShowLegal(tab)}
+            onOpenLegal={openLegal}
             loading={startingGuest}
           />
         )}
@@ -473,7 +494,7 @@ export const App: React.FC = () => {
         />
 
         {showLegal && (
-          <LegalModal initialTab={showLegal} onClose={() => setShowLegal(null)} />
+          <LegalModal initialTab={showLegal} onClose={closeLegal} />
         )}
 
         <Toast message={toastMessage} />
@@ -568,7 +589,7 @@ export const App: React.FC = () => {
             onOpenSaveAccount={() => setActiveSheet('save_account')}
             onOpenDeviceTransfer={() => setActiveSheet('device_transfer')}
             onGoToProfile={() => handleTabChange('profile')}
-            onOpenLegal={(tab) => setShowLegal(tab)}
+            onOpenLegal={openLegal}
             onLogout={handleLogout}
             onToast={showToast}
           />
@@ -666,7 +687,7 @@ export const App: React.FC = () => {
       />
 
       {showLegal && (
-        <LegalModal initialTab={showLegal} onClose={() => setShowLegal(null)} />
+        <LegalModal initialTab={showLegal} onClose={closeLegal} />
       )}
 
       {/* Floating Status Toast */}

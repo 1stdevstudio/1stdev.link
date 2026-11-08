@@ -209,9 +209,9 @@ export const Welcome: React.FC<WelcomeProps> = ({
 
         <footer className="start-footer">
           <span>© 2026 1stdev.link · by 1stdev.space</span>
-          <span>{tx('Dengan melanjutkan, kamu menyetujui', 'By continuing, you agree to the')}{' '}
+          <span>{tx('Penggunaan layanan mengikuti', 'Use of the service is subject to the')}{' '}
             <button type="button" onClick={() => onOpenLegal('terms')}>{tx('Ketentuan Layanan', 'Terms of Service')}</button>
-            {' '}{tx('dan', 'and')}{' '}
+            {' '}{tx('dan pelajari penggunaan data di', 'and you can learn about data use in')}{' '}
             <button type="button" onClick={() => onOpenLegal('privacy')}>{tx('Kebijakan Privasi', 'Privacy Policy')}</button>.
           </span>
         </footer>

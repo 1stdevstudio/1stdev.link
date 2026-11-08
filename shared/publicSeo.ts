@@ -162,6 +162,8 @@ export function renderSitemapXml(baseUrl: string, profiles: SitemapProfileRow[])
   const urls: string[] = [
     `  <url><loc>${xmlEscape(`${baseUrl}/`)}</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
     `  <url><loc>${xmlEscape(`${baseUrl}/docs`)}</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`,
+    `  <url><loc>${xmlEscape(`${baseUrl}/privacy`)}</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>`,
+    `  <url><loc>${xmlEscape(`${baseUrl}/terms`)}</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>`,
   ];
   for (const p of profiles) {
     if (!p.handle || DEFAULT_GUEST_HANDLE.test(p.handle)) continue;

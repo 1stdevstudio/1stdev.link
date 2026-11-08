@@ -10,6 +10,7 @@ import { readObject } from '../../shared/bio.js';
 import { renderBioPage } from './bio.js';
 import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, mediaPrefix, isValidMediaKey, cleanupMediaIfDue } from './media.js';
 import { renderDocsHtml } from './docs.js';
+import { renderLegalPage } from './legalPages.js';
 import { cachedPublicResponse, publicCacheControl, ASSET_CACHE, MEDIA_CACHE_POLICY, SEO_CACHE, SITEMAP_CACHE } from './publicCache.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
@@ -345,6 +346,19 @@ for (const path of STATIC_SEO_FILES) {
   app.get(path, async (c) => {
     return cachedPublicResponse(c.req.raw, SEO_CACHE,
       () => fetchPublicFile(path, c.req.raw), (task) => safeWaitUntil(c, task));
+  });
+}
+
+// Public, server-rendered legal documents readable without client-side JavaScript.
+for (const document of ['privacy', 'terms'] as const) {
+  app.get('/' + document, (c) => {
+    const languageParam = c.req.query('lang');
+    const lang = languageParam === 'en' ? 'en' : languageParam === 'id' ? 'id' :
+      (c.req.header('accept-language') || '').toLowerCase().startsWith('en') ? 'en' : 'id';
+    return c.html(renderLegalPage(document, lang, c.env.BASE_URL || 'https://1stdev.link'), 200, {
+      'Cache-Control': 'public, max-age=300',
+      'Vary': 'Accept-Language',
+    });
   });
 }
 
