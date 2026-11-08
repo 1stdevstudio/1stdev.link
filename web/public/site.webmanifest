@@ -1,15 +1,15 @@
 {
-  "name": "1stdev.link by 1stdev.space",
+  "name": "1stdev.link",
   "short_name": "1stdev.link",
   "description": "Link bio dan link pendek gratis 100%, tanpa iklan, tanpa daftar.",
   "lang": "id",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0e1f1b",
-  "theme_color": "#0e1f1b",
+  "background_color": "#F7F9F7",
+  "theme_color": "#18765D",
   "icons": [
-    { "src": "https://edgelink-afl.pages.dev/brand/one-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "https://edgelink-afl.pages.dev/brand/one-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }

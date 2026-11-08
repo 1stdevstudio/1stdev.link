@@ -63,11 +63,19 @@ export function renderLegalPage(kind: LegalKind, lang: Lang, baseUrl: string): s
 <link rel="alternate" hreflang="en" href="${escapeHtml(url)}?lang=en">
 <link rel="alternate" hreflang="x-default" href="${escapeHtml(url)}">
 <meta property="og:type" content="article">
+<meta property="og:site_name" content="1stdev.link">
 <meta property="og:url" content="${escapeHtml(canonical)}">
 <meta property="og:title" content="${escapeHtml(label)} — 1stdev.link">
 <meta property="og:description" content="${escapeHtml(description)}">
-<meta property="og:image" content="${escapeHtml(base)}/og.png">
+<meta property="og:image" content="${escapeHtml(base)}/og.png?v=20261109">
+<meta property="og:image:secure_url" content="${escapeHtml(base)}/og.png?v=20261109">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="1stdev.link — Satu link untuk semua yang kamu bagikan">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(label)} — 1stdev.link">
+<meta name="twitter:description" content="${escapeHtml(description)}">
+<meta name="twitter:image" content="${escapeHtml(base)}/og.png?v=20261109">
 <script type="application/ld+json">${safeJsonLd(schema)}</script>
 <style>${LEGAL_PAGE_CSS}</style>
 </head>
