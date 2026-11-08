@@ -201,6 +201,57 @@ export const Welcome: React.FC<WelcomeProps> = ({
             </div>
           </section>
 
+          {/* Product education is visible to visitors and rendered by React, matching the HTML fallback. */}
+          <section className="start-seo-guide" id="panduan" aria-labelledby="start-seo-guide-title">
+            <div className="start-seo-intro">
+              <p className="start-step-label">{tx('KENALI FITURNYA / 02', 'EXPLORE THE TOOLS / 02')}</p>
+              <h2 id="start-seo-guide-title">
+                {tx('Satu halaman untuk berkarya dan menjalankan usaha.', 'One page for your work and business.')}
+              </h2>
+              <p>
+                {tx(
+                  '1stdev.link membantu kreator, penjual, dan UMKM membagikan tautan, katalog, dan informasi usaha dari satu alamat. Mulai gratis tanpa kartu kredit atau proses pendaftaran panjang.',
+                  '1stdev.link helps creators and small businesses share links, catalogs, and business details from one address. Start for free without a credit card or lengthy sign-up.'
+                )}
+              </p>
+            </div>
+            <div className="start-seo-grid">
+              <article>
+                <h3>{tx('Link bio gratis untuk Instagram dan TikTok', 'Free link in bio for Instagram and TikTok')}</h3>
+                <p>{tx(
+                  'Buat profil publik untuk mengumpulkan portofolio, tautan toko, video, media sosial, dan kontak WhatsApp. Bagikan satu alamat 1stdev.link/@nama di bio atau kartu nama agar orang mudah menemukan semuanya.',
+                  'Create a public profile for your portfolio, shop links, videos, social accounts, and WhatsApp contact. Share one 1stdev.link/@name address in your bio or business card.'
+                )}</p>
+              </article>
+              <article>
+                <h3>{tx('Link pendek gratis dengan statistik klik', 'Free short links with click statistics')}</h3>
+                <p>{tx(
+                  'Ringkas URL panjang menjadi tautan yang mudah dibagikan. Lihat jumlah klik menurut hari dan negara melalui dashboard, tanpa perlu membuat halaman profil terlebih dahulu.',
+                  'Turn long URLs into easy-to-share short links. See daily and country-level aggregate clicks in the dashboard, even without creating a profile first.'
+                )}</p>
+              </article>
+              <article>
+                <h3>{tx('Katalog online sederhana untuk UMKM', 'A simple online catalog for small businesses')}</h3>
+                <p>{tx(
+                  'Tampilkan produk atau jasa, informasi harga, jam buka, lokasi, dan kontak dalam Mode Usaha. Pengunjung bisa melihat penawaran dan melanjutkan percakapan lewat WhatsApp, tanpa memasang toko online yang rumit.',
+                  'Show products or services, pricing, business hours, location, and contact details in Business Mode. Visitors can explore and contact you through WhatsApp without a complex storefront.'
+                )}</p>
+              </article>
+              <article>
+                <h3>{tx('QR Code dan halaman siap dibagikan', 'QR codes and shareable pages')}</h3>
+                <p>{tx(
+                  'Buat QR Code untuk mengarahkan pelanggan ke profil atau tautan penting. Sesuaikan tampilannya, lalu gunakan di kemasan, poster, meja usaha, atau materi promosi.',
+                  'Create QR codes that direct customers to your profile or important links. Customize the design and use it on packaging, posters, counters, or promotional material.'
+                )}</p>
+              </article>
+            </div>
+            <div className="start-seo-links" aria-label={tx('Informasi tambahan', 'More information')}>
+              <a href="/docs">{tx('Dokumentasi API', 'API documentation')}</a>
+              <a href="/privacy">{tx('Kebijakan Privasi', 'Privacy Policy')}</a>
+              <a href="/terms">{tx('Ketentuan Layanan', 'Terms of Service')}</a>
+            </div>
+          </section>
+
           <div className="start-returning">
             {tx('Sudah punya halaman?', 'Already have a page?')}{' '}
             <button type="button" onClick={onOpenLogin}>{tx('Masuk ke akun', 'Log in to your account')} <ArrowUpRight size={15} aria-hidden="true"/></button>

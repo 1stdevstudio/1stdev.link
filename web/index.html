@@ -118,14 +118,12 @@
     </script>
   </head>
   <body class="antialiased selection:bg-[#d7f1e3] selection:text-[#17362d]" style="background-color: #f7f9f7;">
-    <!-- React Root Mount -->
-    <div id="root"></div>
-
     <!--
-      Konten statis untuk crawler / browser tanpa JavaScript (mesin jawab AI, pratinjau link).
-      Diletakkan di dalam <noscript> agar browser pengguna normal tidak me-render layar ini sebelum React termuat.
+      Progressive enhancement: meaningful landing copy in the HTML response.
+      React replaces this subtree with the interactive app on boot.
+      Crawlers and browsers without JavaScript see real product information.
     -->
-    <noscript>
+    <div id="root" data-seo-fallback="landing">
       <main>
         <section class="min-h-screen flex items-center justify-center p-6 sm:p-8">
           <div class="w-full max-w-[440px] flex flex-col gap-6">
@@ -194,7 +192,7 @@
           <p class="text-[13px]">1stdev.link dibuat oleh <a class="text-[var(--ac)]" href="https://1stdev.space">1stdev.space</a>. <a class="text-[var(--ac)]" href="/llms.txt">Ringkasan untuk AI</a>.</p>
         </section>
       </main>
-    </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
