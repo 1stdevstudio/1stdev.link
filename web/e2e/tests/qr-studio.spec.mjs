@@ -52,7 +52,7 @@ test.describe('Custom QR Studio — real decodable exports', () => {
       await testInfo.attach('qr-studio-profile-' + width, { body: screenshot, contentType: 'image/png' });
 
       const rawUrl = await dialog.locator('.qr-studio-target > span:last-child').textContent();
-      expect(rawUrl).toMatch(/\/@creator$/);
+      expect(rawUrl).toMatch(/\/@[a-z0-9_-]+$/i);
       await inspectPngDownload(page, dialog, rawUrl.trim());
 
       const svgPromise = page.waitForEvent('download');

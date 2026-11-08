@@ -83,13 +83,17 @@ export function renderQrSvg(payload: string, design: QrDesign, pixelWidth = 512)
     (x < 7 && y < 7) || (x >= size - 7 && y < 7) || (x < 7 && y >= size - 7);
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
-      if (!code.modules.get(x, y) || finder(x, y)) continue;
+      // BitMatrix.get expects (row, column), i.e. (y, x), not (x, y).
+      if (!code.modules.get(y, x) || finder(x, y)) continue;
       const px = x + margin;
       const py = y + margin;
-      if (design.dots === 'dots') {
-        parts.push('<circle cx="' + (px + 0.5) + '" cy="' + (py + 0.5) + '" r="0.44" fill="' + design.foreground + '"/>');
+      // Functional modules (alignment, timing, format) must retain square geometry.
+      // Styling these as dots can prevent scanners from detecting the QR matrix.
+      const functional = !!code.modules.isReserved(y, x);
+      if (!functional && design.dots === 'dots') {
+        parts.push('<circle cx="' + (px + 0.5) + '" cy="' + (py + 0.5) + '" r="0.49" fill="' + design.foreground + '"/>');
       } else {
-        const radius = design.dots === 'rounded' ? '0.24' : '0';
+        const radius = functional ? '0' : design.dots === 'rounded' ? '0.24' : '0';
         parts.push('<rect x="' + px + '" y="' + py + '" width="1" height="1" rx="' + radius + '" fill="' + design.foreground + '"/>');
       }
     }
