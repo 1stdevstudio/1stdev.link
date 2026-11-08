@@ -8,7 +8,6 @@ import {
   ChevronRight,
   Copy,
   Check,
-  Gift,
   Languages,
   Code2,
 } from 'lucide-react';
@@ -73,7 +72,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
   onLogout,
   onToast,
 }) => {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
   const s = TX[lang === 'en' ? 'en' : 'id'];
   const [copiedKey, setCopiedKey] = useState(false);
   const confirm = useConfirm();
@@ -125,13 +124,6 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
             )}
           </div>
 
-          <div className="card free-card">
-            <Gift size={20} strokeWidth={1.75} className="shrink-0 text-[var(--ok)] mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-[14px] font-semibold">{t('heroFreeHeadline')}</p>
-              <p className="small muted">{t('heroFreeSub')}</p>
-            </div>
-          </div>
         </aside>
 
         <div className="flex flex-col gap-4 min-w-0">
