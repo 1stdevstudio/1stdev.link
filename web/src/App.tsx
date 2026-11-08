@@ -588,7 +588,11 @@ export const App: React.FC = () => {
             session={session}
             onOpenSaveAccount={() => setActiveSheet('save_account')}
             onOpenDeviceTransfer={() => setActiveSheet('device_transfer')}
-            onGoToProfile={() => handleTabChange('profile')}
+            onGoToProfile={() => {
+              localStorage.setItem('edgelink_profile_tab', 'design');
+              handleTabChange('profile');
+            }}
+            onOpenEditProfile={() => setActiveSheet('edit_profile')}
             onOpenLegal={openLegal}
             onLogout={handleLogout}
             onToast={showToast}

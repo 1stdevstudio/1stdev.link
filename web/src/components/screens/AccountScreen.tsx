@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   Smartphone,
   Palette,
+  UserRound,
   ShieldCheck,
   LogOut,
   ChevronRight,
@@ -19,21 +20,21 @@ const TX = {
   id: {
     title: 'Akun', unsaved: 'Belum disimpan', saved: 'Tersimpan', save: 'Simpan akun',
     unsavedD: 'Simpan dengan email agar profil dan link tidak hilang saat ganti HP.', guest: 'Tamu',
-    done: 'Kelengkapan profil', secDev: 'Perangkat & keamanan', secPref: 'Preferensi', secMore: 'Lainnya',
-    move: 'Pindah perangkat', moveD: 'Scan QR atau pakai kode', lang: 'Bahasa', design: 'Desain halaman',
-    designD: 'Foto, tema, dan efek', dev: 'Developer', devD: 'API key dan dokumentasi', langD: 'Ikut pengaturan perangkat', key: 'API key', copy: 'Salin', copied: 'Disalin',
+    done: 'Kelengkapan profil', secProfile: 'Profil & halaman', secDev: 'Perangkat & keamanan', secPref: 'Preferensi', secMore: 'Lainnya',
+    editProfile: 'Informasi profil', editProfileD: 'Nama, foto, bio, dan alamat profil', move: 'Pindah perangkat', moveD: 'Scan QR atau pakai kode', lang: 'Bahasa', design: 'Tampilan halaman',
+    designD: 'Tema, foto profil, cover, dan latar', dev: 'Developer', devD: 'API key dan dokumentasi', langD: 'Ikut pengaturan perangkat', key: 'API key', copy: 'Salin', copied: 'Disalin',
     keyCopied: 'API key disalin', keyHint: 'Kirim di header Authorization: Bearer <key>.',
-    legal: 'Ketentuan & Privasi', legalD: 'Tanpa pelacak, data milikmu', out: 'Keluar',
+    legal: 'Ketentuan & Privasi', legalD: 'Pelajari pengelolaan dan hak data', out: 'Keluar',
     outD: 'Ganti akun atau mulai baru', outT: 'Keluar dari sesi ini?', outQ: 'Simpan akun dulu agar profil dan link tidak hilang.',
   },
   en: {
     title: 'Account', unsaved: 'Not saved', saved: 'Saved', save: 'Save account',
     unsavedD: 'Save with your email so your profile and links survive a phone change.', guest: 'Guest',
-    done: 'Profile completeness', secDev: 'Devices & security', secPref: 'Preferences', secMore: 'More',
-    move: 'Move to another device', moveD: 'Scan a QR or use a code', lang: 'Language', design: 'Page design',
-    designD: 'Photos, theme and effects', dev: 'Developer', devD: 'API key and docs', langD: 'Follows your device settings', key: 'API key', copy: 'Copy', copied: 'Copied',
+    done: 'Profile completeness', secProfile: 'Profile & page', secDev: 'Devices & security', secPref: 'Preferences', secMore: 'More',
+    editProfile: 'Profile information', editProfileD: 'Name, photo, bio, and profile URL', move: 'Move to another device', moveD: 'Scan a QR or use a code', lang: 'Language', design: 'Page appearance',
+    designD: 'Theme, profile photo, cover, and background', dev: 'Developer', devD: 'API key and docs', langD: 'Follows your device settings', key: 'API key', copy: 'Copy', copied: 'Copied',
     keyCopied: 'API key copied', keyHint: 'Send it in the Authorization: Bearer <key> header.',
-    legal: 'Terms & Privacy', legalD: 'No trackers, your data stays yours', out: 'Log out',
+    legal: 'Terms & Privacy', legalD: 'Learn about data use and your rights', out: 'Log out',
     outD: 'Switch account or start over', outT: 'Log out of this session?', outQ: 'Save your account first so your profile and links are not lost.',
   },
 };
@@ -56,6 +57,7 @@ interface AccountScreenProps {
   onOpenSaveAccount: () => void;
   onOpenDeviceTransfer: () => void;
   onGoToProfile: () => void;
+  onOpenEditProfile: () => void;
   onOpenLegal: (tab: 'terms' | 'privacy') => void;
   onLogout: () => void;
   onToast: (msg: string) => void;
@@ -66,6 +68,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
   onOpenSaveAccount,
   onOpenDeviceTransfer,
   onGoToProfile,
+  onOpenEditProfile,
   onOpenLegal,
   onLogout,
   onToast,
@@ -132,12 +135,18 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
         </aside>
 
         <div className="flex flex-col gap-4 min-w-0">
-          <section className="flex flex-col gap-1">
+          <section className="settings-group flex flex-col gap-1">
+            <h3 className="sec-label">{s.secProfile}</h3>
+            <Row icon={<UserRound size={18} strokeWidth={1.75} />} title={s.editProfile} desc={s.editProfileD} onClick={onOpenEditProfile} />
+            <Row icon={<Palette size={18} strokeWidth={1.75} />} title={s.design} desc={s.designD} onClick={onGoToProfile} />
+          </section>
+
+          <section className="settings-group flex flex-col gap-1">
             <h3 className="sec-label">{s.secDev}</h3>
             <Row icon={<Smartphone size={18} strokeWidth={1.75} />} title={s.move} desc={s.moveD} onClick={onOpenDeviceTransfer} />
           </section>
 
-          <section className="flex flex-col gap-1">
+          <section className="settings-group flex flex-col gap-1">
             <h3 className="sec-label">{s.secPref}</h3>
             <div className="menu-item cursor-default">
               {iconBox(<Languages size={18} strokeWidth={1.75} />)}
@@ -148,10 +157,9 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
               {/* Bahasa otomatis mengikuti pengaturan perangkat. */}
               <span className="text-[13px] font-semibold text-[var(--tx)] shrink-0">{lang === 'en' ? 'English' : 'Indonesia'}</span>
             </div>
-            <Row icon={<Palette size={18} strokeWidth={1.75} />} title={s.design} desc={s.designD} onClick={onGoToProfile} />
           </section>
 
-          <section className="flex flex-col gap-1">
+          <section className="settings-group flex flex-col gap-1">
             <h3 className="sec-label">{s.secMore}</h3>
             <details className="adv acct-dev">
               <summary className="menu-item">
@@ -188,7 +196,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = ({
             <Row icon={<ShieldCheck size={18} strokeWidth={1.75} />} title={s.legal} desc={s.legalD} onClick={() => onOpenLegal('terms')} />
           </section>
 
-          <Row danger icon={<LogOut size={18} strokeWidth={1.75} />} title={s.out} desc={s.outD} onClick={async () => { if (await confirm({ title: s.outT, message: s.outQ, confirmLabel: s.out, danger: true })) onLogout(); }} />
+          <div className="settings-signout"><Row danger icon={<LogOut size={18} strokeWidth={1.75} />} title={s.out} desc={s.outD} onClick={async () => { if (await confirm({ title: s.outT, message: s.outQ, confirmLabel: s.out, danger: true })) onLogout(); }} /></div>
         </div>
       </div>
     </div>
