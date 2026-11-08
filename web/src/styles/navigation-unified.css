@@ -1,0 +1,132 @@
+/* Navigation 3.1 — one workspace menu on every screen, one public header. */
+
+/* The create action is available everywhere without taking a navigation slot. */
+.panel3 .panel3-create-wrap { display: block; position: relative; }
+.panel3 .panel3-create-wrap > .btn-p {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  white-space: nowrap;
+}
+.panel3 .panel3-dock {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.panel3 .panel3-dock .dock-btn {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 2px;
+  gap: 3px;
+}
+.panel3 .panel3-dock .dock-btn span {
+  display: block;
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -.015em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.panel3 .panel3-dock .dock-btn[aria-current='page'] {
+  background: #e8f5eb;
+  color: #175c44;
+}
+.panel3 .panel3-create-wrap .create-menu {
+  width: 280px;
+  max-width: calc(100vw - 24px);
+  border: 1px solid #d7e7dc;
+  border-radius: 15px;
+  background: #fff;
+  color: #17362d;
+  box-shadow: 0 18px 48px rgba(18, 60, 39, .18);
+}
+.panel3 .panel3-create-wrap .create-item {
+  background: transparent;
+  color: #17362d;
+  border-radius: 11px;
+}
+.panel3 .panel3-create-wrap .create-item:hover,
+.panel3 .panel3-create-wrap .create-item:focus-visible { background: #eff7f1; }
+.panel3 .panel3-create-wrap .create-ic {
+  background: #e6f4e9;
+  color: #18765d;
+}
+
+@media (max-width: 1023px) {
+  .panel3 .panel3-create-wrap > .btn-p { min-height: 40px; }
+  .panel3 .panel3-create-wrap .create-top {
+    position: fixed;
+    z-index: 60;
+    left: auto;
+    right: max(12px, env(safe-area-inset-right));
+    top: calc(70px + env(safe-area-inset-top));
+    width: min(290px, calc(100vw - 24px));
+    transform: none;
+  }
+}
+@media (max-width: 639px) {
+  .panel3 .panel3-create-wrap > .btn-p {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    gap: 0;
+    font-size: 0;
+    border-radius: 10px;
+  }
+  .panel3 .panel3-create-wrap > .btn-p svg { width: 19px; height: 19px; }
+  .panel3 .panel3-dock .dock-btn span { font-size: 9.5px; padding: 0; }
+  .panel3 .panel3-dock .dock-btn { min-height: 55px; }
+  .panel3 .panel3-create-wrap .create-top { top: calc(65px + env(safe-area-inset-top)); }
+}
+@media (max-width: 360px) {
+  .panel3 .panel3-dock .dock-btn span { font-size: 9px; }
+  .panel3 .panel3-top-actions { gap: 4px; }
+}
+
+/* Shared public navigation also applies to the legacy marketing preview route. */
+.portfolio-landing .start-marketing-header { position: relative; }
+.portfolio-landing .site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 80px;
+  border-bottom: 1px solid #e3ece5;
+}
+.portfolio-landing .site-header .start-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #17362d;
+}
+.portfolio-landing .site-header .start-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(15px, 2.2vw, 36px);
+}
+.portfolio-landing .site-header .start-nav > a {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: #425d4d;
+}
+.portfolio-landing .site-header .start-nav > a:hover { color: #18765d; }
+.portfolio-landing .site-header .start-login {
+  min-height: 44px;
+  padding: 0 17px;
+  border: 1px solid #cfded2;
+  border-radius: 13px;
+  background: #fff;
+  color: #17362d;
+  font-weight: 700;
+}
+.portfolio-landing .site-header .start-login:hover { background: #eff7f1; }
+@media (max-width: 640px) {
+  .portfolio-landing .site-header { min-height: 70px; }
+  .portfolio-landing .site-header .start-nav { gap: 0; }
+  .portfolio-landing .site-header .start-nav > a { display: none; }
+  .portfolio-landing .site-header .start-login { min-height: 42px; padding: 0 13px; }
+}

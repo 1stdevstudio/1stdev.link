@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart3, CheckCircle2, LayoutDashboard, Link2, ArrowUpRight } from 'lucide-react';
 import './portfolio-landing.css';
+import { SiteHeader } from './navigation/SiteHeader';
 
 interface LandingPageProps {
   onStart: (goal: 'profile' | 'links') => void;
@@ -16,29 +17,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
   return (
     <div className="portfolio-landing">
-      {/* 01. HEADER */}
-      <header className="header wrap">
-        <a href="/" className="logo" aria-label="1stdev.link">
-          <span className="brand-name">
-            1stdev<span className="domain-suffix">.link</span>
-          </span>
-          <span className="brand-spark" aria-hidden="true">✳</span>
-        </a>
-
-        <nav aria-label="Navigasi utama">
-          <a href="#fitur">Fitur</a>
-          <a href="#cara-kerja">Cara Kerja</a>
-          <a href="/docs" target="_blank" rel="noopener noreferrer">API</a>
-          <button
-            type="button"
-            className="nav-contact"
-            onClick={onOpenLogin}
-          >
-            <span>Masuk</span>
-            <span aria-hidden="true">↗</span>
-          </button>
-        </nav>
-      </header>
+      {/* Shared header: identical navigation to the canonical welcome page. */}
+      <div className="start-marketing-header wrap">
+        <SiteHeader onOpenLogin={onOpenLogin} />
+      </div>
 
       {/* 02. HERO SECTION */}
       <main id="main">
