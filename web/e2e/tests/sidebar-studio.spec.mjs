@@ -32,9 +32,24 @@ test.describe('Studio sidebar redesign', () => {
       await expect(sidebar.locator('.sidebar4-brand')).toContainText('Semua dalam satu tempat.');
       await expect(sidebar.locator('.sidebar4-nav-heading')).toContainText('MENU UTAMA');
       await expect(sidebar.locator('.sidebar4-nav-links > button[data-nav-id]')).toHaveCount(4);
+      const shortcuts = sidebar.locator('.sidebar4-shortcuts-list');
+      await expect(shortcuts).toBeVisible();
+      await expect(shortcuts.locator(':scope > button')).toHaveCount(3);
       await expect(sidebar.locator('.sidebar4-settings')).toBeVisible();
       await expect(sidebar.locator('.sidebar4-share')).toBeVisible();
-      await expect(sidebar.locator('.sidebar4-account')).toBeVisible();
+      await expect(sidebar.locator('.sidebar4-account-entry')).toBeVisible();
+      const groupedPanel = await shortcuts.evaluate(el => ({
+        radius: getComputedStyle(el).borderRadius,
+        border: getComputedStyle(el).borderTopStyle,
+        rows: [...el.children].map(row => ({
+          tag: row.tagName,
+          isButton: row.tagName === 'BUTTON',
+          pointerEvents: getComputedStyle(row).pointerEvents,
+          cursor: getComputedStyle(row).cursor,
+        })),
+      }));
+      expect(groupedPanel.border).toBe('solid');
+      expect(groupedPanel.rows.every(row => row.isButton && row.pointerEvents !== 'none' && row.cursor === 'pointer')).toBe(true);
 
       const colors = await sidebar.evaluate((el) => ({
         background: getComputedStyle(el).backgroundColor,
@@ -71,10 +86,34 @@ test.describe('Studio sidebar redesign', () => {
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog')).toHaveCount(0);
 
-      await sidebar.getByRole('button', { name: 'Simpan akun' }).click();
+      await sidebar.locator('.sidebar4-account-entry').click();
       await expect(page.getByRole('dialog')).toBeVisible();
     });
   }
+
+  test('all three shortcut rows are functional with mouse and keyboard', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await openWorkspace(page);
+    const sidebar = page.locator('.sidebar4');
+    const shortcuts = sidebar.locator('.sidebar4-shortcuts-list');
+    await expect(shortcuts.locator(':scope > button')).toHaveCount(3);
+
+    await sidebar.locator('.sidebar4-share').click({ position: { x: 26, y: 24 } });
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    const settings = shortcuts.locator('.sidebar4-settings');
+    await settings.focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#account$/);
+    await expect(page.locator('.panel3-account')).toBeVisible();
+
+    const guestAccount = shortcuts.locator('.sidebar4-account-entry');
+    await guestAccount.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog')).toBeVisible();
+  });
 
   test('mobile keeps four-item dock and header settings', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
