@@ -58,54 +58,47 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         </div>
       </nav>
 
-      <div className="sidebar4-tools">
-        <div className="sidebar4-tools-heading">{tx('PINTASAN', 'SHORTCUT')}</div>
-        <button type="button" className="sidebar4-share" onClick={onOpenShare}>
-          <span className="sidebar4-share-icon"><Send size={17} strokeWidth={1.9} aria-hidden="true" /></span>
-          <span className="sidebar4-share-copy">
-            <strong>{tx('Bagikan halaman', 'Share your page')}</strong>
-            <small>{tx('Kirim tautan profilmu', 'Send your profile link')}</small>
-          </span>
-          <ArrowUpRight className="sidebar4-share-arrow" size={17} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          data-nav-id="account"
-          className="sidebar4-settings"
-          aria-current={currentTab === 'account' ? 'page' : undefined}
-          onClick={() => onTabChange('account')}
-        >
-          <span className="sidebar4-share-icon"><Settings2 size={18} strokeWidth={1.9} aria-hidden="true" /></span>
-          <span className="sidebar4-share-copy">
-            <strong>{tx('Pengaturan', 'Settings')}</strong>
-            <small>{tx('Akun, privasi, dan keamanan', 'Account, privacy, and security')}</small>
-          </span>
-          <ArrowRight className="sidebar4-share-arrow" size={17} aria-hidden="true" />
-        </button>
-      </div>
-
-      <div className="sidebar4-account">
-        <div className="sidebar4-account-main">
-          <span className="sidebar4-account-avatar" aria-hidden="true">{initial}</span>
-          <span className="sidebar4-account-copy">
-            <strong title={displayName}>{displayName}</strong>
-            <small>{session.is_guest ? tx('Sesi sementara', 'Temporary session') : tx('Akun tersimpan', 'Saved account')}</small>
-          </span>
-          <span className={'sidebar4-account-indicator' + (session.is_guest ? ' is-guest' : '')} title={session.is_guest ? tx('Sesi tamu', 'Guest session') : tx('Akun tersimpan', 'Saved account')} aria-hidden="true" />
-        </div>
-        {session.is_guest ? (
-          <button type="button" className="sidebar4-account-action" onClick={onOpenSaveAccount}>
-            <Save size={15} aria-hidden="true" />
-            {tx('Simpan akun', 'Save account')}
-            <ArrowRight size={15} aria-hidden="true" />
+      <section className="sidebar4-shortcuts" aria-label={tx('Pintasan dan akun', 'Shortcuts and account')}>
+        <div className="sidebar4-tools-heading">{tx('PINTASAN', 'SHORTCUTS')}</div>
+        <nav className="sidebar4-shortcuts-list" aria-label={tx('Aksi cepat', 'Quick actions')}>
+          <button type="button" className="sidebar4-share" onClick={onOpenShare}>
+            <span className="sidebar4-share-icon"><Send size={19} strokeWidth={1.9} aria-hidden="true" /></span>
+            <span className="sidebar4-share-copy">
+              <strong>{tx('Bagikan halaman', 'Share your page')}</strong>
+              <small>{tx('Kirim tautan profilmu', 'Send your profile link')}</small>
+            </span>
+            <ArrowUpRight className="sidebar4-share-arrow" size={18} aria-hidden="true" />
           </button>
-        ) : (
-          <button type="button" className="sidebar4-account-action" onClick={() => onTabChange('account')}>
-            {tx('Kelola akun', 'Manage account')}
-            <ArrowRight size={15} aria-hidden="true" />
+          <button
+            type="button"
+            data-nav-id="account"
+            className="sidebar4-settings"
+            aria-current={currentTab === 'account' ? 'page' : undefined}
+            onClick={() => onTabChange('account')}
+          >
+            <span className="sidebar4-share-icon"><Settings2 size={19} strokeWidth={1.9} aria-hidden="true" /></span>
+            <span className="sidebar4-share-copy">
+              <strong>{tx('Pengaturan', 'Settings')}</strong>
+              <small>{tx('Akun, privasi, dan keamanan', 'Account, privacy, and security')}</small>
+            </span>
+            <ArrowRight className="sidebar4-share-arrow" size={18} aria-hidden="true" />
           </button>
-        )}
-      </div>
+          <button
+            type="button"
+            className="sidebar4-account-entry"
+            onClick={session.is_guest ? onOpenSaveAccount : () => onTabChange('account')}
+            aria-label={session.is_guest ? tx('Simpan akun', 'Save account') : tx('Kelola akun', 'Manage account')}
+          >
+            <span className="sidebar4-account-avatar" aria-hidden="true">{initial}</span>
+            <span className="sidebar4-account-copy">
+              <strong title={displayName}>{displayName}</strong>
+              <small>{session.is_guest ? tx('Sesi sementara · Simpan akun', 'Temporary session · Save account') : tx('Akun tersimpan · Kelola akun', 'Saved account · Manage account')}</small>
+            </span>
+            <span className={'sidebar4-account-indicator' + (session.is_guest ? ' is-guest' : '')} title={session.is_guest ? tx('Sesi tamu', 'Guest session') : tx('Akun tersimpan', 'Saved account')} aria-hidden="true" />
+            {session.is_guest ? <Save size={17} className="sidebar4-account-next" aria-hidden="true" /> : <ArrowRight size={17} className="sidebar4-account-next" aria-hidden="true" />}
+          </button>
+        </nav>
+      </section>
     </aside>
   );
 };
