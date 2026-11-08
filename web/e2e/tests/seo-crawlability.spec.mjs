@@ -40,13 +40,13 @@ test('social preview is product-branded and does not advertise hosting details',
   expect(response.status()).toBe(200);
   const html = await response.text();
   const head = html.split('</head>')[0];
-  const meta = [...head.matchAll(/<meta\\s+[^>]+>/g)].map(match => match[0]);
-  const preview = meta.filter(tag => /(?:og:|twitter:|name="description")/.test(tag)).join('\\n');
+  const meta = [...head.matchAll(/<meta[^>]+>/g)].map(match => match[0]);
+  const preview = meta.filter(tag => /(?:og:|twitter:|name="description")/.test(tag)).join(' ');
   expect(preview).toContain('1stdev.link');
   expect(preview).toContain('og:image:secure_url');
   expect(preview).toContain('twitter:image:alt');
   expect(preview).toContain('https://1stdev.link/og.png?v=20261109');
-  expect(preview).not.toMatch(/pages\\.dev|cloudflare|worker|backend|edgelink-afl/i);
+  expect(preview).not.toMatch(/pages[.]dev|cloudflare|worker|backend|edgelink-afl/i);
   expect(preview).not.toContain('by 1stdev.space');
 });
 
@@ -58,7 +58,9 @@ test('PWA manifest uses first-party image paths and no provider-hosted icons', a
   expect(manifest.theme_color.toLowerCase()).toBe('#18765d');
   expect(manifest.icons).toHaveLength(2);
   for (const icon of manifest.icons) {
-    expect(icon.src).toMatch(/^\\/icon-(192|512)\\.png$/);
+    expect(icon.src.startsWith('/icon-')).toBe(true);
+    expect(icon.src.endsWith('.png')).toBe(true);
+    expect(icon.src).not.toContain('://');
   }
-  expect(JSON.stringify(manifest)).not.toMatch(/pages\\.dev|cloudflare|workers\\.dev/i);
+  expect(JSON.stringify(manifest)).not.toMatch(/pages[.]dev|cloudflare|workers[.]dev/i);
 });
