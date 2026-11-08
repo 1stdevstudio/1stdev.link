@@ -1,9 +1,10 @@
 import React from 'react';
-import { ArrowRight, ArrowUpRight, Link2, Send, Save, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Send, Save, Sparkles } from 'lucide-react';
 import type { AuthSession } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { WORKSPACE_NAV, type TabType } from './workspaceNav';
 import { WorkspaceNavButton } from './WorkspaceNavButton';
+import { BrandMark } from '../brand/BrandMark';
 
 interface StudioSidebarProps {
   session: AuthSession;
@@ -31,7 +32,7 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
         <span className="sidebar4-orbit sidebar4-orbit-first" aria-hidden="true" />
         <span className="sidebar4-orbit sidebar4-orbit-second" aria-hidden="true" />
         <div className="sidebar4-brand-top">
-          <span className="sidebar4-brand-mark"><Link2 size={18} strokeWidth={2.2} aria-hidden="true" /></span>
+          <span className="sidebar4-brand-mark"><BrandMark size={29} /></span>
           <span className="sidebar4-brand-eyebrow">{tx('RUANG KREATIF', 'CREATIVE SPACE')}</span>
           <Sparkles size={15} className="sidebar4-brand-sparkle" aria-hidden="true" />
         </div>

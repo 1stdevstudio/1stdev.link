@@ -60,9 +60,9 @@
 .panel3 .panel3-topbar > button:first-child > div > span:first-child {
   width: 37px;
   height: 37px;
-  border-radius: 12px;
-  background: var(--p3-green);
-  color: #fff;
+  border-radius: 0;
+  background: transparent;
+  color: var(--p3-ink);
 }
 .panel3 .panel3-topbar > button:first-child > div > span:last-child > span:first-child {
   color: var(--p3-ink);

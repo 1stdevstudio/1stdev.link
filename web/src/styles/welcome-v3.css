@@ -39,13 +39,13 @@
   width: 42px;
   height: 42px;
   flex: 0 0 42px;
-  background: var(--start-green);
-  color: #fff;
-  border-radius: 13px;
+  background: transparent;
+  color: var(--start-ink);
+  border-radius: 0;
 }
 .start-logo-type { display: flex; flex-direction: column; line-height: 1.15; }
 .start-logo-type strong { font-size: 21px; font-weight: 750; letter-spacing: -.075em; }
-.start-logo-type strong span { color: #5e9a7a; }
+.start-logo-type strong span { color: #0DAD62; }
 .start-logo-type small { margin-top: 3px; font-size: 10px; color: #738c7a; }
 .start-nav { display: flex; align-items: center; gap: clamp(15px, 2.2vw, 36px); }
 .start-nav > a {

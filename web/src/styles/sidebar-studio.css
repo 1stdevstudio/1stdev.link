@@ -63,12 +63,12 @@
 .panel3 .sidebar4-brand-mark {
   display: grid;
   place-items: center;
-  flex: 0 0 33px;
-  width: 33px;
-  height: 33px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, .16);
-  color: #e7fbef;
+  flex: 0 0 37px;
+  width: 37px;
+  height: 37px;
+  border-radius: 11px;
+  background: #fff;
+  color: #064A36;
 }
 .panel3 .sidebar4-brand-eyebrow {
   font-size: 9px;
