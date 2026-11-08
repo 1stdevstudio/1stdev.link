@@ -19,6 +19,8 @@ Fakta utama:
 
 - [1stdev.link](https://1stdev.link/): mulai membuat halaman profil atau link pendek
 - [Dokumentasi API](https://1stdev.link/docs): REST API untuk link pendek, blok bio, dan statistik
+- [Kebijakan Privasi](https://1stdev.link/privacy): data yang diproses, penyedia, hak dan penghapusan
+- [Ketentuan Layanan](https://1stdev.link/terms): ketentuan publikasi, pembatasan, dan pengaduan
 
 ## Panduan
 

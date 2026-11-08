@@ -84,3 +84,11 @@ No third-party trackers or ad cookies. Stats are stored as aggregate numbers (cl
 
 ### Is there an API?
 Yes, a REST API for short links, bio blocks and stats: https://1stdev.link/docs
+
+
+## Kebijakan, privasi, dan permintaan data (9 November 2026)
+
+- Kebijakan Privasi: https://1stdev.link/privacy
+- Ketentuan Layanan: https://1stdev.link/terms
+- Untuk permintaan akses, koreksi, penghapusan akun, atau laporan keamanan, hubungi support@1stdev.link. Verifikasi kepemilikan diperlukan. Jangan mengirim OTP atau kunci API.
+- Aplikasi mencatat agregat klik berdasarkan hari UTC dan perkiraan negara, bukan riwayat kunjungan individual. Penyedia jaringan dapat tetap memproses metadata untuk pengiriman halaman dan keamanan.
