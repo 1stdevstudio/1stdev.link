@@ -20,7 +20,8 @@ permissions:
 jobs:
   browser-qa:
     name: Chromium responsive and UX flows
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    # Pin the OS supported by Playwright 1.56.1; ubuntu-latest moved to 26.04.
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
