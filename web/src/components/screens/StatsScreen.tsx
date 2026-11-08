@@ -111,7 +111,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
 
   if (agg && agg.total === 0 && agg.active === 0 && redirectLinks.length === 0) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="panel3-stats flex flex-col gap-5">
         {header}
         <div className="card empty">
           <BarChart3 size={28} strokeWidth={1.75} className="text-[var(--ac)]" />
@@ -131,10 +131,10 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
   const pickedDay = picked !== null && agg ? agg.byDate[picked] : null;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="panel3-stats flex flex-col gap-5">
       {header}
 
-      <div className="kpis kpis-4">
+      <div className="kpis kpis-4 panel3-stats-metrics">
         <div className="kpi"><span>{s.clicks}</span><b>{agg ? agg.total.toLocaleString() : '–'}</b></div>
         <div className="kpi"><span>{s.active}</span><b>{agg ? agg.active : '–'}</b></div>
         <div className="kpi"><span>{s.countries}</span><b>{agg ? agg.byCountry.length : '–'}</b></div>
@@ -159,7 +159,7 @@ export const StatsScreen: React.FC<StatsScreenProps> = ({ links }) => {
         ) : agg.total === 0 ? (
           <p className="small muted py-8 text-center">{s.none}</p>
         ) : (
-          <div className="chart" role="list">
+          <div className="chart panel3-chart" role="list">
             {agg.byDate.map((d, i) => (
               <button
                 key={d.date}

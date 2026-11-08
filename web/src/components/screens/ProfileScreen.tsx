@@ -354,14 +354,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   ];
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="panel3-builder flex flex-col gap-4">
       <header className="workspace-page-head">
         <p className="workspace-eyebrow">{tx('STUDIO HALAMAN', 'PAGE STUDIO')}</p>
         <h1 className="workspace-page-title">{tx('Halaman Saya', 'My Page')}</h1>
         <p className="workspace-page-subtitle">{tx('Atur konten dan tampilan halaman, lalu lihat hasilnya secara langsung.', 'Customize your content and design, then preview the result live.')}</p>
       </header>
       {/* Tab builder */}
-      <div className="studio-tabs" role="tablist" aria-label={tx('Bagian editor halaman', 'Page editor sections')}>
+      <div className="studio-tabs panel3-builder-tabs" role="tablist" aria-label={tx('Bagian editor halaman', 'Page editor sections')}>
         {tabs.map(({ id, label, icon: Icon, count, mobileOnly }) => (
           <button
             key={id}
@@ -381,7 +381,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
       </div>
 
       {/* Studio hero: identitas + aksi utama */}
-      <section className="studio-hero">
+      <section className="studio-hero panel3-builder-hero">
         <div className="flex items-center gap-4 min-w-0">
           <button
             type="button"
@@ -915,33 +915,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                       <span className="theme-bar w-[55%]" style={{ background: s.text, opacity: 0.8 }} />
                       <span className="theme-bar theme-btn" style={{ background: s.featBg }} />
                       <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
-                      <span className="theme-bar theme-btn" style={{ background: s.cardBg }} />
-                    </span>
-                    <span className="flex items-center justify-between gap-1 px-0.5">
-                      <span className="text-[13px] font-medium text-[var(--tx)] truncate">{L(th.name)}</span>
-                      {active && <Check size={14} strokeWidth={2.5} className="text-[var(--ac)] shrink-0" />}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {tab === 'preview' && (
-        <section id="panel-preview" role="tabpanel" aria-labelledby="tab-preview" className="lg:hidden pt-1">
-          {preview}
-        </section>
-      )}
-
-      <ImageCropperModal
-        isOpen={cropState.isOpen}
-        imageFile={cropState.file}
-        cropType={cropState.type}
-        onCropComplete={handleCropComplete}
-        onCancel={() => setCropState({ isOpen: false, file: null, type: 'cover' })}
-      />
-    </div>
-  );
-};
+                      <span className="theme-bar theme-btn" style={{ backgroun
+... (output truncated, full output saved to: /mnt/files/.composio/output/bash_milk_stdout.txt)
+Run 'cat /mnt/files/.composio/output/bash_milk_stdout.txt' to view the full output, or use 'head -n 100 /mnt/files/.composio/output/bash_milk_stdout.txt' / 'tail -n 100 /mnt/files/.composio/output/bash_milk_stdout.txt' to view parts of it.

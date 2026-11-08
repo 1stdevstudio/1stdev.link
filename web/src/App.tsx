@@ -480,12 +480,9 @@ export const App: React.FC = () => {
         }}
         onOpenAddBlock={() => setActiveSheet('add_block')}
         previewColumn={<LivePhonePreview profile={profile} links={links} />}
+        saveStatus={saveStatus}
+        onRetrySave={() => { void handleUpdateProfile(profileRef.current).catch(() => {}); }}
       >
-        <div role="status" aria-live="polite" className="save-status">
-          {saveStatus === 'saving' && tx('Menyimpan...', 'Saving...')}
-          {saveStatus === 'saved' && tx('Tersimpan', 'Saved')}
-          {saveStatus === 'error' && <button className="btn btn-g btn-sm" onClick={() => { void handleUpdateProfile(profileRef.current).catch(() => {}); }}>{tx('Gagal menyimpan — coba lagi', 'Save failed — retry')}</button>}
-        </div>
         {currentTab === 'home' && (
           <HomeScreen
             session={session}

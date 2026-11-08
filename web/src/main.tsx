@@ -6,6 +6,8 @@ import { api } from './api';
 import './index.css';
 // Namespaced homepage v3 rules load after the legacy workspace stylesheet.
 import './styles/welcome-v3.css';
+// Isolated full workspace refresh. Public bio themes and marketing stay untouched.
+import './styles/panel-v3.css';
 import { ConfirmProvider } from './components/ConfirmDialog';
 
 /**

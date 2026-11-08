@@ -51,13 +51,13 @@ export const Sheet: React.FC<SheetProps> = ({ isOpen, onClose, title, children }
   return (
     <>
       <div
-        className="scrim"
+        className="scrim panel3-scrim"
         onClick={onClose}
         aria-hidden="true"
       />
       <div
         ref={sheetRef}
-        className="sheet"
+        className="sheet panel3-sheet"
         role="dialog"
         aria-modal="true"
         aria-label={title}

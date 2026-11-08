@@ -106,7 +106,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
           ['Bagikan dan pantau', 'Salin link, lalu lihat statistik klik di sini.'],
         ];
     return (
-      <div className="flex flex-col gap-4 min-w-0 w-full">
+      <div className="panel3-links flex flex-col gap-5 min-w-0 w-full">
         <header className="workspace-page-head">
           <p className="workspace-eyebrow">{lang === 'en' ? 'LINK MANAGEMENT' : 'KELOLA LINK'}</p>
           <h1 className="workspace-page-title">{s.title}</h1>
@@ -149,8 +149,8 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
   const chips: Filter[] = ['all', 'on', 'off', 'bio'];
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+    <div className="panel3-links flex flex-col gap-5">
+      <div className="panel3-links-heading flex items-center justify-between gap-3 flex-wrap">
         <header className="workspace-page-head">
           <p className="workspace-eyebrow">{lang === 'en' ? 'LINK MANAGEMENT' : 'KELOLA LINK'}</p>
           <h1 className="workspace-page-title">{s.title}</h1>
@@ -161,13 +161,13 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
         </button>
       </div>
 
-      <div className="kpis">
+      <div className="kpis panel3-link-metrics">
         <div className="kpi"><span>{s.total}</span><b>{links.length}</b></div>
         <div className="kpi"><span>{s.clicks}</span><b>{totalClicks.toLocaleString()}</b></div>
         <div className="kpi"><span>{s.best}</span><b className="truncate">{best && best.clicks > 0 ? best.title || `/${best.slug}` : '–'}</b></div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="panel3-search-row flex gap-2">
         <div className="relative grow min-w-0">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--tx3)]" />
           <input className="input pl-10" placeholder={s.search} value={query} onChange={(e) => setQuery(e.target.value)} aria-label={s.search} />
@@ -179,7 +179,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
         </Select>
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+      <div className="panel3-filters flex items-center gap-2 overflow-x-auto no-scrollbar">
         {chips.map((c) => (
           <button key={c} className={`chip ${filter === c ? 'on' : ''}`} onClick={() => setFilter(c)} aria-pressed={filter === c}>
             {s[c]} <span>{counts[c]}</span>
@@ -190,7 +190,7 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
       {shown.length === 0 ? (
         <p className="small muted text-center py-6">{s.noRes}</p>
       ) : (
-        <ul className="grid grid-cols-1 gap-2 xl:grid-cols-2 2xl:grid-cols-3">
+        <ul className="panel3-link-grid grid grid-cols-1 gap-2 xl:grid-cols-2 2xl:grid-cols-3">
           {shown.map((l) => (
             <li key={l.id} className={`card lcard ${l.is_active ? '' : 'dim'}`}>
               <div className="flex items-start gap-3">
