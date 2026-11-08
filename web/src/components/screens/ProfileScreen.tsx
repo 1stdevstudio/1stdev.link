@@ -349,7 +349,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   const tabs: { id: BuilderTab; label: string; icon: React.ElementType; count?: number; mobileOnly?: boolean }[] = [
     { id: 'content', label: tx('Isi', 'Content'), icon: LayoutList, count: bioLinks.length },
-    { id: 'design', label: tx('Tampilan', 'Design'), icon: Palette },
+    { id: 'design', label: tx('Desain', 'Design'), icon: Palette },
     { id: 'preview', label: tx('Pratinjau', 'Preview'), icon: Smartphone, mobileOnly: true },
   ];
 
