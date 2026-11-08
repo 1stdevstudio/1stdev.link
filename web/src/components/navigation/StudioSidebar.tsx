@@ -10,7 +10,6 @@ interface StudioSidebarProps {
   session: AuthSession;
   currentTab: TabType;
   onTabChange: (tab: TabType) => void;
-  onOpenSaveAccount: () => void;
   onOpenShare: () => void;
 }
 
@@ -19,7 +18,6 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
   session,
   currentTab,
   onTabChange,
-  onOpenSaveAccount,
   onOpenShare,
 }) => {
   const { tx } = useI18n();

@@ -210,7 +210,6 @@ export const AppShell: React.FC<AppShellProps> = ({
           session={session}
           currentTab={currentTab}
           onTabChange={navigate}
-          onOpenSaveAccount={onOpenSaveAccount}
           onOpenShare={onOpenShare}
         />
         <div className={`shell-body ${showPreview ? 'with-preview' : ''}`}>
