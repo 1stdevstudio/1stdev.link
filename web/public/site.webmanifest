@@ -9,7 +9,7 @@
   "background_color": "#0e1f1b",
   "theme_color": "#0e1f1b",
   "icons": [
-    { "src": "/brand/one-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/brand/one-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    { "src": "https://edgelink-afl.pages.dev/brand/one-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "https://edgelink-afl.pages.dev/brand/one-app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }
