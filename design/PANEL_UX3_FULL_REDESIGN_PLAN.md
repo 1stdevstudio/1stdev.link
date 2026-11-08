@@ -1,9 +1,9 @@
 # 1stdev.link — Full Panel Redesign (Workspace 3.0)
 
 Status: **PROPOSED / DESIGN SPECIFICATION — NO PRODUCTION CODE CHANGES**  
-Audit base: \`main\` commit \`15c51ab8795b937daf95d4aba8caa275bb303ba2\`  
+Audit base: `main` commit `15c51ab8795b937daf95d4aba8caa275bb303ba2`  
 Date: 2026-11-09 (WIB)  
-Related roadmap: \`design/UX3_IMPLEMENTATION_PLAN.md\` in Draft PR #5. Browser QA UX3-00 is already in main; the new first-visit homepage is already deployed.
+Related roadmap: `design/UX3_IMPLEMENTATION_PLAN.md` in Draft PR #5. Browser QA UX3-00 is already in main; the new first-visit homepage is already deployed.
 
 ## 0. Goals and non-goals
 
@@ -29,29 +29,29 @@ Related roadmap: \`design/UX3_IMPLEMENTATION_PLAN.md\` in Draft PR #5. Browser Q
 
 | Existing file | Verified purpose / issue | Intended evolution |
 |---|---|---|
-| \`web/src/components/AppShell.tsx\` | Header, sidebar, desktop nav, 5th settings destination, create menu, dock, layout and right preview column | Split layout/header/sidebar/mobile-dock into small reusable pieces; one source of navigation truth |
-| \`web/src/App.tsx\` | Session restore, hash navigation, cached profile/links, mutation queues, autosave, business editor/sheets; passes \`previewColumn\` and \`preview\` | Keep data/mutation logic stable; move view composition into a lightweight shell; avoid duplicate active previews |
-| \`web/src/components/screens/HomeScreen.tsx\` | Context-aware next action, public profile card, KPI, quick actions, click charts and recent links | Overview layout with priorities and adaptive KPI; reuse existing computed data |
-| \`web/src/components/screens/ProfileScreen.tsx\` | ~948 lines; content/design/mobile preview tabs, profile hero, sortable blocks, themes, media uploads, Business panel | Extract BuilderHeader, BlockList, StyleInspector, ThemePicker, ProfileDesignSections, BuilderPreview; preserve callbacks |
-| \`web/src/components/LivePhonePreview.tsx\` | Shared HTML renderer via \`shared/renderBioPage.ts\` | Keep as the **single** rendering component; don't duplicate \`previewColumn\` and mobile \`preview\` unnecessarily |
-| \`web/src/components/screens/LinksScreen.tsx\` | Search, filter, sort, cards, copy, toggle and delete; different empty/full layouts | Shared PageHeader + DataToolbar + LinkGrid/List + EmptyState |
-| \`web/src/components/screens/StatsScreen.tsx\` | 7/30d selection; real analytics summary, country/top-link distribution, CSV export | Consistent visual data components; distinguish clicks from conversions; robust loading/errors |
-| \`web/src/components/screens/AccountScreen.tsx\` | Guest/claimed status, device transfer, language, developer API, security and legal | Group into coherent SettingsSections; preserve handling of sensitive key and auth states |
-| \`web/src/components/business/BusinessModePanel.tsx\` and \`BusinessBlockSheet.tsx\` | Purpose switcher, industry settings, catalog/contact blocks | Contextual business toolbar and reusable editor sections, unchanged persistence |
-| \`web/src/components/Sheet.tsx\`, \`Select.tsx\`, \`ConfirmDialog.tsx\` | Existing overlay/focus handling and inputs | Shared overlay behavior, responsive sheets, accessibility contract tests |
-| \`web/src/index.css\` | ~1506 lines; base, workspace, legacy overrides, full-width patches, welcome styles in one file | Introduce panel namespace/tokens; **migrate by area**, remove duplicate selectors only after screenshots pass |
-| \`web/src/styles/welcome-v3.css\` | New homepage stylesheet loaded after legacy CSS | Reference palette, but do not mix marketing selectors with panel selectors |
-| \`web/e2e/\` and \`.github/workflows/ui-qa.yml\` | Playwright Chromium, 14 flow/viewport tests with screenshots | Extend to authenticated panel and later cross-browser / a11y checks |
-| \`web/src/state/sessionCache.ts\` | Hash/tab caching for App | Preserve tab route behavior and test refresh/back-forward |
+| `web/src/components/AppShell.tsx` | Header, sidebar, desktop nav, 5th settings destination, create menu, dock, layout and right preview column | Split layout/header/sidebar/mobile-dock into small reusable pieces; one source of navigation truth |
+| `web/src/App.tsx` | Session restore, hash navigation, cached profile/links, mutation queues, autosave, business editor/sheets; passes `previewColumn` and `preview` | Keep data/mutation logic stable; move view composition into a lightweight shell; avoid duplicate active previews |
+| `web/src/components/screens/HomeScreen.tsx` | Context-aware next action, public profile card, KPI, quick actions, click charts and recent links | Overview layout with priorities and adaptive KPI; reuse existing computed data |
+| `web/src/components/screens/ProfileScreen.tsx` | ~948 lines; content/design/mobile preview tabs, profile hero, sortable blocks, themes, media uploads, Business panel | Extract BuilderHeader, BlockList, StyleInspector, ThemePicker, ProfileDesignSections, BuilderPreview; preserve callbacks |
+| `web/src/components/LivePhonePreview.tsx` | Shared HTML renderer via `shared/renderBioPage.ts` | Keep as the **single** rendering component; don't duplicate `previewColumn` and mobile `preview` unnecessarily |
+| `web/src/components/screens/LinksScreen.tsx` | Search, filter, sort, cards, copy, toggle and delete; different empty/full layouts | Shared PageHeader + DataToolbar + LinkGrid/List + EmptyState |
+| `web/src/components/screens/StatsScreen.tsx` | 7/30d selection; real analytics summary, country/top-link distribution, CSV export | Consistent visual data components; distinguish clicks from conversions; robust loading/errors |
+| `web/src/components/screens/AccountScreen.tsx` | Guest/claimed status, device transfer, language, developer API, security and legal | Group into coherent SettingsSections; preserve handling of sensitive key and auth states |
+| `web/src/components/business/BusinessModePanel.tsx` and `BusinessBlockSheet.tsx` | Purpose switcher, industry settings, catalog/contact blocks | Contextual business toolbar and reusable editor sections, unchanged persistence |
+| `web/src/components/Sheet.tsx`, `Select.tsx`, `ConfirmDialog.tsx` | Existing overlay/focus handling and inputs | Shared overlay behavior, responsive sheets, accessibility contract tests |
+| `web/src/index.css` | ~1506 lines; base, workspace, legacy overrides, full-width patches, welcome styles in one file | Introduce panel namespace/tokens; **migrate by area**, remove duplicate selectors only after screenshots pass |
+| `web/src/styles/welcome-v3.css` | New homepage stylesheet loaded after legacy CSS | Reference palette, but do not mix marketing selectors with panel selectors |
+| `web/e2e/` and `.github/workflows/ui-qa.yml` | Playwright Chromium, 14 flow/viewport tests with screenshots | Extend to authenticated panel and later cross-browser / a11y checks |
+| `web/src/state/sessionCache.ts` | Hash/tab caching for App | Preserve tab route behavior and test refresh/back-forward |
 
 ### Specific risk controls
 
-- New CSS under \`.panel3\` or a dedicated root attribute, not generic \`.card\` overrides scattered through \`index.css\`.
+- New CSS under `.panel3` or a dedicated root attribute, not generic `.card` overrides scattered through `index.css`.
 - Avoid mixing global HTML body styles with public bio themes.
-- Verify \`AppShell\` still mounts account settings correctly; settings is outside the four-item mobile dock, so add an accessible route via header/mobile menu.
+- Verify `AppShell` still mounts account settings correctly; settings is outside the four-item mobile dock, so add an accessible route via header/mobile menu.
 - **Do not introduce fake analytics**: values come from existing API, with correct empty/loading semantics.
-- Current autosave status is \`idle|saving|saved|error\`. Preserve behavior and surface it in header; do not imply a draft/publish backend exists.
-- The large \`ProfileScreen\` should be refactored incrementally to avoid breaking reorder, upload, style validation or business blocks.
+- Current autosave status is `idle|saving|saved|error`. Preserve behavior and surface it in header; do not imply a draft/publish backend exists.
+- The large `ProfileScreen` should be refactored incrementally to avoid breaking reorder, upload, style validation or business blocks.
 
 ## 2. Information architecture
 
@@ -73,10 +73,10 @@ Navigation:
 Naming proposal: **Workspace 3.0 / Clean Product Studio**.
 
 Colors:
-- app canvas \`#F7F9F7\`; surface \`#FFFFFF\`; surface-subtle \`#F0F6F1\`.
-- primary ink \`#17362D\`; secondary \`#52695E\`; muted \`#6B8073\`.
-- brand \`#18765D\`; brand-hover \`#125C48\`; brand-tint \`#E5F3E9\`.
-- borders \`#DFE9E1\`; critical \`#B42335\`; warning \`#8F6100\`; focus \`#18765D\`.
+- app canvas `#F7F9F7`; surface `#FFFFFF`; surface-subtle `#F0F6F1`.
+- primary ink `#17362D`; secondary `#52695E`; muted `#6B8073`.
+- brand `#18765D`; brand-hover `#125C48`; brand-tint `#E5F3E9`.
+- borders `#DFE9E1`; critical `#B42335`; warning `#8F6100`; focus `#18765D`.
 - Public profile themes are entirely independent.
 
 Typography:
@@ -93,13 +93,13 @@ Spacing / dimensions:
 - Shadows subtle and used only to communicate layering; avoid overusing large cards.
 
 Layout rules:
-- Root workspace \`display:grid; grid-template-columns: var(--sidebar-width) minmax(0,1fr)\` at >=1024px.
+- Root workspace `display:grid; grid-template-columns: var(--sidebar-width) minmax(0,1fr)` at >=1024px.
 - At widths 1024–1439, builder = editor + right preview only if min width can sustain; preview width 280–340px. If cramped, show Preview tab rather than narrow forms.
 - At >=1440px, editor 1fr + sticky preview 340–390px. A third inspector column is **optional**, not a default.
 - Tablet 640–1023 and mobile 320–639 use a single main column, responsive toolbar and bottom dock.
-- **Never** \`max-width\` the entire shell to 960px on desktop. Restrict line lengths inside specific prose/forms instead.
-- Sidebar sticky below header; \`min-width:0\` on grid children and long text; \`overflow-wrap:anywhere\` for user links.
-- Respect \`env(safe-area-inset-bottom)\` and \`prefers-reduced-motion\`.
+- **Never** `max-width` the entire shell to 960px on desktop. Restrict line lengths inside specific prose/forms instead.
+- Sidebar sticky below header; `min-width:0` on grid children and long text; `overflow-wrap:anywhere` for user links.
+- Respect `env(safe-area-inset-bottom)` and `prefers-reduced-motion`.
 
 ## 4. Screen-by-screen wireframes and interactions
 
@@ -107,7 +107,7 @@ Layout rules:
 
 Desktop:
 
-\`\`\`text
+```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Logo (same sidebar width)  Page title / breadcrumb      Save  +  Avatar│
 ├──────────────────┬─────────────────────────────────────────────────────┤
@@ -120,14 +120,14 @@ Desktop:
 │                  │                                                     │
 │ Guest reminder   │                                                     │
 └──────────────────┴─────────────────────────────────────────────────────┘
-\`\`\`
+```
 
 Do not leave a huge gap between header and heading. Main takes all available width.
 
 ### 4.2 Beranda (Home)
 
 - Greeting and public URL in a compact header; copy/share/edit controls.
-- Left primary area: public profile card + contextual next-best-action card, backed by existing \`getNextAction()\`.
+- Left primary area: public profile card + contextual next-best-action card, backed by existing `getNextAction()`.
 - KPI 4 across on wide screens; 2×2 on tablet; mobile 2×2 with readable values.
 - Lower: top links graph + recent links. Show empty state with an actual creation action.
 - Guest warning inline, not permanent giant banners.
@@ -136,11 +136,11 @@ Do not leave a huge gap between header and heading. Main takes all available wid
 ### 4.3 Halaman / Builder
 
 Structure:
-1. **PageBar**: editable public identity summary, Public URL, View Page / Share, accurate \`saveStatus\`.
+1. **PageBar**: editable public identity summary, Public URL, View Page / Share, accurate `saveStatus`.
 2. **BuilderTabs**: Isi / Desain / Pratinjau (mobile only preview can also be desktop toggle).
-3. **Isi**: reorderable block list with visible edit/active/duplicate/remove and add-block button; filtered display uses existing \`BioBlockType\` and business block support.
-4. **Desain**: grouped settings (Identitas, Latar, Cover, Tipografi, Tombol, Efek, Tema). Keep existing \`BioProfileStyle\` contract.
-5. **Preview**: iframe from \`LivePhonePreview\` using \`shared/renderBioPage.ts\` (same output as public profile); desktop sticky, mobile on-demand.
+3. **Isi**: reorderable block list with visible edit/active/duplicate/remove and add-block button; filtered display uses existing `BioBlockType` and business block support.
+4. **Desain**: grouped settings (Identitas, Latar, Cover, Tipografi, Tombol, Efek, Tema). Keep existing `BioProfileStyle` contract.
+5. **Preview**: iframe from `LivePhonePreview` using `shared/renderBioPage.ts` (same output as public profile); desktop sticky, mobile on-demand.
 6. **BusinessModePanel**: surfaced in appropriate builder section when goal business/affiliate; do not duplicate purpose selector all over app.
 
 Editing contract: tap a block -> contextual sheet/inspector; save via existing App mutation queues. Preserve optimistic updates, revision guards and retry. Reordering must support keyboard controls and mobile touch; don't rely on drag alone.
@@ -151,7 +151,7 @@ Editing contract: tap a block -> contextual sheet/inspector; save via existing A
 - Desktop >=1440: optionally list/table with title, short URL, clicks, state and actions; 1024–1439 two-column cards; mobile single-column cards.
 - Empty state occupies available content width and displays one clear CTA, not a tiny centered panel.
 - Copy, open, toggle, delete with descriptive accessible labels and confirmation. Search/sort are client-side on already fetched links in phase 1.
-- Preserve \`destination_url\`, \`ios_url\`, \`android_url\`, \`block_type\`, \`is_bio_entry\` semantics.
+- Preserve `destination_url`, `ios_url`, `android_url`, `block_type`, `is_bio_entry` semantics.
 
 ### 4.5 Statistik
 
@@ -172,7 +172,7 @@ Editing contract: tap a block -> contextual sheet/inspector; save via existing A
 ### 4.7 Overlays and feedback
 
 - One shared sheet/modal visual language and focus-trap/escape/backdrop policy.
-- Status \`Menyimpan...\` / \`Tersimpan\` / \`Gagal — coba lagi\` at top; no false publish button.
+- Status `Menyimpan...` / `Tersimpan` / `Gagal — coba lagi` at top; no false publish button.
 - Toast for nonblocking actions, inline error for data failures, destructive confirmation for delete.
 - Preserve any unsaved content on network failure; no disruptive visual reset.
 
@@ -180,7 +180,7 @@ Editing contract: tap a block -> contextual sheet/inspector; save via existing A
 
 Prefer **incremental extraction** and keep App state as the single authority:
 
-\`\`\`text
+```text
 web/src/
   components/
     panel3/
@@ -214,7 +214,7 @@ web/src/
     panel-links.spec.mjs
     panel-stats.spec.mjs
     panel-account.spec.mjs
-\`\`\`
+```
 
 These are *proposed* files, not created by this RFC. Keep original screen names as integration boundaries until they are replaced and tested.
 
@@ -222,15 +222,15 @@ These are *proposed* files, not created by this RFC. Keep original screen names 
 
 | UX area | Existing API / data | UI contract |
 |---|---|---|
-| Guest/account | \`POST /api/auth/guest\`, auth/me, OTP and handoff | Existing token + restore behavior; no new session schema |
-| Profile / builder | \`GET /api/bio-profile\`, \`PUT /api/bio-profile\`, \`BioProfile\` | Autosave, style, avatar, theme, social, business |
-| Blocks / links | \`GET/POST /api/links\`, \`PATCH/DELETE /api/links/:id\` | Existing sort, active flag, block_type + JSON |
-| Reordering | \`PUT /api/links/reorder\` | Existing mutation queue / revision |
-| Business presets | \`POST /api/business/preset\` | Existing \`BusinessSettings\` |
-| Media | \`POST /api/media/:type\` | Existing upload & validation to R2 |
-| Analytics | \`GET /api/analytics/summary?range=7d|30d\` | Existing clicks/countries/links, no conversion metrics |
+| Guest/account | `POST /api/auth/guest`, auth/me, OTP and handoff | Existing token + restore behavior; no new session schema |
+| Profile / builder | `GET /api/bio-profile`, `PUT /api/bio-profile`, `BioProfile` | Autosave, style, avatar, theme, social, business |
+| Blocks / links | `GET/POST /api/links`, `PATCH/DELETE /api/links/:id` | Existing sort, active flag, block_type + JSON |
+| Reordering | `PUT /api/links/reorder` | Existing mutation queue / revision |
+| Business presets | `POST /api/business/preset` | Existing `BusinessSettings` |
+| Media | `POST /api/media/:type` | Existing upload & validation to R2 |
+| Analytics | `GET /api/analytics/summary?range=7d|30d` | Existing clicks/countries/links, no conversion metrics |
 
-Phase 1 redesign should not modify \`worker/schema.sql\`, migrations, \`shared/business.ts\` or \`shared/renderBioPage.ts\` logic unless a regression test proves correction necessary. If a feature later requires server-side drafts, audit history or more analytics dimensions, propose a separately reviewed RFC/migration.
+Phase 1 redesign should not modify `worker/schema.sql`, migrations, `shared/business.ts` or `shared/renderBioPage.ts` logic unless a regression test proves correction necessary. If a feature later requires server-side drafts, audit history or more analytics dimensions, propose a separately reviewed RFC/migration.
 
 ## 7. Implementation sequence: small and independently testable PRs
 
@@ -258,7 +258,7 @@ Dependencies: P3-00 before visual changes; P3-01 → P3-02 → P3-03; builder/li
 6. Settings guest→claimed, login via OTP, device transfer, logout and returning to Welcome.
 7. Long handle/URLs, 50+ blocks, emoji, English/Indonesian labels, touch + keyboard interaction.
 
-Keep URL hash / localStorage tab behavior in phase 1. Route migrations need separate Worker compatibility analysis because \`/:slug\` and \`/@:handle\` are public routes.
+Keep URL hash / localStorage tab behavior in phase 1. Route migrations need separate Worker compatibility analysis because `/:slug` and `/@:handle` are public routes.
 
 ## 9. QA / visual regression
 
@@ -280,18 +280,18 @@ Acceptance gates:
 - Screenshot baselines manually approved; never bulk-update expected snapshots automatically on CI.
 - Existing Worker tests and web build always pass.
 - Performance budget assessed with Lighthouse/Web Vitals: target LCP <=2.5s, CLS <=0.1 under an agreed representative test environment; don't claim these measurements without running them.
-- Renderer parity against \`shared/renderBioPage.ts\` for existing user themes.
+- Renderer parity against `shared/renderBioPage.ts` for existing user themes.
 - No credential leakage in screenshots or CI artifacts.
 
 ## 10. Cloudflare preview, deployment and rollback
 
 - Each PR triggers GitHub Verify EdgeLink + UI Browser QA + Cloudflare Pages preview; use local mock/staging fixtures, not production account mutations.
-- Verify Pages preview does not redirect to production due to the migration logic in \`web/src/main.tsx\`.
+- Verify Pages preview does not redirect to production due to the migration logic in `web/src/main.tsx`.
 - Merge only after tests, screenshots and manual review of desktop/mobile states.
-- Pages production configuration remains: project \`edgelink\`, branch \`main\`, root \`web\`, build \`npm ci && npm run build\`, output \`dist\`.
+- Pages production configuration remains: project `edgelink`, branch `main`, root `web`, build `npm ci && npm run build`, output `dist`.
 - After merge, confirm Cloudflare Pages production deployment uses expected commit SHA and stages build/deploy success; GET HTML and new JS/CSS asset hashes HTTP 200.
-- Domain \`1stdev.link\` and \`www.1stdev.link\` are routed through \`edgelink-worker\`. Verify in a real browser as well as Pages; automated HTTP checks can receive Cloudflare WAF 403 without proving actual users are blocked.
-- Run smoke tests for root, \`/@handle\`, \`/:slug\`, \`/health\` and unauthenticated API responses.
+- Domain `1stdev.link` and `www.1stdev.link` are routed through `edgelink-worker`. Verify in a real browser as well as Pages; automated HTTP checks can receive Cloudflare WAF 403 without proving actual users are blocked.
+- Run smoke tests for root, `/@handle`, `/:slug`, `/health` and unauthenticated API responses.
 - UI-only changes deploy via Pages, **not** Worker; Worker redeploy requires separate tests and a verified need.
 - Save stable prior Pages deployment ID for rollback. If a critical UI regression appears, revert/promote Pages deployment; DB unchanged.
 - PRs should record before/after screenshots, known limitations, deployed SHA, Pages deployment ID, and rollback target.
