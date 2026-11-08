@@ -24,7 +24,7 @@ Fakta utama:
 
 ## Panduan
 
-- [FAQ lengkap](https://1stdev.link/llms-full.txt): jawaban detail tentang fitur, harga, privasi, dan cara pakai
+- [FAQ lengkap](https://1stdev.link/llms-full.txt?v=20261109): jawaban detail tentang fitur, harga, privasi, dan cara pakai
 
 ## Optional
 

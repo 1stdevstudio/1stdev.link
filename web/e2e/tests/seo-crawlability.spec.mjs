@@ -46,6 +46,8 @@ test('social preview is product-branded and does not advertise hosting details',
   expect(preview).toContain('og:image:secure_url');
   expect(preview).toContain('twitter:image:alt');
   expect(preview).toContain('https://1stdev.link/og.png?v=20261109');
+  expect(head).toContain('href="/site.webmanifest?v=20261109"');
+  expect(head).toContain('href="/llms.txt?v=20261109"');
   expect(preview).not.toMatch(/pages[.]dev|cloudflare|worker|backend|edgelink-afl/i);
   expect(preview).not.toContain('by 1stdev.space');
 });
