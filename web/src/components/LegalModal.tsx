@@ -1,55 +1,137 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mail, MessageCircle, Copy, Check, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Check, Copy, FileText, Mail, MessageCircle, ShieldCheck } from 'lucide-react';
 import { useI18n } from '../i18n/context';
 import { Sheet } from './Sheet';
 import { LEGAL_CONTACT, LEGAL_VERSION, legalDocuments, legalHighlights } from '../legal/content';
 
-interface LegalModalProps { initialTab?: 'terms' | 'privacy'; onClose: () => void; }
+interface LegalModalProps {
+  initialTab?: 'terms' | 'privacy';
+  onClose: () => void;
+}
+
+/** Shared policy reader inside the app; full SEO pages use the same source text. */
 export const LegalModal: React.FC<LegalModalProps> = ({ initialTab = 'terms', onClose }) => {
   const { tx, lang } = useI18n();
-  const [tab, setTab] = useState(initialTab);
+  const language = lang === 'en' ? 'en' : 'id';
+  const [tab, setTab] = useState<'terms' | 'privacy'>(initialTab);
   const [copied, setCopied] = useState(false);
   const start = useRef<HTMLDivElement>(null);
-  const content = legalDocuments[lang === 'en' ? 'en' : 'id'][tab];
+  const content = legalDocuments[language][tab];
+  const points = legalHighlights[language][tab];
+  const privacy = tab === 'privacy';
+
   useEffect(() => { setTab(initialTab); }, [initialTab]);
-  useEffect(() => { start.current?.scrollIntoView({ block: 'start' }); setCopied(false); }, [tab, lang]);
+  useEffect(() => {
+    setCopied(false);
+    const sheet = start.current?.closest('.sheet');
+    if (sheet) sheet.scrollTop = 0;
+  }, [tab, language]);
+
+  const selectDocument = (value: 'terms' | 'privacy') => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('legal', value);
+    window.history.replaceState(null, '', url);
+    setTab(value);
+  };
   const copyLink = async () => {
     const url = new URL(window.location.href);
     url.searchParams.set('legal', tab);
-    try { await navigator.clipboard.writeText(url.toString()); setCopied(true); } catch { /* Clipboard permission may be unavailable. */ }
+    try {
+      await navigator.clipboard.writeText(url.toString());
+      setCopied(true);
+    } catch { /* Clipboard permission can be unavailable. */ }
   };
-  return <Sheet isOpen onClose={onClose} title={tab === 'terms' ? tx('Ketentuan Layanan', 'Terms of Service') : tx('Kebijakan Privasi', 'Privacy Policy')}>
-    <div ref={start} className="text-xs text-[var(--tx3)]">1stdev.link · {tx('Terakhir diperbarui', 'Last updated')} {LEGAL_VERSION}</div>
-    <nav aria-label={tx('Dokumen hukum', 'Legal documents')} className="flex gap-2">
-      {(['terms', 'privacy'] as const).map(value => <button key={value} type="button" aria-pressed={tab === value} onClick={() => {
-        const url = new URL(window.location.href);
-        url.searchParams.set('legal', value);
-        window.history.replaceState(null, '', url);
-        setTab(value);
-      }} className={`min-h-11 flex-1 rounded-xl px-3 py-2 text-[13px] font-medium ${tab === value ? 'bg-[var(--ac)] text-[var(--bg)]' : 'bg-[var(--s2)] text-[var(--tx2)]'}`}>{value === 'terms' ? tx('Ketentuan', 'Terms') : tx('Privasi', 'Privacy')}</button>)}
-    </nav>
-    <button type="button" onClick={copyLink} className="self-start inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--s2)] px-3 text-[13px] font-semibold text-[var(--tx)]">
-      {copied ? <Check size={15} /> : <Copy size={15} />}{copied ? tx('Tautan disalin', 'Link copied') : tx('Salin tautan dokumen', 'Copy document link')}
-    </button>
-    <article className="text-[13px] leading-7 text-[var(--tx2)] [overflow-wrap:anywhere]">
-      <aside className="rounded-2xl bg-[var(--s2)] p-4">
-        <h3 className="flex items-center gap-2 font-semibold text-[var(--tx)]"><ShieldCheck size={17} aria-hidden="true" />{tx('Poin penting', 'Key points')}</h3>
-        <p className="mt-1 text-xs">{tx('Ringkasan ini bukan pengganti dokumen lengkap di bawah.', 'This summary does not replace the complete document below.')}</p>
-        <ul className="mt-3 list-disc space-y-2 pl-5">{legalHighlights[lang === 'en' ? 'en' : 'id'][tab].map(point => <li key={point}>{point}</li>)}</ul>
-      </aside>
-      <p className="rounded-2xl bg-[var(--s2)] p-4">{content.intro}</p>
-      <details className="mt-4 rounded-2xl bg-[var(--s2)] px-4 py-2">
-        <summary className="cursor-pointer py-2 font-medium text-[var(--tx)]">{tx('Daftar isi', 'Contents')} · {content.sections.length} {tx('bagian', 'sections')}</summary>
-        <ol className="list-decimal pl-5">{content.sections.map((section, index) => <li key={section.title}><button type="button" className="min-h-11 py-2 text-left underline underline-offset-4" onClick={() => document.getElementById(`legal-${tab}-${index}`)?.scrollIntoView({ block: 'start' })}>{section.title}</button></li>)}</ol>
-      </details>
-      {content.sections.map((section, index) => <section id={`legal-${tab}-${index}`} key={section.title} className="mt-6 scroll-mt-4"><h3 className="mb-2 text-[15px] font-semibold text-[var(--tx)]">{index + 1}. {section.title}</h3>{section.paragraphs.map(paragraph => <p key={paragraph} className="mt-2">{paragraph}</p>)}</section>)}
-      <aside className="mt-6 rounded-2xl bg-[var(--s2)] p-4"><h3 className="font-semibold text-[var(--tx)]">{tx('Kontak dan permintaan data', 'Contact and data requests')}</h3><p className="mt-1">{tx('Untuk akses, koreksi, penghapusan, atau laporan keamanan. Jangan kirim OTP maupun kunci API.', 'For access, correction, deletion, or security reports. Do not send OTPs or API keys.')}</p>
-        <a className="flex min-h-11 items-center gap-2 text-[var(--ac)] underline" href={`mailto:${LEGAL_CONTACT.support}`}><Mail size={16} strokeWidth={1.75} />{LEGAL_CONTACT.support}</a>
-        <a className="flex min-h-11 items-center gap-2 text-[var(--ac)] underline" href={`https://wa.me/${LEGAL_CONTACT.whatsapp}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} strokeWidth={1.75} />+62 851-5796-5588</a>
-        <a className="inline-block min-h-11 py-2 underline" href={`mailto:${LEGAL_CONTACT.general}`}>{LEGAL_CONTACT.general}</a>
-      </aside>
-      <p className="mt-5 text-xs text-[var(--tx3)]">{tx('Rujukan dan kebijakan penyedia:', 'References and provider policies:')} <a className="underline" href="https://jdih.komdigi.go.id/produk_hukum/view/id/832/t/undangundang%20nomor%2027%20tahun%202022" target="_blank" rel="noopener noreferrer">UU PDP</a> · <a className="underline" href="https://jdih.kemenkeu.go.id/api/download/fulltext/1999/8TAHUN~1999UU.htm" target="_blank" rel="noopener noreferrer">UU Perlindungan Konsumen</a> · <a className="underline" href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare</a> · <a className="underline" href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Resend</a></p>
-    </article>
-    <button type="button" onClick={onClose} className="btn btn-p mt-3">{tx('Tutup', 'Close')}</button>
-  </Sheet>;
+  const jumpTo = (index: number) => {
+    const node = document.getElementById(`legal-${tab}-${index}`);
+    node?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <Sheet isOpen onClose={onClose} className="legal-sheet" title={privacy ? tx('Kebijakan Privasi', 'Privacy Policy') : tx('Ketentuan Layanan', 'Terms of Service')}>
+      <div className="legal-modal" ref={start}>
+        <div className="legal-meta">
+          <span className="legal-meta-label"><i aria-hidden="true" /> 1STDEV.LINK / {tx('INFORMASI & KEBIJAKAN', 'INFORMATION & POLICIES')}</span>
+          <span>{tx('Diperbarui', 'Updated')} {LEGAL_VERSION} · {content.sections.length} {tx('bagian', 'sections')}</span>
+        </div>
+        <div className="legal-tab-row">
+          <nav className="legal-tabs" aria-label={tx('Dokumen hukum', 'Legal documents')}>
+            {(['terms', 'privacy'] as const).map(value => (
+              <button key={value} type="button" aria-pressed={tab === value} onClick={() => selectDocument(value)}>
+                {value === 'terms' ? tx('Ketentuan', 'Terms') : tx('Privasi', 'Privacy')}
+              </button>
+            ))}
+          </nav>
+          <div className="legal-actions">
+            <button type="button" onClick={copyLink} aria-label={tx('Salin tautan dokumen', 'Copy document link')}>
+              {copied ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
+              {copied ? tx('Tersalin', 'Copied') : tx('Salin tautan', 'Copy link')}
+            </button>
+            <a href={`/${tab}${language === 'en' ? '?lang=en' : ''}`} target="_blank" rel="noopener noreferrer">
+              <FileText size={15} aria-hidden="true" />{tx('Halaman penuh', 'Full page')}<ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+
+        <header className="legal-hero">
+          <p className="legal-hero-kicker">{privacy ? tx('PERLINDUNGAN INFORMASI', 'INFORMATION PROTECTION') : tx('PANDUAN PENGGUNAAN', 'USAGE GUIDELINES')}</p>
+          <h3>{privacy ? tx('Privasi Anda. Prioritas Kami.', 'Your Privacy. Our Priority.') : tx('Aturan Jelas. Ruang Berkarya.', 'Clear Terms. Room to Create.')}</h3>
+          <p>{content.intro}</p>
+          <p className="legal-hero-muted">{tx('Ditulis agar mudah dipahami. Tidak menggantikan dokumen lengkap.', 'Written for clarity. The complete document remains applicable.')}</p>
+        </header>
+
+        <section className="legal-summary" aria-labelledby="legal-summary-title">
+          <h3 id="legal-summary-title"><ShieldCheck size={19} color="#18765d" aria-hidden="true" />{tx('Poin penting', 'Key points')}</h3>
+          <p>{tx('Ringkasan informasi utama sebelum membaca seluruh bagian.', 'A quick overview before reading all sections.')}</p>
+          <ol className="legal-summary-grid">{points.map((point, index) => <li key={point}><span>{String(index + 1).padStart(2, '0')} / 04</span>{point}</li>)}</ol>
+        </section>
+
+        <div className="legal-content-grid">
+          <aside className="legal-toc" aria-label={tx('Daftar isi', 'Contents')}>
+            <h4>{tx('DI HALAMAN INI', 'ON THIS PAGE')}</h4>
+            <nav aria-label={tx('Daftar bagian', 'Section navigation')}>
+              {content.sections.map((section, index) => (
+                <button key={section.title} type="button" onClick={() => jumpTo(index)}>
+                  <span>{String(index + 1).padStart(2, '0')}</span>{section.title}
+                </button>
+              ))}
+            </nav>
+          </aside>
+          <div className="legal-article">
+            <details className="legal-mobile-toc">
+              <summary>{tx('Daftar isi · Pilih bagian', 'Contents · Jump to section')}</summary>
+              <ol>{content.sections.map((section, index) => <li key={section.title}><button type="button" onClick={() => jumpTo(index)}>{section.title}</button></li>)}</ol>
+            </details>
+            <article aria-label={privacy ? tx('Kebijakan Privasi lengkap', 'Full Privacy Policy') : tx('Ketentuan Layanan lengkap', 'Full Terms of Service')}>
+              {content.sections.map((section, index) => (
+                <section className="legal-section" id={`legal-${tab}-${index}`} key={section.title} aria-labelledby={`legal-heading-${tab}-${index}`}>
+                  <span className="legal-count" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <h3 id={`legal-heading-${tab}-${index}`}>{section.title}</h3>
+                  {section.paragraphs.map(paragraph => <p key={paragraph}>{paragraph}</p>)}
+                </section>
+              ))}
+            </article>
+          </div>
+        </div>
+
+        <section className="legal-contact" aria-labelledby="legal-contact-title">
+          <div>
+            <h3 id="legal-contact-title">{tx('Butuh bantuan terkait data atau akun?', 'Need help with data or your account?')}</h3>
+            <p>{tx('Untuk akses, koreksi, penghapusan, atau laporan keamanan. Jangan pernah mengirim OTP maupun kunci API.', 'For access, correction, deletion, or security reports. Never send OTPs or API keys.')}</p>
+          </div>
+          <div className="legal-contact-links">
+            <a href={`mailto:${LEGAL_CONTACT.support}`}><Mail size={15} aria-hidden="true" />{tx('Email dukungan', 'Email support')}</a>
+            <a href={`https://wa.me/${LEGAL_CONTACT.whatsapp}`} target="_blank" rel="noopener noreferrer"><MessageCircle size={15} aria-hidden="true" />WhatsApp</a>
+          </div>
+        </section>
+
+        <p className="legal-references">{tx('Rujukan dan penyedia:', 'References and providers:')}{' '}
+          <a href="https://jdih.komdigi.go.id/produk_hukum/view/id/832/t/undangundang%20nomor%2027%20tahun%202022" target="_blank" rel="noopener noreferrer">UU PDP</a> ·{' '}
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare</a> ·{' '}
+          <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Resend</a> ·{' '}
+          <a href={`mailto:${LEGAL_CONTACT.general}`}>{LEGAL_CONTACT.general}</a>
+        </p>
+        <button type="button" onClick={onClose} className="btn btn-p self-end">{tx('Tutup', 'Close')}</button>
+      </div>
+    </Sheet>
+  );
 };
