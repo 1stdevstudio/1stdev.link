@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, Copy, Plus, Trash2, Check, ExternalLink, Link2 } from 'lucide-react';
+import { Search, Copy, Plus, Trash2, Check, ExternalLink, Link2, QrCode } from 'lucide-react';
 import { LinkItem } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { useConfirm } from '../ConfirmDialog';
@@ -11,6 +11,8 @@ interface LinksScreenProps {
   onToggleActive: (id: string, currentState: boolean) => Promise<void>;
   onDeleteLink: (id: string) => Promise<void>;
   onToast: (msg: string) => void;
+  onOpenQr: (link: LinkItem) => void;
+  onOpenProfileQr: () => void;
 }
 
 type Filter = 'all' | 'on' | 'off' | 'bio';
@@ -38,7 +40,7 @@ const host = (u: string) => {
 };
 
 export const LinksScreen: React.FC<LinksScreenProps> = ({
-  links, onOpenAddLink, onToggleActive, onDeleteLink, onToast,
+  links, onOpenAddLink, onToggleActive, onDeleteLink, onToast, onOpenQr, onOpenProfileQr,
 }) => {
   const { lang } = useI18n();
   const confirm = useConfirm();
@@ -121,9 +123,14 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
               <h2 id="link-empty-title" className="text-[clamp(21px,2.2vw,28px)] font-bold tracking-tight text-[var(--tx)]">{s.emptyT}</h2>
               <p className="text-[14px] leading-relaxed text-[var(--tx2)]">{s.emptyD}</p>
             </div>
-            <button type="button" className="btn btn-p" onClick={onOpenAddLink}>
-              <Plus size={18} strokeWidth={2} /> {s.add}
-            </button>
+            <div className="qr-link-actions">
+              <button type="button" className="btn btn-p" onClick={onOpenAddLink}>
+                <Plus size={18} strokeWidth={2} /> {s.add}
+              </button>
+              <button type="button" className="btn btn-g" onClick={onOpenProfileQr}>
+                <QrCode size={18} strokeWidth={1.8} /> {lang === 'en' ? 'QR Studio' : 'Desain QR Profil'}
+              </button>
+            </div>
           </div>
           <div className="link-empty-info">
             <h3 className="text-[15px] font-semibold text-[var(--tx)]">
@@ -156,9 +163,14 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
           <h1 className="workspace-page-title">{s.title}</h1>
           <p className="workspace-page-subtitle">{lang === 'en' ? 'Create, share, and track all your short links.' : 'Buat, bagikan, dan pantau semua link pendekmu.'}</p>
         </header>
-        <button className="btn btn-p btn-sm shrink-0" onClick={onOpenAddLink}>
-          <Plus size={16} /> {s.add}
-        </button>
+        <div className="qr-link-actions">
+          <button type="button" className="btn btn-g btn-sm" onClick={onOpenProfileQr}>
+            <QrCode size={16} /> QR Studio
+          </button>
+          <button className="btn btn-p btn-sm shrink-0" onClick={onOpenAddLink}>
+            <Plus size={16} /> {s.add}
+          </button>
+        </div>
       </div>
 
       <div className="kpis panel3-link-metrics">
@@ -215,6 +227,11 @@ export const LinksScreen: React.FC<LinksScreenProps> = ({
                 {(l.ios_url || l.android_url) && <span className="tag off">{s.app}</span>}
                 <span className="small muted">{l.clicks.toLocaleString()} {s.click}</span>
                 <div className="ml-auto flex gap-1">
+                  <button type="button" className="iconbtn" disabled={!l.is_active}
+                    title={!l.is_active ? (lang === 'en' ? 'Activate link before making QR' : 'Aktifkan link untuk membuat QR') : undefined}
+                    onClick={() => onOpenQr(l)} aria-label={lang === 'en' ? 'Customize QR for ' + (l.title || l.slug) : 'Desain QR untuk ' + (l.title || l.slug)}>
+                    <QrCode size={18} />
+                  </button>
                   <button className="iconbtn" onClick={() => handleCopy(l.slug, l.id)} aria-label={s.copy}>
                     {copiedId === l.id ? <Check size={18} className="text-[var(--ok)]" /> : <Copy size={18} />}
                   </button>

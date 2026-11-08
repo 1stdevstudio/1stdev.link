@@ -8,6 +8,8 @@
     "report": "playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1"
+    "@playwright/test": "1.56.1",
+    "jsqr": "1.4.0",
+    "pngjs": "5.0.0"
   }
 }
