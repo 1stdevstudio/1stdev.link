@@ -85,7 +85,10 @@ describe('XSS and anti-abuse regression tests', () => {
         bg_image:'https://example.com/test.jpg");body{background:red',
         cover_url:'data:text/html,<script>alert(1)</script>'
       }),
-    } as any, [], 'https://1stdev.link');
+    } as any, [{
+      id: 'lnk-safe', user_id: 'usr_test', slug: 'safe', destination_url: 'https://example.com',
+      title: 'Contoh', block_type: 'link', is_active: 1, is_bio_entry: 1, sort_order: 0, created_at: 1
+    }], 'https://1stdev.link');
     assert.match(html,/&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
     assert.match(html,/&lt;img src=x onerror=alert\(2\)&gt;/);
     assert.doesNotMatch(html,/<script>alert\(1\)<\/script>|<img src=x onerror|onclick="alert\(3\)"|onmouseover="alert\(4\)"/);
