@@ -102,3 +102,30 @@ export interface ApiResponse<T> {
   data?: T;
   message?: string;
 }
+
+// Backed by the authenticated user and a separate 30-minute, email-verified step-up token.
+export interface AdminOverview {
+  users: { total: number; guests: number; verified: number; new_verified_7d: number };
+  links: { total: number; active: number };
+  clicks: { total: number; last_7d: number };
+  cleanup: { pending: number; enabled_at: number; old_guests: number };
+}
+export interface AdminUserRow {
+  id: string;
+  handle: string | null;
+  display_name: string | null;
+  email_masked: string | null;
+  is_guest: number;
+  created_at: number;
+  updated_at: number;
+  links_count: number;
+}
+export interface AdminUserPage {
+  users: AdminUserRow[];
+  has_more: boolean;
+  next_offset: number;
+}
+export interface AdminUserLink {
+  id: string; slug: string; title: string | null; destination_url: string;
+  block_type: string; is_active: number; is_bio_entry: number; clicks: number;
+}
