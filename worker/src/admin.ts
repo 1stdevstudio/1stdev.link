@@ -99,7 +99,7 @@ export function installAdminRoutes(app: App, authenticateUser: AuthUser) {
     if (!/^[a-f0-9]{64}$/.test(token) || !c.env.KV) {
       return c.json({ status: 'error', message: 'Additional email verification required' }, 401);
     }
-    const record = await c.env.KV.get<AdminSessionEntry>('admin:session:' + await sha256(token), 'json');
+    const record = await c.env.KV.get('admin:session:' + await sha256(token), 'json') as AdminSessionEntry | null;
     if (!record || record.user_id !== user.id || record.expires_at <= Math.floor(Date.now() / 1000)) {
       return c.json({ status: 'error', message: 'Admin verification expired' }, 401);
     }
