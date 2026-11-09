@@ -50,6 +50,13 @@ npm run build
 
 ---
 
+## Guest workspace expiration (automated)
+
+- Apply `worker/migrations/0004_guest_expiration.sql` to production **before** deploying the Worker with the cron trigger. Its one-time `enabled_at` timestamp guarantees existing guest workspaces receive a fresh seven-day grace period. Never reset this timestamp during redeploys.
+- Cron runs daily at 03:30 UTC (10:30 Asia/Jakarta). It deletes at most 5 expired, unclaimed guest workspaces per day. Guest edits and new links delay expiration; verified accounts (`is_guest = 0`) are excluded.
+- Dependent D1 data is removed by foreign-key cascades; KV redirects and R2 media are cleaned through durable jobs retried on the next run if needed. No new public maintenance endpoint.
+- Production rollout: deploy the D1 migration first, run typecheck/tests, then deploy `edgelink-worker`. Monitor scheduled logs and `guest_cleanup_jobs` backlog. Do not manually delete older guests on rollout.
+
 ## Verification Summary
 - Jalankan tes dari direktori `worker`; build frontend dari direktori `web`.
 - CI menjalankan kedua pemeriksaan melalui `.github/workflows/verify.yml`.
