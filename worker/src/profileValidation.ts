@@ -1,11 +1,12 @@
 import { validateDestinationUrl } from './security.js';
+import { unsafePlainTextReason } from './contentSafety.js';
 
 export function validateProfilePatch(raw: unknown): { valid: true; value: Record<string, any> } | { valid: false; error: string } {
   const fail = (error: string) => ({ valid: false as const, error });
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail('Profile must be an object');
   const value = { ...raw } as Record<string, any>;
   for (const [key, max] of [['handle', 32], ['display_name', 100], ['bio', 2000]] as const) {
-    if (value[key] !== undefined && (typeof value[key] !== 'string' || value[key].length > max)) return fail(`Invalid ${key}`);
+    if (value[key] !== undefined && unsafePlainTextReason(value[key], max)) return fail(`Invalid ${key}: plain text only, without HTML markup or control characters`);
   }
   if (value.handle !== undefined && !/^[a-z0-9_.-]{1,32}$/i.test(value.handle.trim())) return fail('Invalid handle');
   if (value.avatar_url !== undefined && value.avatar_url !== null && value.avatar_url !== '') {

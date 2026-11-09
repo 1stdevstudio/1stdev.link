@@ -12,6 +12,7 @@ import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, mediaPrefix
 import { renderDocsHtml } from './docs.js';
 import { renderLegalPage } from './legalPages.js';
 import { expireGuestWorkspaces } from './guestCleanup.js';
+import { unsafePlainTextReason } from './contentSafety.js';
 import { installAdminRoutes } from './admin.js';
 import { cachedPublicResponse, publicCacheControl, ASSET_CACHE, MEDIA_CACHE_POLICY, SEO_CACHE, SITEMAP_CACHE } from './publicCache.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
@@ -49,6 +50,8 @@ app.use('*', async (c, next) => {
 app.use('*', async (c, next) => {
   await next();
   c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Permitted-Cross-Domain-Policies', 'none');
+  c.header('Permissions-Policy', 'geolocation=(), microphone=(), payment=()');
   c.header('X-Frame-Options', 'DENY');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   // API JSON tidak untuk mesin pencari.
@@ -60,7 +63,7 @@ app.use('*', async (c, next) => {
     'Content-Security-Policy',
     // Dashboard SPA (proxied from Pages) + SSR bio: own CSS/JS, Google Fonts, inline styles.
     // Inline scripts and third-party scripts (incl. injected analytics beacons) stay blocked.
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "font-src 'self' https://fonts.gstatic.com data:; img-src * data: blob:; connect-src 'self'; " +
       "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
   );
@@ -109,16 +112,14 @@ function scheduleMediaCleanup(c: any, userId: string) {
 // Helper: Generate Base62 Random Slug
 function generateRandomSlug(length = 6): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  return Array.from(bytes, (byte) => chars[byte % chars.length]).join('');
 }
 
 // Helper: Get Client IP
 function getClientIp(c: any): string {
-  return c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || '127.0.0.1';
+  // X-Forwarded-For is visitor-controlled; Cloudflare assigns cf-connecting-ip.
+  return c.req.header('cf-connecting-ip') || 'unknown';
 }
 
 // 2. Auth Helper / Middleware for API
@@ -586,7 +587,7 @@ app.post('/api/auth/guest', async (c) => {
     }
   }
 
-  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  const randomSuffix = crypto.randomUUID().replace(/-/g, '').slice(0, 12);
   const userId = `usr_gst_${randomSuffix}`;
   const apiKey = `el_gst_${crypto.randomUUID().replace(/-/g, '')}`;
   const handle = `edge_${randomSuffix}`;
@@ -594,23 +595,13 @@ app.post('/api/auth/guest', async (c) => {
   const now = Math.floor(Date.now() / 1000);
 
   try {
-    // 1. Create guest user
-    await c.env.DB
-      .prepare(
-        `INSERT INTO users (id, email, api_key, is_guest, created_at, updated_at)
-         VALUES (?, ?, ?, 1, ?, ?)`
-      )
-      .bind(userId, email, apiKey, now, now)
-      .run();
-
-    // 2. Initialize default bio profile
-    await c.env.DB
-      .prepare(
-        `INSERT INTO bio_profiles (user_id, handle, display_name, bio, theme, updated_at)
-         VALUES (?, ?, ?, ?, '1stnear', ?)`
-      )
-      .bind(userId, handle, `Creator ${randomSuffix}`, 'Semua link saya ada di sini.', now)
-      .run();
+    // Atomic D1 batch prevents orphan guests when profile creation fails.
+    await c.env.DB.batch([
+      c.env.DB.prepare(`INSERT INTO users (id, email, api_key, is_guest, created_at, updated_at)
+         VALUES (?, ?, ?, 1, ?, ?)`).bind(userId, email, apiKey, now, now),
+      c.env.DB.prepare(`INSERT INTO bio_profiles (user_id, handle, display_name, bio, theme, updated_at)
+         VALUES (?, ?, ?, ?, '1stnear', ?)`).bind(userId, handle, `Creator ${randomSuffix}`, 'Semua link saya ada di sini.', now)
+    ]);
 
     return c.json(
       {
@@ -624,8 +615,8 @@ app.post('/api/auth/guest', async (c) => {
       },
       201
     );
-  } catch (err: any) {
-    return c.json({ status: 'error', message: err.message || 'Failed to initialize guest workspace' }, 500);
+  } catch {
+    return c.json({ status: 'error', message: 'Failed to initialize guest workspace. Please retry.' }, 503);
   }
 });
 
@@ -1072,6 +1063,9 @@ app.post('/api/links', apiAuthMiddleware, async (c) => {
   }
 
   const { destination_url, title, is_bio_entry, sort_order, ios_url, android_url } = body;
+  if (title !== undefined && title !== null && unsafePlainTextReason(title, 280)) {
+    return c.json({ status: 'error', message: 'Invalid title: plain text only, without HTML markup or control characters' }, 400);
+  }
   let slug = typeof body.slug === 'string' ? body.slug.trim() : '';
 
   const validBlockTypes = ['link', 'featured', 'header', 'whatsapp', 'image', 'gallery', 'video', 'text', 'social', 'divider', ...BUSINESS_TYPES];
@@ -1237,7 +1231,7 @@ app.get('/api/links', apiAuthMiddleware, async (c) => {
       data: res.results || []
     });
   } catch (err: any) {
-    return c.json({ status: 'error', message: err.message || 'Failed to list links' }, 500);
+    return c.json({ status: 'error', message: 'Unable to list links. Please retry.' }, 503);
   }
 });
 
@@ -1367,6 +1361,9 @@ app.get('/api/bio-profile', apiAuthMiddleware, async (c) => {
 // PATCH /api/links/:id - Toggle link active state
 app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
   const user = c.get('user') as User;
+  const rate = await checkRateLimit(c.env.KV, `rate:link-update:${user.id}`, 90, 60, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Please retry later' }, 503);
+  if (!rate.allowed) return c.json({ status: 'error', message: 'Too many link updates. Try again shortly.' }, 429);
   const linkId = c.req.param('id');
   let body: any;
   try {
@@ -1416,7 +1413,10 @@ app.patch('/api/links/:id', apiAuthMiddleware, async (c) => {
   }
 
   if (hasTitle) {
-    const title = String(body.title ?? '').trim().slice(0, 280);
+    if (body.title !== null && unsafePlainTextReason(body.title, 280)) {
+      return c.json({ status: 'error', message: 'Invalid title: plain text only, without HTML markup or control characters' }, 400);
+    }
+    const title = String(body.title ?? '').trim();
     if (!title && nextType !== 'divider') {
       return c.json({ status: 'error', message: 'title is required' }, 400);
     }
@@ -1541,6 +1541,9 @@ app.delete('/api/links/:id', apiAuthMiddleware, async (c) => {
 // PUT /api/bio-profile - Update bio profile
 app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
   const user = c.get('user') as User;
+  const rate = await checkRateLimit(c.env.KV, `rate:profile-update:${user.id}`, 45, 60, c.env.DB);
+  if (rate.serviceUnavailable) return c.json({ status: 'error', message: 'Please retry later' }, 503);
+  if (!rate.allowed) return c.json({ status: 'error', message: 'Too many profile updates. Try again shortly.' }, 429);
   let body: any;
   try {
     body = await c.req.json();

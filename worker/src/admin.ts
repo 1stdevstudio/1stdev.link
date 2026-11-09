@@ -2,6 +2,7 @@ import type { Hono } from 'hono';
 import type { Env, User } from './types.js';
 import { generateSecureOtp, sendOtpEmail, checkRateLimit } from './security.js';
 import { issueChallenge, attemptChallenge } from './authChallenges.js';
+import { looksLikeMarkupAttack } from './contentSafety.js';
 
 type App = Hono<{ Bindings: Env; Variables: { user?: User } }>;
 type AuthUser = (c: any) => Promise<User | null>;
@@ -166,7 +167,7 @@ export function installAdminRoutes(app: App, authenticateUser: AuthUser) {
       const maskedEmail = at > 0 && !email.endsWith('.local')
         ? email.slice(0, Math.min(2, at)) + '***' + email.slice(at)
         : null;
-      return { ...row, email_masked: maskedEmail };
+      return { ...row, email_masked: maskedEmail, suspicious_profile: looksLikeMarkupAttack(row.display_name || '') };
     });
     return c.json({ status: 'success', data: { users: records, has_more: (rows.results || []).length > 25, next_offset: offset + records.length } });
   });
