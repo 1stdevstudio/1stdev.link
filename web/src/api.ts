@@ -219,6 +219,7 @@ export class ApiClient {
   }
 
   logout(): void {
+    sessionStorage.removeItem('edgelink_admin_stepup');
     localStorage.removeItem('edgelink_token');
   }
 
@@ -363,6 +364,64 @@ export class ApiClient {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
+  }
+
+  private getAdminToken(): string {
+    try {
+      const raw = sessionStorage.getItem('edgelink_admin_stepup');
+      if (!raw) return '';
+      const saved = JSON.parse(raw) as { token: string; expires_at: number; key: string };
+      const currentKey = localStorage.getItem('edgelink_token') || '';
+      if (saved.key !== currentKey || saved.expires_at <= Date.now() / 1000) {
+        sessionStorage.removeItem('edgelink_admin_stepup');
+        return '';
+      }
+      return saved.token;
+    } catch { return ''; }
+  }
+
+  private adminRequest<T>(path: string): Promise<T> {
+    const token = this.getAdminToken();
+    return this.request<T>(path, { headers: { 'X-Admin-Session': token } });
+  }
+
+  async isAdmin(): Promise<boolean> {
+    if (this.useMock) return false;
+    const result = await this.request<{ data: { is_admin: boolean } }>('/api/admin/status');
+    return Boolean(result.data.is_admin);
+  }
+
+  async sendAdminOtp(): Promise<void> {
+    await this.request('/api/admin/otp', { method: 'POST', body: '{}' });
+  }
+
+  async verifyAdminOtp(code: string): Promise<void> {
+    const result = await this.request<{ data: { admin_token: string; expires_at: number } }>(
+      '/api/admin/otp/verify', { method: 'POST', body: JSON.stringify({ code }) }
+    );
+    sessionStorage.setItem('edgelink_admin_stepup', JSON.stringify({
+      token: result.data.admin_token,
+      expires_at: result.data.expires_at,
+      key: localStorage.getItem('edgelink_token') || ''
+    }));
+  }
+
+  async getAdminOverview(): Promise<import('./types').AdminOverview> {
+    const result = await this.adminRequest<{ data: import('./types').AdminOverview }>('/api/admin/overview');
+    return result.data;
+  }
+
+  async getAdminUsers(status: 'all' | 'guest' | 'verified', q: string, offset: number): Promise<import('./types').AdminUserPage> {
+    const params = new URLSearchParams({ status, q, offset: String(offset) });
+    const result = await this.adminRequest<{ data: import('./types').AdminUserPage }>('/api/admin/users?' + params.toString());
+    return result.data;
+  }
+
+  async getAdminUserLinks(userId: string): Promise<import('./types').AdminUserLink[]> {
+    const result = await this.adminRequest<{ data: { links: import('./types').AdminUserLink[] } }>(
+      '/api/admin/users/' + encodeURIComponent(userId) + '/links'
+    );
+    return result.data.links;
   }
 
   // Links CRUD
