@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, Send, Sparkles, Settings2 } from 'lucide-react';
+import { ArrowUpRight, Send, Sparkles, Settings2, ShieldCheck } from 'lucide-react';
 import type { AuthSession } from '../../types';
 import { useI18n } from '../../i18n/context';
 import { WORKSPACE_NAV, type TabType } from './workspaceNav';
@@ -8,6 +8,7 @@ import { BrandMark } from '../brand/BrandMark';
 
 interface StudioSidebarProps {
   session: AuthSession;
+  isAdmin?: boolean;
   currentTab: TabType;
   onTabChange: (tab: TabType) => void;
   onOpenShare: () => void;
@@ -16,6 +17,7 @@ interface StudioSidebarProps {
 /** Desktop-only navigation shell. The menu data and active state are shared with mobile. */
 export const StudioSidebar: React.FC<StudioSidebarProps> = ({
   session,
+  isAdmin = false,
   currentTab,
   onTabChange,
   onOpenShare,
@@ -86,6 +88,19 @@ export const StudioSidebar: React.FC<StudioSidebarProps> = ({
           </button>
         </nav>
       </section>
+
+      {isAdmin && <section className="sidebar4-shortcuts" aria-label={tx('Akses pengelola', 'Owner access')}>
+        <div className="sidebar4-tools-heading">{tx('PENGELOLA', 'ADMINISTRATION')}</div>
+        <nav className="sidebar4-shortcuts-list" aria-label={tx('Menu admin', 'Admin navigation')}>
+          <button type="button" data-nav-id="admin" className="sidebar4-account-entry sidebar4-settings"
+            aria-current={currentTab === 'admin' ? 'page' : undefined} onClick={() => onTabChange('admin')}>
+            <span className="sidebar4-share-icon"><ShieldCheck size={18} aria-hidden="true" /></span>
+            <span className="sidebar4-account-copy"><strong>{tx('Dashboard Admin', 'Admin Dashboard')}</strong>
+              <small>{tx('Pengguna & operasional', 'Users & operations')}</small></span>
+            <ArrowUpRight size={16} className="sidebar4-account-next" aria-hidden="true" />
+          </button>
+        </nav>
+      </section>}
     </aside>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight, Settings2 } from 'lucide-react';
+import { Scissors, Share2, Plus, LayoutList, Save, CheckCircle2, AlertCircle, LoaderCircle, ChevronRight, Settings2, ShieldCheck } from 'lucide-react';
 import { WORKSPACE_NAV } from './navigation/workspaceNav';
 import { WorkspaceNavButton } from './navigation/WorkspaceNavButton';
 import { StudioSidebar } from './navigation/StudioSidebar';
@@ -14,6 +14,7 @@ interface AppShellProps {
   currentTab: TabType;
   onTabChange: (tab: TabType) => void;
   session: AuthSession;
+  isAdmin?: boolean;
   onOpenShare: () => void;
   onOpenSaveAccount: () => void;
   onOpenAddLink: () => void;
@@ -100,6 +101,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   currentTab,
   onTabChange,
   session,
+  isAdmin = false,
   onOpenShare,
   onOpenSaveAccount,
   onOpenAddLink,
@@ -133,7 +135,7 @@ export const AppShell: React.FC<AppShellProps> = ({
 
           <div className="workspace-current panel3-page-crumb" aria-live="polite">
             <span className="panel3-crumb-overline">{tx('WORKSPACE', 'WORKSPACE')} <ChevronRight size={12} aria-hidden="true" /> {tx('PANEL KONTROL', 'CONTROL PANEL')}</span>
-            <strong>{currentTab === 'account' ? tx('Pengaturan', 'Settings') : activeNav ? tx(activeNav.labelId, activeNav.labelEn) : tx('Beranda', 'Home')}</strong>
+            <strong>{currentTab === 'account' ? tx('Pengaturan', 'Settings') : currentTab === 'admin' ? tx('Admin', 'Admin') : activeNav ? tx(activeNav.labelId, activeNav.labelEn) : tx('Beranda', 'Home')}</strong>
           </div>
 
           <div className="panel3-top-actions flex items-center gap-2 shrink-0">
@@ -179,6 +181,15 @@ export const AppShell: React.FC<AppShellProps> = ({
               </button>
             )}
 
+            {isAdmin && (
+              <button type="button" className="iconbtn panel3-admin-shortcut"
+                data-nav-id="admin" aria-label={tx('Dashboard Admin', 'Admin Dashboard')}
+                aria-current={currentTab === 'admin' ? 'page' : undefined}
+                onClick={() => navigate('admin')}>
+                <ShieldCheck size={18} strokeWidth={1.75} />
+              </button>
+            )}
+
             {/* Settings stays outside the four primary destinations on small screens. */}
             <button
               type="button"
@@ -208,6 +219,7 @@ export const AppShell: React.FC<AppShellProps> = ({
       <div className="workspace-frame panel3-frame">
         <StudioSidebar
           session={session}
+          isAdmin={isAdmin}
           currentTab={currentTab}
           onTabChange={navigate}
           onOpenShare={onOpenShare}

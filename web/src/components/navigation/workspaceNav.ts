@@ -11,5 +11,5 @@ export const WORKSPACE_NAV = [
   { id: 'stats', labelId: 'Statistik', labelEn: 'Stats', Icon: BarChart3 },
 ] as const;
 
-export type TabType = (typeof WORKSPACE_NAV)[number]['id'] | 'account';
+export type TabType = (typeof WORKSPACE_NAV)[number]['id'] | 'account' | 'admin';
 export type WorkspaceNavItem = (typeof WORKSPACE_NAV)[number];

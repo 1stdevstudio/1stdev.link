@@ -5,7 +5,7 @@ import type { TabType } from '../components/AppShell';
 export const getInitialTab = (): TabType => {
   const hash = window.location.hash.replace('#', '');
   if (hash === 'design' || hash === 'preview' || hash === 'content' || hash === 'profile') return 'profile';
-  if (hash === 'home' || hash === 'links' || hash === 'stats' || hash === 'account') return hash as TabType;
+  if (hash === 'home' || hash === 'links' || hash === 'stats' || hash === 'account' || hash === 'admin') return hash as TabType;
   return (localStorage.getItem('edgelink_tab') as TabType) || 'home';
 };
 
