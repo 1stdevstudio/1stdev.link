@@ -11,6 +11,7 @@ import { renderBioPage } from './bio.js';
 import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, mediaPrefix, isValidMediaKey, cleanupMediaIfDue } from './media.js';
 import { renderDocsHtml } from './docs.js';
 import { renderLegalPage } from './legalPages.js';
+import { expireGuestWorkspaces } from './guestCleanup.js';
 import { cachedPublicResponse, publicCacheControl, ASSET_CACHE, MEDIA_CACHE_POLICY, SEO_CACHE, SITEMAP_CACHE } from './publicCache.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
@@ -1656,4 +1657,12 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
   });
 });
 
-export default app;
+// Keep Hono's fetch/request methods for browser and unit tests, while adding
+// a scheduled entrypoint for the daily free-tier-friendly guest cleanup.
+export default Object.assign(app, {
+  scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(expireGuestWorkspaces(env)
+      .then((result) => console.log('Guest cleanup run:', result))
+      .catch((err) => console.error('Guest cleanup cron failed:', err instanceof Error ? err.message : 'unknown error')));
+  },
+});
