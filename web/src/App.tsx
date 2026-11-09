@@ -16,6 +16,7 @@ import { LinksScreen } from './components/screens/LinksScreen';
 import { HomeScreen } from './components/screens/HomeScreen';
 import { StatsScreen } from './components/screens/StatsScreen';
 import { AccountScreen } from './components/screens/AccountScreen';
+import { AdminScreen } from './components/screens/AdminScreen';
 import { LivePhonePreview, THEME_STYLES } from './components/LivePhonePreview';
 import { Toast } from './components/Toast';
 import { LegalModal } from './components/LegalModal';
@@ -52,6 +53,7 @@ export const App: React.FC = () => {
   const [session, setSession] = useState<AuthSession | null>(getCachedSession);
   const [loadingSession, setLoadingSession] = useState(needsSessionRestore);
   const [restoreError, setRestoreError] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const trustedRestoreRequired = useRef(needsSessionRestore());
   const [startingGuest, setStartingGuest] = useState(false);
 
@@ -90,6 +92,7 @@ export const App: React.FC = () => {
     profileWrites.current = new MutationQueue();
     linkWrites.current = new MutationQueue();
     setRestoreError(false);
+    setIsAdmin(false);
     sessionRef.current = next;
     setSession(next);
     if (reorderTimerRef.current) clearTimeout(reorderTimerRef.current);
@@ -105,6 +108,18 @@ export const App: React.FC = () => {
     setActiveSheet(null);
     setQrTarget(null);
   };
+
+  // Administrator role is never inferred from a client-provided email.
+  // The backend checks a durable membership row for this authenticated session.
+  useEffect(() => {
+    let active = true;
+    setIsAdmin(false);
+    if (session && !session.is_guest && session.id !== 'usr_standby') {
+      api.isAdmin().then((allowed) => { if (active) setIsAdmin(allowed); })
+        .catch(() => { if (active) setIsAdmin(false); });
+    }
+    return () => { active = false; };
+  }, [session?.id, session?.api_key, session?.is_guest]);
 
   // Sheet Controls
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
@@ -509,6 +524,7 @@ export const App: React.FC = () => {
         currentTab={currentTab}
         onTabChange={handleTabChange}
         session={session}
+        isAdmin={isAdmin}
         onOpenShare={() => setActiveSheet('share')}
         onOpenSaveAccount={() => setActiveSheet('save_account')}
         onOpenAddLink={() => {
@@ -582,6 +598,10 @@ export const App: React.FC = () => {
         )}
 
         {currentTab === 'stats' && <StatsScreen links={links} onOpenAddLink={() => { setAddLinkDefaultBlock('link'); setActiveSheet('add_link'); }} />}
+
+        {currentTab === 'admin' && (isAdmin
+          ? <AdminScreen session={session} />
+          : <div role="status" className="card">{tx('Memeriksa akses admin atau akun tidak memiliki izin.', 'Checking administrator access or account is not authorized.')}</div>)}
 
         {currentTab === 'account' && (
           <AccountScreen

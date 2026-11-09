@@ -12,6 +12,7 @@ import { AVATAR_MAX_BYTES, MEDIA_MAX_BYTES, sniffImage, contentHash, mediaPrefix
 import { renderDocsHtml } from './docs.js';
 import { renderLegalPage } from './legalPages.js';
 import { expireGuestWorkspaces } from './guestCleanup.js';
+import { installAdminRoutes } from './admin.js';
 import { cachedPublicResponse, publicCacheControl, ASSET_CACHE, MEDIA_CACHE_POLICY, SEO_CACHE, SITEMAP_CACHE } from './publicCache.js';
 import { renderRobotsTxt, renderSitemapXml, SITEMAP_PROFILES_SQL, isLikelyBot, type SitemapProfileRow } from './seo.js';
 
@@ -21,7 +22,7 @@ const app = new Hono<{ Bindings: Env; Variables: { user?: User } }>();
 app.use('/api/*', cors({
   origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Admin-Session'],
 }));
 
 // 0. Pindah domain: 1stdev.link adalah domain utama.
@@ -1656,6 +1657,9 @@ app.put('/api/bio-profile', apiAuthMiddleware, async (c) => {
     }
   });
 });
+
+// Administrator-only routes use a role record and fresh email OTP step-up.
+installAdminRoutes(app, authenticateUser);
 
 // Keep Hono's fetch/request methods for browser and unit tests, while adding
 // a scheduled entrypoint for the daily free-tier-friendly guest cleanup.

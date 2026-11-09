@@ -112,3 +112,10 @@ CREATE TABLE IF NOT EXISTS guest_cleanup_jobs (
   created_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_guest_cleanup_jobs_created ON guest_cleanup_jobs(created_at);
+
+-- Only existing, non-guest accounts can hold administrator roles.
+CREATE TABLE IF NOT EXISTS admin_memberships (
+  user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'owner' CHECK (role IN ('owner', 'admin')),
+  granted_at INTEGER NOT NULL DEFAULT (unixepoch())
+);
