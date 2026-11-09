@@ -34,6 +34,7 @@ export class MockKV {
 export class MockD1 {
   public tables = {
     auth_challenges: [] as any[],
+    admin_memberships: [] as any[],
     rate_limits: [] as any[],
     users: [] as any[],
     bio_profiles: [] as any[],
@@ -195,6 +196,9 @@ export class MockD1 {
   }
 
   private executeSelect(query: string, params: any[]) {
+    if (query.includes('FROM admin_memberships WHERE user_id = ?')) {
+      return { results: this.tables.admin_memberships.filter((r) => r.user_id === params[0]) };
+    }
     if (query.startsWith('INSERT INTO rate_limits')) {
       const [key_hash, reset_at, now, , , limit] = params;
       let row = this.tables.rate_limits.find((r) => r.key_hash === key_hash);
