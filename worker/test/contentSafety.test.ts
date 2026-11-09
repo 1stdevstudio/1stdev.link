@@ -103,6 +103,31 @@ describe('XSS and anti-abuse regression tests', () => {
     assert.match(response.headers.get('permissions-policy')||'',/geolocation=\(\)/);
   });
 
+  test('mutation rate limiting fails closed when the D1 rate counter is unavailable', async () => {
+    const previous = db.prepare.bind(db);
+    db.prepare = (sql: string) => {
+      if (sql.includes('INSERT INTO rate_limits')) throw new Error('private rate limiter error');
+      return previous(sql);
+    };
+    const profile = await api('/api/bio-profile', { display_name: 'Updated' }, 'PUT');
+    assert.equal(profile.status, 503);
+    const link = await api('/api/links/a', { title: 'Updated' }, 'PATCH');
+    assert.equal(link.status, 503);
+    assert.doesNotMatch(await profile.text(), /private rate limiter error/);
+    assert.equal(db.tables.bio_profiles[0].display_name, 'Creator');
+  });
+
+  test('visitor-supplied X-Forwarded-For cannot evade guest creation limit', async () => {
+    for (let i = 0; i < 6; i++) {
+      const res = await app.fetch(new Request('https://1stdev.link/api/auth/guest', {
+        method: 'POST', headers: { 'X-Forwarded-For': 'fake-' + i + '.example' }
+      }), env);
+      assert.equal(res.status, i < 5 ? 201 : 429, 'request ' + i);
+    }
+    assert.equal(db.tables.bio_profiles.length, 6);
+    assert.equal(db.tables.users.length, 6);
+  });
+
   test('guest registration generates long IDs and creates user/profile together', async () => {
     const res = await app.fetch(new Request('https://1stdev.link/api/auth/guest',{ method:'POST' }),env);
     assert.equal(res.status,201);
