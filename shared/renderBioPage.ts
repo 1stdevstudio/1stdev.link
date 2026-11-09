@@ -5,13 +5,23 @@ import { escapeHtml, renderBioSeoHead } from './publicSeo.js';
 
 import { THEME_STYLES, readObject, socialLinks } from './bio.js';
 const THEME_PRESETS = Object.fromEntries(Object.entries(THEME_STYLES).map(([id, t]) => [id, { bg: t.bg, text: t.text, muted: t.subtext, accent: t.featBg }]));
+// Never trust cached or legacy style JSON when interpolating into SSR HTML/CSS.
+const allowStyleValue = (value: unknown, options: readonly string[], fallback: string): string =>
+  typeof value === 'string' && options.includes(value) ? value : fallback;
+const safeMediaUrl = (input: unknown): string => {
+  if (typeof input !== 'string' || input.length > 2048 || /[\r\n"'<>\\]/.test(input)) return '';
+  try {
+    const url = new URL(input);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? escapeHtml(input) : '';
+  } catch { return ''; }
+};
 
 export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: string = '', acceptLanguage: string = ''): string {
   const business = readBusiness(profile.business_json);
   const name = escapeHtml(profile.display_name || '1stdev.link User');
   const handle = escapeHtml(profile.handle || 'user');
   const bio = profile.bio ? escapeHtml(profile.bio) : '';
-  const avatar = profile.avatar_url ? escapeHtml(profile.avatar_url) : '';
+  const avatar = safeMediaUrl(profile.avatar_url);
   const isVerified = Boolean(profile.verified_badge);
 
   const style = readObject(profile.style);
@@ -20,16 +30,16 @@ export function renderBioPage(profile: BioProfile, links: Link[], baseUrl: strin
   const preset = THEME_PRESETS[profile.theme || ''] || THEME_PRESETS['1stnear'];
   const accent = (style.accent && /^#[0-9a-fA-F]{3,8}$/.test(style.accent)) ? style.accent : preset.accent;
   const font = style.font || 'modern';
-  const btn = style.btn || 'soft';
+  const btn = allowStyleValue(style.btn, ['soft', 'solid', 'glass', 'outline', 'shadow'], 'soft');
   const radius = typeof style.radius === 'number' ? Math.max(0, Math.min(32, style.radius)) : 8;
   const gap = typeof style.gap === 'number' ? Math.max(0, Math.min(32, style.gap)) : 12;
   const enter = style.enter || 'none';
-  const hover = style.hover || 'none';
+  const hover = allowStyleValue(style.hover, ['none', 'lift', 'glow', 'press'], 'none');
   const bgfx: string[] = Array.isArray(style.bgfx) ? style.bgfx : [];
-  const coverUrl = style.cover_url ? escapeHtml(style.cover_url) : '';
-  const avatarShape = profile.avatar_shape || style.av_shape || 'circle';
+  const coverUrl = safeMediaUrl(style.cover_url);
+  const avatarShape = allowStyleValue(profile.avatar_shape || style.av_shape, ['circle', 'squircle', 'rounded'], 'circle');
   const avatarRing = Boolean(style.ring);
-  const bgImage = style.bg_image ? escapeHtml(style.bg_image) : '';
+  const bgImage = safeMediaUrl(style.bg_image);
   const bgBlur = typeof style.bg_blur === 'number' ? Math.max(0, Math.min(30, style.bg_blur)) : 0;
   const bgDim = typeof style.bg_dim === 'number' ? Math.max(0, Math.min(90, style.bg_dim)) : 0;
 

@@ -119,6 +119,7 @@ export interface AdminUserRow {
   created_at: number;
   updated_at: number;
   links_count: number;
+  suspicious_profile?: boolean;
 }
 export interface AdminUserPage {
   users: AdminUserRow[];

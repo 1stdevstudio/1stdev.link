@@ -190,6 +190,7 @@ export const AdminScreen: React.FC<Props> = ({ session }) => {
                 <strong>{user.display_name || '@' + (user.handle || 'creator')}</strong>
                 <small>@{user.handle || '—'} · {user.email_masked || tx('Akun tamu', 'Guest')} · {fmt(user.links_count)} link</small>
               </span>
+              {user.suspicious_profile && <span className="admin-tag guest" title={tx('Nama mengandung markup HTML yang perlu diperiksa', 'Name contains HTML markup requiring review')}>{tx('Tinjau', 'Review')}</span>}
               <span className={'admin-tag' + (user.is_guest ? ' guest' : '')}>{user.is_guest ? tx('Tamu', 'Guest') : tx('Aktif', 'Verified')}</span>
               <ChevronRight size={16} style={{ color:'#809689', flexShrink:0 }} aria-hidden="true"/>
             </button>
