@@ -10,6 +10,10 @@ routes = [
   { pattern = "link.1stnear.com", custom_domain = true },
 ]
 
+[triggers]
+# Runs at 10:30 Asia/Jakarta (cron schedules are UTC).
+crons = ["30 3 * * *"]
+
 [vars]
 ENVIRONMENT = "production"
 BASE_URL = "https://1stdev.link"

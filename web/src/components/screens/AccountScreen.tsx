@@ -18,7 +18,7 @@ import { useConfirm } from '../ConfirmDialog';
 const TX = {
   id: {
     title: 'Pengaturan Akun & Profil', unsaved: 'Belum disimpan', saved: 'Tersimpan', save: 'Simpan akun',
-    unsavedD: 'Simpan dengan email agar profil dan link tidak hilang saat ganti HP.', guest: 'Tamu',
+    unsavedD: 'Akun tamu yang belum diklaim akan dibersihkan setelah 7 hari. Simpan dengan email agar profil dan link tetap aman.', guest: 'Tamu',
     done: 'Kelengkapan profil', secProfile: 'Profil & halaman', secDev: 'Perangkat & keamanan', secPref: 'Preferensi', secMore: 'Lainnya',
     editProfile: 'Informasi profil', editProfileD: 'Nama, foto, bio, dan alamat profil', move: 'Pindah perangkat', moveD: 'Scan QR atau pakai kode', lang: 'Bahasa', design: 'Tampilan halaman',
     designD: 'Tema, foto profil, cover, dan latar', dev: 'Developer', devD: 'API key dan dokumentasi', langD: 'Ikut pengaturan perangkat', key: 'API key', copy: 'Salin', copied: 'Disalin',
@@ -28,7 +28,7 @@ const TX = {
   },
   en: {
     title: 'Account & Profile Settings', unsaved: 'Not saved', saved: 'Saved', save: 'Save account',
-    unsavedD: 'Save with your email so your profile and links survive a phone change.', guest: 'Guest',
+    unsavedD: 'Unclaimed guest accounts expire after 7 days. Save with your email to keep your profile and links.', guest: 'Guest',
     done: 'Profile completeness', secProfile: 'Profile & page', secDev: 'Devices & security', secPref: 'Preferences', secMore: 'More',
     editProfile: 'Profile information', editProfileD: 'Name, photo, bio, and profile URL', move: 'Move to another device', moveD: 'Scan a QR or use a code', lang: 'Language', design: 'Page appearance',
     designD: 'Theme, profile photo, cover, and background', dev: 'Developer', devD: 'API key and docs', langD: 'Follows your device settings', key: 'API key', copy: 'Copy', copied: 'Copied',

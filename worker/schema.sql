@@ -97,3 +97,18 @@ WHEN (SELECT COUNT(*) FROM links WHERE user_id = NEW.user_id) >= 100
 BEGIN
     SELECT RAISE(ABORT, 'QUOTA_EXCEEDED: Maximum 100 links per user');
 END;
+
+-- Guest expiration with a migration-time 7-day grace period for existing guests.
+CREATE TABLE IF NOT EXISTS guest_expiration_policy (
+  id TEXT PRIMARY KEY CHECK (id = 'guest'),
+  enabled_at INTEGER NOT NULL
+);
+INSERT OR IGNORE INTO guest_expiration_policy (id, enabled_at) VALUES ('guest', unixepoch());
+CREATE TABLE IF NOT EXISTS guest_cleanup_jobs (
+  user_id TEXT PRIMARY KEY,
+  handle TEXT,
+  slugs_json TEXT NOT NULL DEFAULT '[]',
+  kv_done INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_guest_cleanup_jobs_created ON guest_cleanup_jobs(created_at);
